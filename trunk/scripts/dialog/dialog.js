@@ -1,8 +1,8 @@
 ﻿/*
   provide simple pop-up modal dialog 
-  $Date$
-  $Rev$
-  $Author$
+  $Date: $
+  $Rev: $
+  $Author: $
   
   dependencies:
     - dialog.css  (default classes referred below)
