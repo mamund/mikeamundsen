@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<!--
+	$Date$
+	$Rev$
+	$Author$
+-->
+<head>
+    <title>dialog sample</title>
+		<style type="text/css">
+			@import "http://mikeamundsen.googlecode.com/svn/trunk/scripts/dialog/dialog.css";
+		</style>
+    <script type="text/javascript" src="http://mikeamundsen.googlecode.com/svn/trunk/scripts/dialog/dialog.js"></script>
+
+    <script type="text/javascript">
+    
+        var pg = 
+        {
+            init:function()
+            {
+                // set up dialog divs
+                var b = document.getElementById('dialog');
+                md.addEvent(b,'click',pg.showSimple,false);
+                var c = document.getElementById('close');
+                md.addEvent(c,'click',pg.hideSimple,false);
+
+                var f = document.getElementById('form');
+                md.addEvent(f,'click',pg.showForm,false);
+                var s = document.getElementById('send');
+                md.addEvent(s,'click',pg.hideForm,false);
+            },
+            
+            showSimple:function()
+            {
+                md.show('simple',null,'pg.sampleEvent(cssName)');
+            },
+            
+            hideSimple:function()
+            {
+                md.hide('simple');
+            },
+            
+            sampleEvent:function(cssName)
+            {
+                alert('the default css is: '+cssName);
+            },
+            
+            showForm:function()
+            {
+                md.show('input_form');
+            },
+            
+            hideForm:function()
+            {
+                md.hide('input_form',null,'pg.formResults()');
+            },
+            
+            formResults:function()
+            {
+                var nm = document.getElementById('name');
+                var sz = document.getElementById('size');
+                alert('RESULTS:\n\n'+nm.value+'\n'+sz.value);                
+            }
+        }
+        
+        md.addEvent(window,'load',pg.init,false);
+    </script>
+</head>
+<body>
+<h1>dialog sample</h1>
+<input type="button" id="dialog" value="open dialog" />
+<p>
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+</p>
+<input type="button" id="form" value="open form" />
+<p>
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+</p>
+<p>
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+this page has lots of text and other interesting stuff.
+</p>
+
+<!-- in-page dialogs start here -->
+<div id="simple" class="md_popup">
+      <p>Content you want the user to see goes here.</p>
+      <p><input type="button" id="close" value="close dialog" /></p>
+</div>
+
+<div id="input_form" class="md_popup" style="padding:0;">
+    <div style="text-align:left;background-color:lightblue;padding:1em;font-family:monospace">
+		<h3>data entry</h3>
+        <form method="get" action="#">
+        <label>name...:</label> 
+        <input id="name" value="yourname" name="name" /><br />
+        <label>addr...: </label>
+        <input id=Text1 value="123 main" name="name" /><br />
+        <label>city...: </label>
+        <input id=Text2 value="my town" name="name" size="10"/><br />
+        <label>zip....: </label>
+        <input id=Text3 value="1C2-4R" name="name" size="5"/><br />
+        <label>size...:</label>
+        <select id="size" name="size">
+            <option value="small">small</option>
+            <option value="medium">medium</option>
+            <option value="large">large</option>
+        </select><br />
+        <input type="button" id="send" value="send" />
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
