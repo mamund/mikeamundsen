@@ -19,7 +19,7 @@ body
      height:100%;
      text-align:center;
      z-index: 1000;
-     background-image:url(dialogbg.png);
+     background-image:url(http://mikeamundsen.googlecode.com/svn/trunk/scripts/dialog/dialogbg.png);
 }   
 
 #md_overlay div.md_dialog 
