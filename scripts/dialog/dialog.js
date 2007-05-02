@@ -2,15 +2,20 @@
 	provide simple pop-up modal dialog 
 	version 1.0
 	2007-05-01 (mca)
+	
+	dependencies:
+		- dialog.css	(default classes referred below)
+		- dialog.png 	(transparent overlay)
 */
 
 var md = 
 {
-    ovl:null,
+    ovl:				null,
     dialogCss:  'md_dialog',
     popupCss:   'md_popup',
     overlayCss: 'md_overlay',
-    
+
+		// initialize the library    
     init:function()
     {
         // set up overlay div on the document
@@ -19,54 +24,70 @@ var md =
         document.body.appendChild(md.ovl);
     },
     
+    // show a modal dialog
     show:function(elementId,className,eventRef)
     {
-        var cssName=md.dialogCss;
-        if(className)
-            cssName=className;
-            
-        var elm = document.getElementById(elementId);
-        if(elm)
-        {
-            if(eventRef)
-                eval(eventRef);
-                
-            md.cssjs('remove',elm,md.popupCss);
-            md.cssjs('add',elm,cssName);
-
-            md.ovl.appendChild(elm);
-            
-            md.toggleDialog();
-        }
-	    md.cancelClick(e);    
-    },
-    
-    hide:function(elementId,className,eventRef)
-    {
+    		// handle default class, if needed
         var cssName=md.dialogCss;
         if(className)
             cssName=className;
         
+        // try to get the dialog element    
         var elm = document.getElementById(elementId);
         if(elm)
         {
+        		// run event script, if passed
+            if(eventRef)
+                eval(eventRef);
+            
+            // switch the csss    
+            md.cssjs('remove',elm,md.popupCss);
+            md.cssjs('add',elm,cssName);
+
+						// add the element to the overlay 
+            md.ovl.appendChild(elm);
+            
+            // toggle the view to show the dialog
+            md.toggleDialog();
+        }
+        // cancel any internal events
+	    	md.cancelClick(e);    
+    },
+    
+    // hide the modal dialog
+    hide:function(elementId,className,eventRef)
+    {
+    		// handle the default class, if needed
+        var cssName=md.dialogCss;
+        if(className)
+            cssName=className;
+        
+        // get the element to hide
+        var elm = document.getElementById(elementId);
+        if(elm)
+        {
+        		// run any script, if passed
             if(eventRef)
                 eval(eventRef);
                 
+            // switch the css
             md.cssjs('remove',elm,cssName);
             md.cssjs('add',elm,md.popupCss);
 
+						// toggle the view to hide the dialog
             md.toggleDialog();
         }    
-	    md.cancelClick(e);    
+        // cancel any internal events
+	    	md.cancelClick(e);    
     },
     
+    // handle toggling the dialog on/off
     toggleDialog:function()
     {
         md.ovl.style.visibility = (md.ovl.style.visibility == "visible") ? "hidden" : "visible";
     },
     
-	/* helper methods */
+	/* helper methods (from chris heilmann http://wait-till-i-come.com */
 	getTarget:function(e){
 		var target = window.event ? window.event.srcElement : e ? e.target : null;
 		if (!target){return false;}
@@ -118,6 +139,7 @@ var md =
 		}
 	}
 }
+// register the entire script for the onload event
 md.addEvent(window, 'load', md.init, false);
 
 
