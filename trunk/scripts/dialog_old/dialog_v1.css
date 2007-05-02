@@ -1,0 +1,39 @@
+﻿/*
+	provide simple pop-up modal dialog 
+	$Date$
+	$Rev$
+	$Author$
+*/
+body 
+{
+     height:100%;
+     margin:0;
+     padding:0;
+}
+#md_overlay 
+{
+     visibility: hidden;
+     position: absolute;
+     left: 0px;
+     top: 0px;
+     width:100%;
+     height:100%;
+     text-align:center;
+     z-index: 1000;
+     background-image:url(http://mikeamundsen.googlecode.com/svn/trunk/scripts/dialog/dialogbg.png);
+}   
+
+#md_overlay div.md_dialog 
+{
+     width:300px;
+     margin: 100px auto;
+     background-color: #fff;
+     border:outset medium;
+     padding:15px;
+     text-align:center;
+}   
+
+div.md_popup
+{
+    display:none;
+}
