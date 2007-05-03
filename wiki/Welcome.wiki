@@ -1,0 +1,5 @@
+#summary welcome to the mikeamundsen code wiki
+
+= welcome =
+
+this code space hosts my various small projects.
