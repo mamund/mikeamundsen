@@ -1,0 +1,28 @@
+﻿/* suggest.css */
+
+#suggest_display
+{
+	position:absolute;
+}
+#suggest_display div.suggest_link
+{
+	background-color:#fff;
+	padding: 2px 6px;
+}
+#suggest_display div.suggest_over
+{
+	background-color:#ccc;
+	padding: 2px 6px;
+}
+#suggest_display.suggest_hide
+{
+    display:none;
+}
+#suggest_display.suggest_show
+{
+    display:block;
+	background-color:#fff;
+	text-align:left;
+	border: 1px solid #000;
+}
+			

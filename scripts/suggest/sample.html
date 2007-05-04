@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<title>suggest sample</title>
+		<link type="text/css" href="suggest.css" rel="stylesheet" />
+		<script type="text/javascript" src="suggest.js"></script>
+		<script type="text/javascript">
+			
+			// fire it off at load time
+			window.onload = function()
+			{
+				suggest.init('txt_search','suggest_display','sample.aspx?search={@search}');
+			}
+			
+		</script>
+	</head>
+	<body>
+		<h1>suggest sample</h1>
+		<input type="button" id="btn_search" value="Submit" /><br />
+		<input type="text" id="txt_search" autocomplete="off" /><br />
+		<div id="suggest_display" />
+	</body>
+</html>
