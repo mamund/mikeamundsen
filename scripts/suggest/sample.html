@@ -6,20 +6,20 @@
         depends on suggest.css
         also needs server-side script (suggest.aspx)
         
-	    	$Date:$
-	    	$Rev:$
-	    	$Author:$
+	    	$Date$
+	    	$Rev$
+	    	$Author$
     -->
 	<head>
 		<title>suggest sample</title>
-		<link type="text/css" href="suggest.css" rel="stylesheet" />
-		<script type="text/javascript" src="suggest.js"></script>
+		<link type="text/css" href="http://mikeamundsen.googlecode.com/svn/trunk/scripts/suggest/suggest.css" rel="stylesheet" />
+		<script type="text/javascript" src="http://mikeamundsen.googlecode.com/svn/trunk/scripts/suggest/suggest.js"></script>
 		<script type="text/javascript">
 			
 			// fire it off at load time
 			window.onload = function()
 			{
-				suggest.init('txt_search','suggest_display','sample.aspx?search={@search}');
+				suggest.init('txt_search','suggest_display','sample.txt?search={@search}');
 			}
 			
 		</script>
