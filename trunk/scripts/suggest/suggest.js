@@ -1,5 +1,11 @@
 /* 
     ajax suggest library
+    depends on suggest.css
+    
+	$Date:$
+	$Rev:$
+	$Author:$
+
     TODO:
     - better positioning of the list div (xy co-ords reltive to input)
     - support for arrow up/down (like mouse rollovers)
