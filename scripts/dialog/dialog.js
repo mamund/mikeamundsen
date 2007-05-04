@@ -1,14 +1,3 @@
-﻿/*
-  provide simple pop-up modal dialog 
-  $Date$
-  $Rev$
-  $Author$
-  
-  dependencies:
-    - dialog.css  (default classes referred below)
-    - dialog.png  (transparent overlay)
-*/
-
 var md = 
 {
     ovl:        null,
@@ -30,16 +19,22 @@ var md =
     {
         // handle default class, if needed
         var cssName=md.dialogCss;
-        if(className)
-            cssName=className;
+        if(className!==null && className!==undefined)
+        {
+            	cssName=className;
+        }
         
         // try to get the dialog element    
         var elm = document.getElementById(elementId);
         if(elm)
         {
             // run event script, if passed
-            if(eventRef)
+            
+            if(eventRef!==null)
+            {
                 eval(eventRef);
+            }
+            
             
             // switch the csss    
             md.cssjs('remove',elm,md.popupCss);
@@ -52,7 +47,7 @@ var md =
             md.toggleDialog();
         }
         // cancel any internal events
-        md.cancelClick(e);    
+        md.cancelClick();    
     },
     
     // hide the modal dialog
@@ -60,16 +55,22 @@ var md =
     {
         // handle the default class, if needed
         var cssName=md.dialogCss;
-        if(className)
+        if(className!==null && className!==undefined)
+        {
             cssName=className;
+        }
         
         // get the element to hide
         var elm = document.getElementById(elementId);
         if(elm)
         {
             // run any script, if passed
-            if(eventRef)
+            
+            if(eventRef!==null)
+            {
                 eval(eventRef);
+            }
+            
                 
             // switch the css
             md.cssjs('remove',elm,cssName);
@@ -79,7 +80,7 @@ var md =
             md.toggleDialog();
         }    
         // cancel any internal events
-        md.cancelClick(e);    
+        md.cancelClick();    
     },
     
     // handle toggling the dialog on/off
@@ -111,12 +112,13 @@ var md =
     }
   },
   addEvent: function(elm, evType, fn, useCapture){
+  	var r;
     if (elm.addEventListener) 
     {
       elm.addEventListener(evType, fn, useCapture);
       return true;
     } else if (elm.attachEvent) {
-      var r = elm.attachEvent('on' + evType, fn);
+      r = elm.attachEvent('on' + evType, fn);
       return r;
     } else {
       elm['on' + evType] = fn;
@@ -135,11 +137,11 @@ var md =
         o.className=o.className.replace(rep,'');
       break;
       case 'check':
-        return new RegExp("(^|\\s)" + c1 + "(\\s|$)").test(o.className)
-      break;
+        return new RegExp("(^|\\s)" + c1 + "(\\s|$)").test(o.className);
+      //break;
     }
   }
-}
+};
 // register the entire script for the onload event
 md.addEvent(window, 'load', md.init, false);
 
