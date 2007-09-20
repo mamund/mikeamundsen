@@ -1,3 +1,4 @@
+// context window - (c)2007 mike amundsen
 
 var cw={width:300,height:200,elm:'',show:function(id,elm,right,horiz,vert,width,height)
 {if(cw.elm==elm&&document.getElementById(id).style.display=='block')
