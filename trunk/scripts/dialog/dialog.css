@@ -30,7 +30,7 @@ body
 .md_overlay_bgImage
 {	
 	/* For other browsers than IE6< */
-	background-image:url('dialog.png');
+	background-image:url('http://mikeamundsen.googlecode.com/svn/trunk/scripts/dialog/dialog.png');
 }
 
 #md_overlay_bgColor	/* Ie6 */
