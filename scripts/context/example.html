@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<!--
+	context pop-up window (c)2007 mike amundsen
+	
+	$Date$
+	$Rev$
+	$Author$
+-->	
+<head>
+    <title>context window</title>
+    <link href="http://mikeamundsen.googlecode.com/svn/trunk/scripts/context/context.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="http://mikeamundsen.googlecode.com/svn/trunk/scripts/context/context-p.js"></script>
+    <style type="text/css">
+    
+    	/* local styles */
+    	.region1
+    	{
+    		width:300px;
+    		border: solid black 2px; 
+    		padding: 6px; 
+    		font-size: large;
+    	}	
+    	
+    	.region2
+    	{
+				margin-left:600px;
+				width:200px;
+				border: solid black 2px;
+				background-color:Teal; 
+				padding: 6px; 
+				font-size: large;
+    	}
+    	
+    </style>
+</head>
+<body>
+    <h1>context popup windows</h1>
+    <p>
+    this is some text
+    this is some text
+    this is some text
+    this is some text
+    this is some text
+    this is some text
+    </p>
+
+    <!-- The context-sensitive regions... -->
+    <div class="region1" onmouseover="cw.show('win1', this);" onmouseout="cw.hide('win1');">
+        Hover over this block to see the context window 
+    </div>
+
+    <p>context windows appear when you set the focus of the input controls.</p>
+    <form action="#" method="get">
+        username:<input type="text" onfocus="cw.show('inp01',this,null,null,null,200,50);" onblur="cw.hide('inp01');" /><br />
+        password:<input type="password" onfocus="cw.show('inp02',this,null,null,null,200,50);" onblur="cw.hide('inp02');" /><br />
+        <input type="button" value="login" onfocus="cw.show('inp03',this,null,null,null,200,50);" onblur="cw.hide('inp03');" />
+    </form>
+    
+    <div class="region2" onclick="cw.show('win2', this,false);" onblur="cw.hide('win2');">
+        Click here to view the <code>context-file.html</code>. 
+        Click anywhere else on the screen to close the popup. 
+    </div>
+
+    <!-- contxt windows follow  -->
+    <div id="win1" class="cw">
+        <h2>testing</h2>
+        <p>
+            this is some text this is some text this is some text this is some text this is
+            some text this is some text this is some text this is some text this is some text
+            this is some text this is some text this is some text
+        </p>
+    </div>
+    
+    <div id="win2" class="cw">
+        <iframe frameborder="0" height="100%" src="http://mikeamundsen.googlecode.com/svn/trunk/scripts/context/context-file.html"></iframe>
+    </div>
+    
+    <div id="inp01" class="cw">
+        enter your user name here.
+    </div>
+    
+    <div id="inp02" class="cw">
+        enter your password name here.
+    </div>
+    
+    <div id="inp03" class="cw">
+        press login to submit your credentials.
+    </div>
+</body>
+</html>
