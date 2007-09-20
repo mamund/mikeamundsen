@@ -1,4 +1,4 @@
-﻿/*
+/*
 	$Date$
 	$Rev$
 	$Author$
@@ -13,6 +13,8 @@ var md =
     
     init:function()
     {
+    	  var inner;
+    	  
 	      // set up overlay div on the document
 	      md.ovl = document.createElement('div');
 	      md.ovl.id = md.overlayCss;
@@ -24,7 +26,7 @@ var md =
 		
 				if(this.isMSIE && this.isOldMSIE)
 				{
-		       	var inner = document.createElement('div');
+		       	inner = document.createElement('div');
 		       	md.ovl.appendChild(inner);
 		       	inner.id = 'md_overlay_bgColor';
 				}
@@ -38,13 +40,17 @@ var md =
     {
         var cssName=md.dialogCss;
         if(className)
-            cssName=className;
+        {
+        	cssName=className;
+        }
             
         var elm = document.getElementById(elementId);
         if(elm)
         {
             if(eventRef)
+            {
                 eval(eventRef);
+            }
                 
             md.cssjs('remove',elm,md.popupCss);
             md.cssjs('add',elm,cssName);
@@ -60,13 +66,17 @@ var md =
     {
         var cssName=md.dialogCss;
         if(className)
-            cssName=className;
+        {
+        	cssName=className;
+        }
         
         var elm = document.getElementById(elementId);
         if(elm)
         {
             if(eventRef)
+          	{
                 eval(eventRef);
+            }
                 
             md.cssjs('remove',elm,cssName);
             md.cssjs('add',elm,md.popupCss);

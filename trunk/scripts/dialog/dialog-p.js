@@ -1,19 +1,22 @@
-// modal dialog - (c)2007 mike amundsen
 
 var md={ovl:null,dialogCss:'md_dialog',popupCss:'md_popup',overlayCss:'md_overlay',init:function()
-{md.ovl=document.createElement('div');md.ovl.id=md.overlayCss;document.body.appendChild(md.ovl);this.navigatorVersion=navigator.appVersion.replace(/.*?MSIE\s(\d\.\d).*/g,'$1')/1;this.isMSIE=(navigator.userAgent.toLowerCase().indexOf('msie')>=0&&navigator.userAgent.toLowerCase().indexOf('opera')<0)?true:false;this.isOldMSIE=(this.isMSIE&&this.navigatorVersion<7)?true:false;if(this.isMSIE&&this.isOldMSIE)
-{var inner=document.createElement('div');md.ovl.appendChild(inner);inner.id='md_overlay_bgColor';}
+{var inner;md.ovl=document.createElement('div');md.ovl.id=md.overlayCss;document.body.appendChild(md.ovl);this.navigatorVersion=navigator.appVersion.replace(/.*?MSIE\s(\d\.\d).*/g,'$1')/1;this.isMSIE=(navigator.userAgent.toLowerCase().indexOf('msie')>=0&&navigator.userAgent.toLowerCase().indexOf('opera')<0)?true:false;this.isOldMSIE=(this.isMSIE&&this.navigatorVersion<7)?true:false;if(this.isMSIE&&this.isOldMSIE)
+{inner=document.createElement('div');md.ovl.appendChild(inner);inner.id='md_overlay_bgColor';}
 else
 {md.ovl.className='md_overlay_bgImage';}},show:function(elementId,className,eventRef)
 {var cssName=md.dialogCss;if(className)
-cssName=className;var elm=document.getElementById(elementId);if(elm)
+{cssName=className;}
+var elm=document.getElementById(elementId);if(elm)
 {if(eventRef)
-eval(eventRef);md.cssjs('remove',elm,md.popupCss);md.cssjs('add',elm,cssName);md.ovl.appendChild(elm);md.toggleDialog();}
+{eval(eventRef);}
+md.cssjs('remove',elm,md.popupCss);md.cssjs('add',elm,cssName);md.ovl.appendChild(elm);md.toggleDialog();}
 md.cancelClick();},hide:function(elementId,className,eventRef)
 {var cssName=md.dialogCss;if(className)
-cssName=className;var elm=document.getElementById(elementId);if(elm)
+{cssName=className;}
+var elm=document.getElementById(elementId);if(elm)
 {if(eventRef)
-eval(eventRef);md.cssjs('remove',elm,cssName);md.cssjs('add',elm,md.popupCss);md.toggleDialog();}
+{eval(eventRef);}
+md.cssjs('remove',elm,cssName);md.cssjs('add',elm,md.popupCss);md.toggleDialog();}
 md.cancelClick();},toggleDialog:function()
 {md.ovl.style.visibility=(md.ovl.style.visibility=="visible")?"hidden":"visible";},getTarget:function(e){var target=window.event?window.event.srcElement:e?e.target:null;if(!target){return false;}
 while(!target.tohide&&target.nodeName.toLowerCase()!='body')
