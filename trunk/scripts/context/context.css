@@ -1,0 +1,23 @@
+﻿/*
+	context pop-up window (c)2007 mike amundsen
+	
+	$Date$
+	$Rev$
+	$Author$
+*/
+
+.cw
+{
+		/* hide it all kinda ways */
+    top: -999px;
+    left: -999px;
+    z-index: 999;
+    position: absolute;
+    display: none;
+    visibility: hidden;
+
+		/* set display style */
+    background-color:silver;
+    border: dashed 1px black;
+    padding:.2em;
+}
