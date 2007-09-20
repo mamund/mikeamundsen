@@ -1,7 +1,7 @@
 ﻿/*
-	provide simple pop-up modal dialog 
-	version 1.0
-	2007-05-01 (mca)
+	$Date$
+	$Rev$
+	$Author$
 */
 
 var md = 
