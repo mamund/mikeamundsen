@@ -6,6 +6,7 @@
 	$Author:	$
 */
 
+
 var cw =
 {
     width:300,
