@@ -1,6 +1,5 @@
 /*
 	context pop-up window (c)2007 mike amundsen
-	
 	$Date:	$
 	$Rev:	$
 	$Author:	$
