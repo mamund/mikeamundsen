@@ -1,7 +1,7 @@
-// modal dialog
-/* $Date: $ 
-   $Rev: $ 
-   $Author: $
+/*
+	$Date: 2007-09-19 22:04:52 -0400 (Wed, 19 Sep 2007) $
+	$Rev: 30 $
+	$Author: mikeamundsen $
 */
 
 var md={ovl:null,dialogCss:'md_dialog',popupCss:'md_popup',overlayCss:'md_overlay',init:function()
