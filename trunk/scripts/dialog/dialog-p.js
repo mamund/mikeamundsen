@@ -1,8 +1,4 @@
-/*
-	$Date: 2007-09-19 22:04:52 -0400 (Wed, 19 Sep 2007) $
-	$Rev: 30 $
-	$Author: mikeamundsen $
-*/
+// modal dialog - (c)2007 mike amundsen
 
 var md={ovl:null,dialogCss:'md_dialog',popupCss:'md_popup',overlayCss:'md_overlay',init:function()
 {var inner;md.ovl=document.createElement('div');md.ovl.id=md.overlayCss;document.body.appendChild(md.ovl);this.navigatorVersion=navigator.appVersion.replace(/.*?MSIE\s(\d\.\d).*/g,'$1')/1;this.isMSIE=(navigator.userAgent.toLowerCase().indexOf('msie')>=0&&navigator.userAgent.toLowerCase().indexOf('opera')<0)?true:false;this.isOldMSIE=(this.isMSIE&&this.navigatorVersion<7)?true:false;if(this.isMSIE&&this.isOldMSIE)
