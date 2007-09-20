@@ -1,15 +1,19 @@
 ﻿/*
-	provide simple pop-up modal dialog 
+  simple pop-up dialog w/ event support
+  
 	$Date$
 	$Rev$
 	$Author$
+
 */
+
 body 
 {
      height:100%;
      margin:0;
      padding:0;
 }
+
 #md_overlay 
 {
      visibility: hidden;
@@ -19,14 +23,34 @@ body
      width:100%;
      height:100%;
      text-align:center;
-     z-index: 1000;
-     background-image:url(http://mikeamundsen.googlecode.com/svn/trunk/scripts/dialog/dialogbg.png);
+     z-index: 900;
+     
 }   
+
+.md_overlay_bgImage
+{	
+	/* For other browsers than IE6< */
+	background-image:url('dialog.png');
+}
+
+#md_overlay_bgColor	/* Ie6 */
+{
+	background-color:#aaa;
+	opacity:0.5;
+	filter:alpha(opacity=50);
+	width:100%;
+	height:100%;
+	position:absolute;
+	left:0px;
+	top:0px;
+}
 
 #md_overlay div.md_dialog 
 {
+	 position:relative;
      width:300px;
-     margin: 100px auto;
+     top:100px;
+     margin: 0 auto;
      background-color: #fff;
      border:outset medium;
      padding:15px;
