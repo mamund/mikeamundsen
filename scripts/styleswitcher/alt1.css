@@ -5,10 +5,12 @@ body
 	background:green;
 	font:black;
 	font-family:Time Roman;
+	margin:0;
+	padding:5px;
 }
 
 #styleblock
 {
-	width:800;
+	width:800px;
 	float:left;
 }
