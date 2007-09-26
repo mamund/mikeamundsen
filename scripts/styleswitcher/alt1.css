@@ -1,0 +1,14 @@
+/* alt1.css */
+
+body
+{
+	background:green;
+	font:black;
+	font-family:Time Roman;
+}
+
+#styleblock
+{
+	width:800;
+	float:left;
+}

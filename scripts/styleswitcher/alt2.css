@@ -1,0 +1,23 @@
+/* alt2.css */
+
+body
+{
+	background:black;
+	color:white;
+	font-family:georgia;
+}
+
+.styleblock
+{
+	border: medium white outset;
+	padding: 5px;
+	width:250;
+	float:left;
+	margin: 5px;
+}
+
+.styleblock img
+{
+	float:left;
+	margin: 7px;
+}
