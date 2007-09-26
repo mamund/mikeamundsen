@@ -1,0 +1,205 @@
+<html>
+<head>
+	<link href="main.css" rel="stylesheet" type="text/css" title="default" media="screen" />
+	<link href="main2.css" rel="stylesheet" type="text/css" title="default" media="screen" />
+	<link href="alt1.css" rel="alternate stylesheet" type="text/css" title="alt1" media="screen" />
+	<link href="alt2.css" rel="alternate stylesheet" type="text/css" title="alt2" media="screen" />
+</head>
+<body>
+<h1>style switcher</h1>
+<p>
+	<select id="styles" onchange="ss.selectStyle(this.value);">
+		<option value="default">Default</option>
+		<option value="alt1">Alternate1</option>
+		<option value="alt2">Alternate2</option>
+	</select>
+	<input type="button" value="Remember" onclick="ss.saveStyle();" />
+	<input type="button" value="Clear" onclick="clearSelection();" />
+</p>
+<div class="styleblock">
+<h3>12 Angry Men</h3>
+<img src="image.jpg" />
+<p>
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+</p>
+</div>
+<div class="styleblock">
+<h3>12 Angry Men</h3>
+<img src="image.jpg" />
+<p>
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+</p>
+</div>
+<div class="styleblock">
+<h3>12 Angry Men</h3>
+<img src="image.jpg" />
+<p>
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+</p>
+</div>
+<div class="styleblock">
+<h3>12 Angry Men</h3>
+<img src="image.jpg" />
+<p>
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+</p>
+</div>
+<div class="styleblock">
+<h3>12 Angry Men</h3>
+<img src="image.jpg" />
+<p>
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+</p>
+</div>
+<div class="styleblock">
+<h3>12 Angry Men</h3>
+<img src="image.jpg" />
+<p>
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+</p>
+</div>
+<div class="styleblock">
+<h3>12 Angry Men</h3>
+<img src="image.jpg" />
+<p>
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+some text goes here.
+</p>
+</div>
+</body>
+
+<script type="text/javascript" src="style-switcher-p.js"></script>
+<script type="text/javascript">
+	
+	// clear select control
+	function clearSelection()
+	{
+		ss.forgetStyle();
+		
+		var elm = document.getElementById('styles');
+		if(elm)
+		{
+			cstyle = ss.getCurrentStyle();
+			if(cstyle && cstyle!=='undefined' && cstyle!=='')
+			{
+				elm.value = cstyle;
+			}
+			else
+			{
+				elm.value = 'main';
+			}
+		}
+	}	
+	
+	// execute when the page loads
+	window.onload = function()
+	{
+		var elm,cstyle;
+		
+		ss.recallStyle();
+
+		elm = document.getElementById('styles');
+		if(elm)
+		{
+			cstyle = ss.getCurrentStyle();
+			if(cstyle && cstyle!=='undefined' && cstyle!=='')
+			{
+				elm.value = cstyle;
+			}
+			else
+			{
+				elm.value = ss.defaultStyle;
+			}
+		}
+	};
+</script>
