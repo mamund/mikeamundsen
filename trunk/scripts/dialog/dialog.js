@@ -10,6 +10,8 @@ var md =
     dialogCss:  'md_dialog',
     popupCss:   'md_popup',
     overlayCss: 'md_overlay',
+    bgColorId:  'md_overlay_bgColor',
+    imgClass:   'md_overlay_bgImage',
     
     init:function()
     {
@@ -28,11 +30,13 @@ var md =
 				{
 		       	inner = document.createElement('div');
 		       	md.ovl.appendChild(inner);
-		       	inner.id = 'md_overlay_bgColor';
+		       	//inner.id = 'md_overlay_bgColor';
+		       	inner.id = md.bgColorId;
 				}
 				else
 				{
-						md.ovl.className = 'md_overlay_bgImage';
+						//md.ovl.className = 'md_overlay_bgImage';
+						md.ovl.className = md.imgClass;
 				}
     },
     
