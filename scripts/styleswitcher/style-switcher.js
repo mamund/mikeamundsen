@@ -1,6 +1,9 @@
 /* 
-	stylesheet switcher
-	2007-09-25 (mca)
+	simple stylesheet switcher
+
+	$Date$
+	$Rev$
+	$Author$
 */
 
 var ss =
