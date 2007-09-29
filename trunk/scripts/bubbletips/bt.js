@@ -9,8 +9,7 @@
  * BubbleTooltips converts simple 'title' attributes into buble-shapped pop-up tips.
  * Inspired by Alessandro Fulciniti - http://pro.html.it - http://web-graphics.com
  * @version 1.0.0
- * @author Mike Amundsen mamund@yahoo.com
- * 
+ * @author Mike Amundsen - mamund@yahoo.com
  */
 
 /**
