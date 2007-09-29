@@ -1,10 +1,11 @@
-// bubble tips (c)2007 mike amundsen
+// bubble tooltips
+// (c) 2007 mike amundsen mamund@yahoo.com
 
 function BubbleTips()
-{var that=this;this.opacity="90";this.cssHRef="bt.css";this.maxUrlLen=30;this.tipId="btc";this.cssTooltip="tooltip";this.cssTop="top";this.cssBottom="bottom";this.init=function(args)
+{var that=this;this.id=null;this.opacity=90;this.cssHRef="bt.css";this.maxUrlLen=30;this.tipId="btc";this.cssTooltip="tooltip";this.cssTop="top";this.cssBottom="bottom";this.init=function(args)
 {var links,i,h,defaults;if(!document.getElementById||!document.getElementsByTagName)
 {return;}
-defaults={id:null,opacity:that.opacity,cssHRef:that.cssHRef,maxUrlLen:that.maxUrlLen,tipId:that.tipId,cssTooltip:that.cssTooltip,cssTop:that.cssTop,cssBottom:that.cssBottom};args=handleArgs(args,defaults);this.cssHRef=args.cssHRef;this.maxUrlLen=args.maxUrlLen;this.opacity=args.opacity;if(args.id===null)
+var defaults={id:null,opacity:that.opacity,cssHRef:that.cssHRef,maxUrlLen:that.maxUrlLen,tipId:that.tipId,cssTooltip:that.cssTooltip,cssTop:that.cssTop,cssBottom:that.cssBottom};args=handleArgs(args,defaults);this.cssHRef=args.cssHRef;this.maxUrlLen=args.maxUrlLen;this.opacity=args.opacity;if(args.id===null)
 {links=document.getElementsByTagName("a");}
 else
 {links=document.getElementById(args.id).getElementsByTagName("a");}
