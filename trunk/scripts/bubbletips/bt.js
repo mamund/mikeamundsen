@@ -35,14 +35,14 @@ function BubbleTips()
 			// set defaults
 			defaults =
 			{
-			    'id':null,
-			    'opacity':that.opacity,
-			    'cssHRef':that.cssHRef,
-			    'maxUrlLen':that.maxUrlLen,
-			    'tipId':that.tipId,
-			    'cssTooltip':that.cssTooltip,
-			    'cssTop':that.cssTop,
-			    'cssBottom':that.cssBottom
+			    id:null,
+			    opacity:that.opacity,
+			    cssHRef:that.cssHRef,
+			    maxUrlLen:that.maxUrlLen,
+			    tipId:that.tipId,
+			    cssTooltip:that.cssTooltip,
+			    cssTop:that.cssTop,
+			    cssBottom:that.cssBottom
 			};
 			
 			// fill in any missing values
@@ -53,7 +53,7 @@ function BubbleTips()
 			this.maxUrlLen=args.maxUrlLen;
 			this.opacity=args.opacity;
 			
-			if(args.id==null)
+			if(args.id===null)
 			{
 			    links=document.getElementsByTagName("a");
 			}
@@ -83,7 +83,7 @@ function BubbleTips()
 		{
 		    document.getElementById(that.tipId).appendChild(this.tooltip);
 		    that.positionTooltip(e);
-		}
+		};
 		
 		this.hideTooltip = function(e)
 		{
@@ -93,13 +93,13 @@ function BubbleTips()
 		    {
 		        d.removeChild(d.firstChild);
 		    }
-		}
+		};
 		
 		this.positionTooltip = function(e)
 		{
 		    var posx=0,posy=0;
 		    
-		    if(e==null)
+		    if(e===null || typeof e=='undefined')
 		    {
 		        e=window.event;
 		    }
@@ -123,7 +123,7 @@ function BubbleTips()
 		    }
 		    document.getElementById(that.tipId).style.top=(posy+10)+"px";
 		    document.getElementById(that.tipId).style.left=(posx-20)+"px";
-		}
+		};
 
 		// private methods ***********************************************
 		var prepare = function(el)
@@ -132,7 +132,7 @@ function BubbleTips()
 		    
 		    t=el.getAttribute("title");
 		    
-		    if(t==null || t.length==0)
+		    if(t===null || t.length===0)
 		    {
 		        t="link:";
 		    }
@@ -158,7 +158,7 @@ function BubbleTips()
 		    el.onmouseover=that.showTooltip;
 		    el.onmouseout=that.hideTooltip;
 		    el.onmousemove=that.positionTooltip;
-		}
+		};
 
 		var addElement = function(t,c)
 		{
@@ -168,7 +168,7 @@ function BubbleTips()
 		    x.style.display="block";
 		    
 		    return(x);
-		}
+		};
 		
 		var addCssLink = function()
 		{
@@ -180,7 +180,7 @@ function BubbleTips()
 		    l.setAttribute("media","screen");
 		    
 		    document.getElementsByTagName("head")[0].appendChild(l);
-		}
+		};
 
 		var setOpacity = function(el)
 		{
@@ -188,11 +188,11 @@ function BubbleTips()
 		    el.style.KHTMLOpacity="0."+that.opacity;
 		    el.style.MozOpacity="0."+that.opacity;
 		    el.style.opacity="0."+that.opacity;
-		}
+		};
     
 		var handleArgs = function(args,defaults)
 		{
-		    if(args==null)
+		    if(args===null || typeof args === 'undefined')
 		    {
 		        args = defaults;
 		    }
@@ -209,5 +209,5 @@ function BubbleTips()
 		    
 		    return args;
 		};
-};
+}
 
