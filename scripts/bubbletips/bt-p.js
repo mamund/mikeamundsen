@@ -5,7 +5,7 @@ function BubbleTips()
 {var that=this;this.id=null;this.opacity=90;this.cssHRef="bt.css";this.maxUrlLen=30;this.tipId="btc";this.cssTooltip="tooltip";this.cssTop="top";this.cssBottom="bottom";this.init=function(args)
 {var coll,i,tt,defaults;if(!document.getElementById||!document.getElementsByTagName)
 {return;}
-var defaults={id:null,opacity:that.opacity,cssHRef:that.cssHRef,maxUrlLen:that.maxUrlLen,tipId:that.tipId,cssTooltip:that.cssTooltip,cssTop:that.cssTop,cssBottom:that.cssBottom};args=handleArgs(args,defaults);this.cssHRef=args.cssHRef;this.maxUrlLen=args.maxUrlLen;this.opacity=args.opacity;if(args.id===null)
+defaults={id:null,opacity:that.opacity,cssHRef:that.cssHRef,maxUrlLen:that.maxUrlLen,tipId:that.tipId,cssTooltip:that.cssTooltip,cssTop:that.cssTop,cssBottom:that.cssBottom};args=handleArgs(args,defaults);this.cssHRef=args.cssHRef;this.maxUrlLen=args.maxUrlLen;this.opacity=args.opacity;if(args.id===null)
 {coll=document.getElementsByTagName("a");}
 else
 {coll=document.getElementById(args.id).getElementsByTagName("a");}
@@ -30,7 +30,7 @@ el.removeAttribute("title");tooltip=addElement("span",that.cssTooltip);s=addElem
 {l=l.substr(0,that.maxUrlLen-3)+"...";}
 b.appendChild(document.createTextNode(l));tooltip.appendChild(b);setOpacity(tooltip);el.tooltip=tooltip;el.onmouseover=that.show;el.onmouseout=that.hide;el.onmousemove=that.position;};var addElement=function(t,c)
 {var x=document.createElement(t);x.className=c;x.style.display="block";return(x);};var addCssLink=function()
-{var l=addElement("link");l.setAttribute("href",that.cssHRef);l.setAttribute("type","text/css");l.setAttribute("rel","stylesheet");l.setAttribute("media","screen");document.getElementsByTagName("head")[0].appendChild(l);};var setOpacity=function(el)
+{var lk=addElement("link");lk.setAttribute("href",that.cssHRef);lk.setAttribute("type","text/css");lk.setAttribute("rel","stylesheet");lk.setAttribute("media","screen");document.getElementsByTagName("head")[0].appendChild(lk);};var setOpacity=function(el)
 {el.style.filter="alpha(opacity:"+that.opacity+")";el.style.KHTMLOpacity="0."+that.opacity;el.style.MozOpacity="0."+that.opacity;el.style.opacity="0."+that.opacity;};var handleArgs=function(args,defaults)
 {if(args===null||typeof args==='undefined')
 {args=defaults;}
