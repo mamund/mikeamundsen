@@ -1,6 +1,7 @@
 /* 
   bubble tooltips
-
+  inspired by bubbletips from angelo
+  
 	$Date: 2007-09-26 00:06:01 -0400 (Wed, 26 Sep 2007) $
 	$Rev: 57 $
 	$Author: mikeamundsen $
