@@ -62,7 +62,7 @@ function BubbleTips()
      */
     this.init = function(args)
     {
-        var links,i,h,defaults;
+        var coll,i,tt,defaults;
         
         // js must be off
         if(!document.getElementById || !document.getElementsByTagName)
@@ -92,27 +92,27 @@ function BubbleTips()
         
         if(args.id===null)
         {
-            links=document.getElementsByTagName("a");
+            coll=document.getElementsByTagName("a");
         }
         else
         {
-            links=document.getElementById(args.id).getElementsByTagName("a");
+            coll=document.getElementById(args.id).getElementsByTagName("a");
         }
         
         // add the css file link
         addCssLink();
         
         // create the tooltip element
-        h=document.createElement("span");
-        h.id=that.tipId;
-        h.setAttribute("id",that.tipId);
-        h.style.position="absolute";
-        document.getElementsByTagName("body")[0].appendChild(h);
+        tt=document.createElement("span");
+        tt.id=that.tipId;
+        tt.setAttribute("id",that.tipId);
+        tt.style.position="absolute";
+        document.getElementsByTagName("body")[0].appendChild(tt);
         
         // add tooltips as needed
-        for(i=0;i<links.length;i++)
+        for(i=0;i<coll.length;i++)
         {
-            prepare(links[i]);
+            convert(coll[i]);
         }
     };
 
@@ -121,10 +121,10 @@ function BubbleTips()
      * Called via events and not via user scripts.
      * @param e (object) optional event argument
      */ 
-    this.showTooltip = function(e)
+    this.show = function(e)
     {
         document.getElementById(that.tipId).appendChild(this.tooltip);
-        that.positionTooltip(e);
+        that.position(e);
     };
 
     /**
@@ -132,7 +132,7 @@ function BubbleTips()
      * Called via events and not via user scripts.
      * @param e (object) optional event argument
      */
-    this.hideTooltip = function(e)
+    this.hide = function(e)
     {
         var d=document.getElementById(that.tipId);
         
@@ -147,7 +147,7 @@ function BubbleTips()
      * Called via events and not via user scripts.
      * @param e (object) optional event argument
      */
-    this.positionTooltip = function(e)
+    this.position = function(e)
     {
         var posx=0,posy=0;
         
@@ -178,7 +178,7 @@ function BubbleTips()
     };
 
     // private methods ***********************************************
-    var prepare = function(el)
+    var convert = function(el)
     {
         var tooltip,t,b,s,l;
         
@@ -207,9 +207,9 @@ function BubbleTips()
         setOpacity(tooltip);
         
         el.tooltip=tooltip;
-        el.onmouseover=that.showTooltip;
-        el.onmouseout=that.hideTooltip;
-        el.onmousemove=that.positionTooltip;
+        el.onmouseover=that.show;
+        el.onmouseout=that.hide;
+        el.onmousemove=that.position;
     };
 
     var addElement = function(t,c)
