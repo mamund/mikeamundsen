@@ -7,6 +7,7 @@
 /**
  * @fileoverview
  * BubbleTooltips converts simple 'title' attributes into buble-shapped pop-up tips.
+ * Inspired by Alessandro Fulciniti - http://pro.html.it - http://web-graphics.com
  * @version 1.0.0
  * @author Mike Amundsen mamund@yahoo.com
  * 
@@ -70,7 +71,7 @@ function BubbleTips()
             return;
         }
             
-        var defaults =
+        defaults =
         {
             id:null,
             opacity:that.opacity,
@@ -224,14 +225,14 @@ function BubbleTips()
     
     var addCssLink = function()
     {
-        var l=addElement("link");
+        var lk=addElement("link");
         
-        l.setAttribute("href",that.cssHRef);
-        l.setAttribute("type","text/css");
-        l.setAttribute("rel","stylesheet");
-        l.setAttribute("media","screen");
+        lk.setAttribute("href",that.cssHRef);
+        lk.setAttribute("type","text/css");
+        lk.setAttribute("rel","stylesheet");
+        lk.setAttribute("media","screen");
         
-        document.getElementsByTagName("head")[0].appendChild(l);
+        document.getElementsByTagName("head")[0].appendChild(lk);
     };
 
     var setOpacity = function(el)
@@ -258,7 +259,6 @@ function BubbleTips()
                 }
             }
         }
-        
         return args;
     };
 }
