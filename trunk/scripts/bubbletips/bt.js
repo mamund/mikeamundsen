@@ -11,7 +11,7 @@ function BubbleTips()
 		// private 
 		var that = this;
 
-		// public properties
+		// public properties *********************************************
     this.opacity = "90";
     this.cssHRef = "bt.css";
     this.maxUrlLen = 30;
@@ -20,7 +20,7 @@ function BubbleTips()
     this.cssTop = "top";
     this.cssBottom = "bottom";
 		
-		// privileged
+		// privileged methods ********************************************
     this.init = function(args)
     {
 			var links,i,h,defaults;
@@ -124,7 +124,7 @@ function BubbleTips()
 		    document.getElementById(that.tipId).style.left=(posx-20)+"px";
 		}
 
-		// private methods
+		// private methods ***********************************************
 		var prepare = function(el)
 		{
 		    var tooltip,t,b,s,l;
