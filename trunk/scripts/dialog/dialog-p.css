@@ -1,0 +1,3 @@
+/* cssminify @ 10/4/2007 3:20:03 AM */
+/* (c) 2007 mike amundsen - mamund@yahoo.com */
+body{height:100%; margin:0; padding:0;} #md_overlay{visibility: hidden; position: absolute; left: 0px; top: 0px; width:100%; height:100%; text-align:center; z-index: 900; }  .md_overlay_bgImage{background-image:url('http://mikeamundsen.googlecode.com/svn/trunk/scripts/dialog/dialog.png');} #md_overlay_bgColor{background-color:#aaa;opacity:0.5;filter:alpha(opacity=50);width:100%;height:100%;position:absolute;left:0px;top:0px;} #md_overlay div.md_dialog{position:relative; width:300px; top:100px; margin: 0 auto; background-color: #fff; border:outset medium; padding:15px; text-align:center;}  div.md_popup{ display:none;} 
