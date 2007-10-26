@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!--
+	test for utiltiies class (c)2007 mike amundsen
+	
+	$Date$
+	$Rev$
+	$Author$
+-->	
+<html>
+<head>
+<script src="http://mikeamundsen.googlecode.com/svn/trunk/scripts/utilities/p-util.js" type="text/javascript"></script>
+</head>
+<body>
+<h1>utilities test</h1>
+<script type="text/javascript">
+    
+    document.write("if (a < b && b > c) {".entityify()+"<br />");
+    document.write("["+"     1234567890     ".trim()+"]<br />");
+    document.write("{name}'s favorite color is {color}. nice choice, {name}!<br />".supplant({name:'mike amundsen',color:'blue'}));
+    document.write("then i told him 'just forget about it!'".quote()+"<br />");
+
+    var util = new Utilities();
+    
+    var s;
+    var t = 13;
+    var u = '13';
+    var v = true;
+    var w = null;
+    var x = new Date();
+    var y = '1,2,3,4,5'.split(',');
+    var z = function(){return false;};
+
+    document.write('1. '+util.typeOf(s)+"<br />");
+    document.write('2. '+util.typeOf(t)+"<br />");
+    document.write('3. '+util.typeOf(u)+"<br />");
+    document.write('4. '+util.typeOf(v)+"<br />");
+    document.write('5. '+util.typeOf(w)+"<br />");
+    document.write('6. '+util.typeOf(x)+"<br />");
+    document.write('7. '+util.typeOf(y)+"<br />");
+    document.write('8. '+util.typeOf(z)+"<br />");
+    
+    function Dog(name)
+    {
+        this.name = (name!==undefined?name:'dog');
+    };
+    
+    function HungryDog(o)
+    {
+        var bo = o.begetObject();
+        
+        bo.eat = function()
+        {
+            alert('eating...');
+        }
+        
+        return bo;
+    };
+    
+    function TrainedDog(o)
+    {
+    		var bo = o.begetObject();
+    		
+    		bo.sit = function()
+    		{
+    				alert('sitting...');
+    		}
+    		
+    		return bo;
+    };
+    
+    var td = new TrainedDog(new HungryDog(new Dog('marvin')));
+    td.sit();
+    td.eat();
+    alert(td.name);
+    
+</script>
+</body>
+</html>
