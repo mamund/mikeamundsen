@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!--
+	fix varying height columns (c)2007 mike amundsen
+	
+	$Date$
+	$Rev$
+	$Author$
+-->	
+<html>
+  <head>
+    <title>Three-Column Adjusted</title>
+    <style type="text/css">
+
+      /*
+      * below is a simple three-column css layout
+      * this has nothing to do with the fixcolumn.js
+      * and is here as a harness for the component
+      */
+
+      body {
+        margin:0px;
+        padding:0px;
+      }
+
+      #container {
+        width: 1000px;
+        margin: auto;
+      }
+
+      #leftbar {
+        text-align:left;
+        float: left;
+        width: 200px;
+        background-color:green;
+      }
+
+      #content {
+        text-align:left;
+        float: left;
+        width: 600px;
+        background-color:yellow;
+      }
+
+      #rightbar {
+        text-align:left;
+        float: right;
+        width: 200px;
+        background-color:silver;
+      }
+
+      #header {
+        text-align:left;
+        background-color:red;
+      }
+
+      #footer {
+        text-align:left;
+        clear: both;
+        background-color:red;
+      }
+
+    </style>
+    <script type="text/javascript" src="http://mikeamundsen.googlecode.com/svn/trunk/scripts/fixcolumns/p-fixcolumns.js"></script>
+    <script type="text/javascript">
+
+      window.onload = fixColumns.init;
+
+    </script>
+  </head>
+  <body>
+    <div id="container" class="fx-container">
+
+      <div id="header" class="fx-header">
+        HEADER
+      </div>
+
+      <div id="leftbar" class="fx-column">
+        LEFT<br />
+        LEFT<br />
+        LEFT<br />
+        LEFT<br />
+        LEFT<br />
+      </div>
+
+      <div id="content" class="fx-column">
+        CONTENT<br />
+        CONTENT<br />
+      </div>
+
+      <div id="rightbar" class="fx-column">
+        RIGHT<br />
+        RIGHT<br />
+        RIGHT<br />
+        RIGHT<br />
+        RIGHT<br />
+        RIGHT<br />
+        RIGHT<br />
+      </div>
+
+      <div id="footer" class="fx-footer">
+        FOOTER
+      </div>
+
+    </div>
+
+  </body>
+</html>
