@@ -1,0 +1,24 @@
+SSDS-TASKS DEMO
+2008-06-24 (mca)
+http://amundsen.com/blog/
+
+Build Steps
+Load the Handler project and build as usual
+
+Install Steps
+- Create an application folder in IIS (/ssds-tasks/)
+- Place the Handler.dll in /ssds-tasks/bin/
+- Rename sample.Web.Config to Web.Config and place in /ssds-tasks/
+- Modify Web.Config to use your own SSDS user/password and authority
+- Be sure to create the "tasks" container before starting the project
+
+Running the Server App
+Once installed you should be able to browse to see the entity list here:
+http://localhost/ssds-tasks/tasks.ssds
+
+Any HTTP-aware command line tool (cUrl, wget, etc.) can be used to 
+add, edit, delete entities. I use WFetch.exe for Windows.
+
+Mike Amundsen
+
+
