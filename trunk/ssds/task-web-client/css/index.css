@@ -1,0 +1,74 @@
+/* 2008-06-23 (mca) : for tasklist SSDS demo */
+
+body
+{
+  padding:0;
+}
+
+#loading
+{
+  width:200px;
+  margin: 5em auto;
+  padding: 2em;
+  border: 3px outset #111;
+  color:black;
+  background-color:#e6e6e6;
+  text-align:center;
+}
+h1,h2,h3,h4
+{
+  margin-bottom:0;
+}
+#details,
+#details p
+{
+  margin:0 auto;
+}
+#details p.version
+{
+  font-style:italic;
+  font-size:smaller;
+}
+
+#list-view,
+#add-view,
+#edit-view
+{
+  width:760px;
+}
+fieldset legend
+{
+  color:black;
+  font-weight:bold;
+}
+fieldset p
+{
+  margin:.2em 0;
+  float:none;
+  clear:both;
+}
+fieldset p label
+{
+  display:block;
+  width:8em;
+  float:left;
+}
+fieldset.buttons
+{
+  padding:.3em;
+}
+p.buttons
+{
+  border:solid 1px #000;
+  background-color:#e6e6e6;
+  padding:.2em;
+}
+p.buttons input,
+p.buttons select
+{
+  font-size:x-small;
+}
+.hidden
+{
+  display:none;
+}
