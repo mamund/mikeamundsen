@@ -1,0 +1,5 @@
+C:\Projects\SSDS\TaskList\Handler\obj\Debug\ResolveAssemblyReference.cache
+C:\Projects\SSDS\TaskList\Handler\bin\Debug\Handler.dll
+C:\Projects\SSDS\TaskList\Handler\bin\Debug\Handler.pdb
+C:\Projects\SSDS\TaskList\Handler\obj\Debug\Handler.dll
+C:\Projects\SSDS\TaskList\Handler\obj\Debug\Handler.pdb
