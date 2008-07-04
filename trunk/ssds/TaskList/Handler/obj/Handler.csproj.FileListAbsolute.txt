@@ -3,3 +3,5 @@ C:\Projects\SSDS\TaskList\Handler\bin\Debug\Handler.dll
 C:\Projects\SSDS\TaskList\Handler\bin\Debug\Handler.pdb
 C:\Projects\SSDS\TaskList\Handler\obj\Debug\Handler.dll
 C:\Projects\SSDS\TaskList\Handler\obj\Debug\Handler.pdb
+C:\Projects\SSDS\TaskList\Handler\bin\Debug\Amundsen.Utilities.dll
+C:\Projects\SSDS\TaskList\Handler\bin\Debug\Amundsen.Utilities.pdb

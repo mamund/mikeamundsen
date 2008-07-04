@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>SSDS Provisioning Client</title>
+    <link href="css/provision.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div id="details">
+      <h1>SSDS Provisioning Client</h1>
+      <p class="version">version 1.0 (2008-06-27)</p>
+      <p>by <a href="http://amundsen.com/blog/" title="Mike Amundsen">Mike Amundsen</a></p>
+    </div>
+
+    <div id="login-block">
+      <h5 class="user-name"></h5>
+      <div id="login"><input type="button" id="commands-authenticateUser" title="Authenticate User" value="Login" class="inline-button"/></div>
+      <div id="logout"><input type="button" id="commands-logout" title="Logout User" value="Logout" class="inline-button"/></div>
+    </div>
+    <div id="commands" class="view">
+      <h2>Commands</h2>
+      <ul>
+        <li><a href="#" id="commands-createAuthority" title="Create SSDS Authority">Create SSDS Authority</a></li>
+        <li><a href="#" id="commands-manageContainers" title="Manage SSDS Containers">Manage SSDS Containers</a></li>
+      </ul>
+    </div>
+
+    <div id="authorityView" style="display:none;"  class="view">
+      <h2>Create Authority</h2>
+      <form id="authorityView-form" method="post" action="#">
+        <fieldset class="space">
+          <legend>Enter New Authority Name</legend>
+          <p class="inputs">
+            <label for="authority-name">Name</label>
+            <input type="text" id="authority-name" size="20" value="" />
+            <input type="submit" id="authorityView-submit" value="Submit" class="inline-button"/>
+            <input type="button" id="authorityView-back" value="Back" class="inline-button" />
+          </p>
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="containerFilter" style="display:none;"  class="view">
+      <h2>Manage Containers</h2>
+      <form id="containerFilter-form" method="post" action="#">
+        <fieldset class="space">
+          <legend>Enter Authority to View</legend>
+          <p class="inputs">
+            <label for="authority-select">Name</label>
+            <!--<select id="containerFilter-authority"></select>-->
+            <input type="text" id="containerFilter-authority" value="" />
+            <input type="submit" id="containerFilter-submit" value="Submit" class="inline-button"/>
+            <input type="button" id="containerFilter-back" value="Back" class="inline-button"/>
+          </p>
+        </fieldset>
+        <fieldset>
+          <legend>Notes</legend>
+          <p>
+            The current release of SSDS does not provide a list of Authorities for a given user account.
+            You must type in a valid SSDS Authority to which you have access.
+          </p>
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="containerList" style="display:none;"  class="view">
+      <h2>Manage Containers</h2>
+      <h3 class="authority-name"></h3>
+      <p class="buttons">
+        <input type="button" id="containerList-add" value="Add Container" />
+        <input type="button" id="containerList-back" value="Back" />
+      </p>
+      <fieldset>
+        <legend>Notes</legend>
+        <p>
+          Below is a list of all the Containers defined for the selected Authority.
+          You can add a new Container or click on a link to view the Entities for
+          and existing Container.
+        </p>
+      </fieldset>
+      <fieldset>
+        <legend>Existing Containers</legend>
+        <ol id="container-items"></ol>
+      </fieldset>
+    </div>
+
+    <div id="containerAdd" style="display:none;"  class="view">
+      <h2>Add New Container</h2>
+      <h3 class="authority-name"></h3>
+      <form id="containerAdd-form" method="post" action="#">
+        <fieldset class="space">
+          <legend>Enter New Container Name</legend>
+          <p class="inputs">
+            <label for="container-name">Name</label>
+            <input type="text" id="container-name" size="20" />
+            <input type="submit" id="containerAdd-submit" value="Submit" class="inline-button"/>
+            <input type="button" id="containerAdd-back" value="Back" class="inline-button"/>
+          </p>
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="entityList" style="display:none;"  class="view">
+      <h2>View Entities</h2>
+      <h3 class="authority-name"></h3>
+      <h4 class="container-name"></h4>
+      <p class="buttons">
+        <input type="button" id="entityList-add" value="Add Entity" />
+        <input type="button" id="entityList-delete" value="Delete Container" />
+        <input type="button" id="entityList-back" value="Back" />
+      </p>
+      <fieldset>
+        <legend>Notes</legend>
+        <p>
+          Below is a list (the first 500) of Entities for the selected Container.
+          Remember that deleting a Container will automatically <em>delete all the Entities</em>
+          stored there. This cannot be 'undone.'
+        </p>
+      </fieldset>
+      <fieldset>
+        <legend>Existing Entities</legend>
+        <ol id="entityList-items"></ol>
+      </fieldset>
+    </div>
+
+    <div id="entityItem" style="display:none;" class="view">
+      <h2>Entity Detail</h2>
+      <h3 class="authority-name"></h3>
+      <h4 class="container-name"></h4>
+      <p class="buttons">
+        <input type="button" id="entityItem-edit" value="Edit Entity" />
+        <input type="button" id="entityItem-delete" value="Delete Entity" />
+        <input type="button" id="entityItem-back" value="Back" />
+      </p>
+      <fieldset>
+        <legend>Existing Entity</legend>
+        <dl id="entityItem-fields"></dl>
+      </fieldset>
+    </div>
+
+    <div id="entityAdd" style="display:none;" class="view">
+      <h2>Add Entity</h2>
+      <h3 class="authority-name"></h3>
+      <h4 class="container-name"></h4>
+      <form id="entityAdd-form" method="post" action="#">
+        <p class="buttons">
+          <input type="submit" id="entityAdd-submit" value="Submit" />
+          <input type="button" id="entityAdd-back" value="Back" />
+        </p>
+        <fieldset>
+          <legend>Notes</legend>
+          <p>
+            Replace <code>{@kind}</code> with your object name. Use <code>$id$, $id-desc$, $guid$</code>, or your own
+            value for the <code>s:Id</code> element. Add flexible properties as needed.
+            Be sure to include the data type (<code>string, base64Binary, boolean, decimal, dateTime</code>)
+            for all flexible properties.
+          </p>
+        </fieldset>
+        <fieldset>
+          <legend>Enter Valid SSDS XML</legend>
+          <textarea id="entityAdd-xml" rows="14" cols="80"></textarea>
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="entityEdit" style="display:none;" class="view">
+      <h2>Edit Existing Entity</h2>
+      <h3 class="authority-name"></h3>
+      <h4 class="container-name"></h4>
+      <form id="entityEdit-form" method="post" action="#">
+        <p class="buttons">
+          <input type="button" id="entityEdit-update" value="Update" />
+          <input type="button" id="entityEdit-back" value="Back" />
+        </p>
+        <fieldset>
+          <legend>Notes</legend>
+          <p>
+            You can edit, add or remove flexible properties.
+            Be sure to include the data type (<code>string, base64Binary, boolean, decimal, dateTime</code>)
+            for all flexible properties.
+            Do not change the value of the <code>s:Id</code> element.
+          </p>
+        </fieldset>
+        <fieldset>
+          <legend>Enter Valid SSDS XML</legend>
+          <textarea id="entityEdit-xml" rows="14" cols="80"></textarea>
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="authenticateUser" style="display:none;"  class="view">
+      <h2>Authenticate User</h2>
+      <form id="authenticateUser-form" method="post" action="#">
+        <p class="buttons">
+          <input type="submit" id="authenticateUser-submit" value="Login" />
+          <input type="button" id="authenticateUser-back" value="Back" />
+        </p>
+        <fieldset>
+          <legend>Enter Your SSDS User and Password</legend>
+          <p class="inputs">
+            <label for="auth-name">User</label>
+            <input type="text" id="auth-name" size="20" value="" />
+          </p>
+          <p class="inputs">
+            <label for="auth-password">Password</label>
+            <input type="password" id="auth-pass" size="20" value="" />
+          </p>
+        </fieldset>
+        <fieldset>
+          <legend>Read this before you log in</legend>
+          <p>
+            This Web application requires you to enter your SSDS username and password in order
+            to access your data on the remote SSDS servers. The username and password are encrypted
+            <em>here on the client</em> and then sent to the Web server via a cookie. The username and
+            password are then decypted into memory on the Web server and are finally sent (via HTTPS)
+            to the remote SSDS server.
+          </p>
+          <p>
+            Although it is not likely, it is <em>possible</em> for someone to 'sniff' the traffic between
+            your client and the target server at this moment to intercept the encrypted username and password.
+            Also, while I give you my promise that the server code is not storing your username and password,
+            it could be done.
+          </p>
+          <p>
+            If you are not comfortable with these circumstances, <em>do not</em> enter your SSDS username
+            and password into this screen.
+          </p>
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="loading" style="display:none;">
+      <h2>loading...</h2>
+      <img src="images/loading.gif" alt="working..."/>
+    </div>
+
+  </body>
+  <script type="text/javascript" src="scripts/ajax.js"></script>
+  <script type="text/javascript" src="scripts/mozxpath.js"></script>
+  <script type="text/javascript" src="scripts/base64.js"></script>
+  <script type="text/javascript" src="scripts/cookies.js"></script>
+  <script type="text/javascript" src="scripts/provision.js"></script>
+</html>

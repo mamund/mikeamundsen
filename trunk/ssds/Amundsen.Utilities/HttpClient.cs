@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Text;
-
+using System.Globalization;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net;
@@ -11,27 +11,85 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace amundsen.ssds
+namespace Amundsen.Utilities
 {
-  public class HTTPClient
+  /// <summary>
+  /// Public Domain 2008 amundsen.com, inc.
+  /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.0 (2008-07-03)
+  /// </summary>
+  public class HttpClient
   {
-    // public properties
-    public WebHeaderCollection RequestHeaders = new WebHeaderCollection();
-    public WebHeaderCollection ResponseHeaders = new WebHeaderCollection();
-    public CookieContainer CookieCollection = new CookieContainer();
-    public HttpStatusCode ResponseStatusCode = HttpStatusCode.OK;
-    public string ResponseDescription = string.Empty;
-    public DateTime ResponseLastModified = System.DateTime.MaxValue;
-    public NetworkCredential Credentials = new NetworkCredential();
-    public long ResponseLength = 0;
-    public string UserAgent = string.Empty;
+    // properties
+    private WebHeaderCollection _RequestHeaders = new WebHeaderCollection();
+    public WebHeaderCollection RequestHeaders
+    {
+      get { return _RequestHeaders; }
+      set { _RequestHeaders = value; }
+    }
 
-    public HTTPClient() { }
-    public HTTPClient(NetworkCredential credentials)
+    private WebHeaderCollection _ResponseHeaders = new WebHeaderCollection();
+    public WebHeaderCollection ResponseHeaders
+    {
+      get { return _ResponseHeaders; }
+      set { _ResponseHeaders = value; }
+    }
+
+    private CookieContainer _CookieCollection = new CookieContainer();
+    public CookieContainer CookieCollection
+    {
+      get { return _CookieCollection; }
+      set { _CookieCollection = value; }
+    }
+
+    private HttpStatusCode _ResponseStatusCode = HttpStatusCode.OK;
+    public HttpStatusCode ResponseStatusCode
+    {
+      get { return _ResponseStatusCode; }
+      set { _ResponseStatusCode = value; }
+    }
+
+    private string _ResponseDescription = string.Empty;
+    public string ResponseDescription
+    {
+      get { return _ResponseDescription; }
+      set { _ResponseDescription = value; }
+    }
+
+    private DateTime _ResponseLastModified = System.DateTime.MaxValue;
+    public DateTime ResponseLastModified
+    {
+      get { return _ResponseLastModified; }
+      set { _ResponseLastModified = value; }
+    }
+
+    private NetworkCredential _Credentials = new NetworkCredential();
+    public NetworkCredential Credentials
+    {
+      get { return _Credentials; }
+      set { _Credentials = value; }
+    }
+
+    private long _ResponseLength;
+    public long ResponseLength
+    {
+      get { return _ResponseLength; }
+      set { _ResponseLength = value; }
+    }
+    private string _UserAgent = string.Empty;
+
+    public string UserAgent
+    {
+      get { return _UserAgent; }
+      set { _UserAgent = value; }
+    }
+
+    public HttpClient() { }
+    public HttpClient(NetworkCredential credentials)
     {
       this.Credentials = credentials;
     }
-    public HTTPClient(string user, string password)
+    public HttpClient(string user, string password)
     {
       this.Credentials = new NetworkCredential(user, password);
     }
@@ -59,13 +117,15 @@ namespace amundsen.ssds
         // build request object
         req = (HttpWebRequest)WebRequest.Create(url);
         req.UserAgent = (this.UserAgent.Length != 0 ? this.UserAgent : "amundsen-ssds/1.0");
-        req.Method = method.ToUpper();
+        req.Method = method.ToUpper(CultureInfo.CurrentCulture);
         req.ContentType = contentType;
         req.Accept = contentType;
         req.ContentLength = body.Length;
         req.PreAuthenticate = true;
-        if (this.Credentials.UserName != string.Empty)
+        if (this.Credentials.UserName.Length!=0)
+        {
           req.Credentials = this.Credentials;
+        }
 
         // set headers
         if (this.RequestHeaders != null)
@@ -75,13 +135,13 @@ namespace amundsen.ssds
             // some headers must be set as properties only
             string key = this.RequestHeaders.GetKey(i);
             string value = this.RequestHeaders[i];
-            switch (key.ToLower())
+            switch (key.ToLower(CultureInfo.CurrentCulture))
             {
               case "user-agent":
                 req.UserAgent = value;
                 break;
               case "if-modified-since":
-                req.IfModifiedSince = DateTime.Parse(value);
+                req.IfModifiedSince = DateTime.Parse(value,CultureInfo.CurrentCulture);
                 break;
               case "accept":
                 req.Accept = value;
@@ -104,7 +164,7 @@ namespace amundsen.ssds
           req.CookieContainer.SetCookies(new Uri(url), HttpContext.Current.Request.Headers["cookie"]);
 
         // set body
-        if (body != null && body.Trim() != string.Empty)
+        if (body != null && body.Trim().Length!=0)
         {
           using (StreamWriter sw = new StreamWriter(req.GetRequestStream()))
           {
@@ -163,7 +223,10 @@ namespace amundsen.ssds
           string code = string.Empty;
           HttpWebResponse wrsp = (HttpWebResponse)wex.Response;
 
-          // check for SSDS custom error msg
+          msg = wrsp.StatusDescription;
+          code = ((int)wrsp.StatusCode).ToString();
+
+          // hack to check for SSDS custom error msg (should be in the StatusDescription...)
           try
           {
             XmlNode node = null;
@@ -183,11 +246,11 @@ namespace amundsen.ssds
             }
             msg = msg + "[" + code + "]";
           }
-          catch (Exception zex)
+          catch (XmlException xex)
           {
-            msg = wrsp.StatusDescription;
+            throw new HttpException(Int32.Parse(code), msg);
           }
-          throw new HttpException((int)wrsp.StatusCode, msg);
+          throw new HttpException(Int32.Parse(code), msg);
         }
         else
         {
@@ -200,48 +263,4 @@ namespace amundsen.ssds
       }
     }
   }
-
-  // used to invalidate a collection of URIs
-  public class CollectionRequestor
-  {
-    public string[] Uri;
-    public CookieContainer CookieCollection = new CookieContainer();
-    public string defaultType;
-    public Hashtable UriTypeMap;
-    public bool NoCache = true;
-
-    public void Execute()
-    {
-      //Utility util = new Utility();
-      HTTPClient cl = new HTTPClient();
-      cl.UserAgent = "amundsen-ssds/1.0";
-
-      if (this.NoCache == true)
-      {
-        cl.RequestHeaders.Set("Cache-Control", "no-cache");
-      }
-      //cl.Credentials = util.GetSystemCredentials();
-      cl.CookieCollection = this.CookieCollection;
-
-      for (int i = 0; i < Uri.Length; i++)
-      {
-        string[] media = HttpContext.Current.Request.AcceptTypes;
-        if (media != null && media.Length != 0)
-        {
-          for (int j = 0; j < media.Length; j++)
-          {
-            cl.RequestHeaders.Set("Accept", media[j]);
-            try { cl.Execute(this.Uri[i], "head", media[j]); }
-            catch (Exception ex) { }
-          }
-        }
-        else
-        {
-          try { cl.Execute(this.Uri[i], "head"); }
-          catch (Exception ex) { }
-        }
-      }
-    }
-  }
-
 }

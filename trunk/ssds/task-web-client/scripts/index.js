@@ -3,7 +3,7 @@
 var pg =
 {
   id : '',
-  tasks_url : '/ssds-tasks/',
+  tasks_url : '/ssds/tasks/',
   taskXml :
     '<task \
     xmlns:s="http://schemas.microsoft.com/sitka/2008/03/" \
