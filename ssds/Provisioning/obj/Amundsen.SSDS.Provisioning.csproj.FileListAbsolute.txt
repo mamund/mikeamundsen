@@ -1,0 +1,7 @@
+C:\Projects\SSDS\Provisioning\bin\Debug\Amundsen.Utilities.dll
+C:\Projects\SSDS\Provisioning\bin\Debug\Amundsen.Utilities.pdb
+C:\Projects\SSDS\Provisioning\obj\Debug\ResolveAssemblyReference.cache
+C:\Projects\SSDS\Provisioning\bin\Debug\Amundsen.SSDS.Provisioning.dll
+C:\Projects\SSDS\Provisioning\bin\Debug\Amundsen.SSDS.Provisioning.pdb
+C:\Projects\SSDS\Provisioning\obj\Debug\Amundsen.SSDS.Provisioning.dll
+C:\Projects\SSDS\Provisioning\obj\Debug\Amundsen.SSDS.Provisioning.pdb
