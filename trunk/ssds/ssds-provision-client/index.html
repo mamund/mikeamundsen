@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+/* mike amundsen - http://amundsen.com/blog/ */
+/* 2008-06-27 (mca) : SSDS provisioning client */
+/* 2008-07-04 (mca) : fixed IE entity display bug */
+/* 2008-07-08 (mca) : added support for entity queries */
+-->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <title>SSDS Provisioning Client</title>
@@ -8,7 +14,7 @@
   <body>
     <div id="details">
       <h1>SSDS Provisioning Client</h1>
-      <p class="version">version 1.0 (2008-06-27)</p>
+      <p class="version">version 1.2 (2008-07-08)</p>
       <p>by <a href="http://amundsen.com/blog/" title="Mike Amundsen">Mike Amundsen</a></p>
     </div>
 
@@ -19,10 +25,21 @@
     </div>
     <div id="commands" class="view">
       <h2>Commands</h2>
-      <ul>
+      <ul class="commands">
         <li><a href="#" id="commands-createAuthority" title="Create SSDS Authority">Create SSDS Authority</a></li>
         <li><a href="#" id="commands-manageContainers" title="Manage SSDS Containers">Manage SSDS Containers</a></li>
       </ul>
+      <fieldset>
+        <legend>What's New</legend>
+        <dl class="whats-new">
+          <dt>1.2 - 2008-07-07</dt>
+          <dd>Added support for entity queries. Added login checking.</dd>
+          <dt>1.1 - 2008-07-04</dt>
+          <dd>Fixed Entity display bug for IE7. Improved input validation for Authorities and Containers.</dd>
+          <dt>1.0 - 2008-06-27</dt>
+          <dd>Initial release.</dd>
+        </dl>
+      </fieldset>
     </div>
 
     <div id="authorityView" style="display:none;"  class="view">
@@ -37,6 +54,13 @@
             <input type="button" id="authorityView-back" value="Back" class="inline-button" />
           </p>
         </fieldset>
+        <fieldset>
+          <legend>Notes</legend>
+          <p>
+            Authorities are the unit of geo-location and billing within SSDS. In the beta you can
+            create as many as you would like. When the service goes live, you will receive a bill per Authority.
+          </p>
+          </fieldset>
       </form>
     </div>
 
@@ -47,7 +71,6 @@
           <legend>Enter Authority to View</legend>
           <p class="inputs">
             <label for="authority-select">Name</label>
-            <!--<select id="containerFilter-authority"></select>-->
             <input type="text" id="containerFilter-authority" value="" />
             <input type="submit" id="containerFilter-submit" value="Submit" class="inline-button"/>
             <input type="button" id="containerFilter-back" value="Back" class="inline-button"/>
@@ -75,7 +98,7 @@
         <p>
           Below is a list of all the Containers defined for the selected Authority.
           You can add a new Container or click on a link to view the Entities for
-          and existing Container.
+          an existing Container.
         </p>
       </fieldset>
       <fieldset>
@@ -105,6 +128,8 @@
       <h3 class="authority-name"></h3>
       <h4 class="container-name"></h4>
       <p class="buttons">
+        <input type="button" id="entityList-query" value="Query" />
+        <input type="button" id="entityList-clear" value="All" />
         <input type="button" id="entityList-add" value="Add Entity" />
         <input type="button" id="entityList-delete" value="Delete Container" />
         <input type="button" id="entityList-back" value="Back" />
@@ -112,13 +137,18 @@
       <fieldset>
         <legend>Notes</legend>
         <p>
-          Below is a list (the first 500) of Entities for the selected Container.
-          Remember that deleting a Container will automatically <em>delete all the Entities</em>
+          Below is a list of the (first 500) Entities for the selected Container.
+          Press the <strong>Query</strong> button to filter the list.
+          Press the <strong>All</strong> button to clear any existing query.
+        </p>
+        <p>
+          Deleting a Container will automatically <em>delete all the Entities</em>
           stored there. This cannot be 'undone.'
         </p>
       </fieldset>
       <fieldset>
         <legend>Existing Entities</legend>
+        <code id="query-text"></code>
         <ol id="entityList-items"></ol>
       </fieldset>
     </div>
@@ -184,6 +214,44 @@
         <fieldset>
           <legend>Enter Valid SSDS XML</legend>
           <textarea id="entityEdit-xml" rows="14" cols="80"></textarea>
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="entityQuery" style="display:none;" class="view">
+      <h2>Entity Query</h2>
+      <h3 class="authority-name"></h3>
+      <h4 class="container-name"></h4>
+      <form id="entityQuery-form" method="get" action="#">
+        <p class="buttons">
+          <input type="submit" id="entityQuery-submit" value="Submit" />
+          <input type="button" id="entityQuery-back" value="Back" />
+        </p>
+        <fieldset>
+          <legend>Enter Entity Query</legend>
+          <textarea id="entityQuery-text" rows="7" cols="80"></textarea>
+        </fieldset>
+        <fieldset>
+          <legend>Notes</legend>
+          <p>Valid operators are:</p>
+          <dl class="operators">
+            <dt>Comparison</dt>
+            <dd><code>&gt;, &gt;=, &lt;, &lt;=, ==, !=</code></dd>
+            <dt>Logical</dt>
+            <dd><code>&amp;&amp; (and), || (or), ! (not)</code></dd>
+          </dl>
+          <p>
+            When querying metadata properties you use the '.' notation. In the following query,
+            the condition in the where clause references the Id metadata property. The query
+            retrieves a Flexible Entity with a specific Id value.<br />
+            <code>from e in entities where e.Id == "someId" select e</code>
+          <p>
+          <p>
+           The flexible properties are stored in the Properties collection of the entity.
+           When querying over these properties you specify the property name using Indexer syntax.
+           The following query retrieves all entities whose Age flexible property value is 32:<br />
+           <code>from e in entities where e["Age"] == 32 select e</code>
+          </p>
         </fieldset>
       </form>
     </div>

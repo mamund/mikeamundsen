@@ -107,28 +107,39 @@ namespace Amundsen.SSDS.Provisioning
       string container = string.Empty;
       string entity = string.Empty;
       string url = string.Empty;
+      string query = string.Empty;
 
       // get args
       authority = (ctx.Request.QueryString["authority"] != null ? ctx.Request.QueryString["authority"] : string.Empty);
-      if (authority.Length==0)
+      if (authority.Trim().Length==0)
       {
         throw new HttpException(400, "Missing Authority ID");
       }
 
       container = (ctx.Request.QueryString["container"] != null ? ctx.Request.QueryString["container"] : string.Empty);
-      if (container.Length == 0)
+      if (container.Trim().Length == 0)
       {
         throw new HttpException(400, "Missing Container ID");
       }
 
+      // look for passed query
+      query = (ctx.Request.QueryString["query"] != null ? ctx.Request.QueryString["query"] : string.Empty);
+
       entity = (ctx.Request.QueryString["entity"] != null ? ctx.Request.QueryString["entity"] : string.Empty);
-      if (entity.Length == 0)
+      if (entity.Trim().Length == 0)
       {
-        entity = Constants.QueryAll;
+        if (query.Trim().Length == 0)
+        {
+          entity = Constants.QueryAll;
+        }
+        else
+        {
+          entity = string.Format("?q='{0}'", query.Trim());
+        }
       }
       else
       {
-        entity = "/" + entity;
+        entity = "/" + entity.Trim();
       }
 
       // handle query

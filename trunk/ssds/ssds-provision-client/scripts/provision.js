@@ -1,4 +1,7 @@
+/* mike amundsen - http://amundsen.com/blog/ */
 /* 2008-06-23 (mca) for SSDS provisioning client */
+/* 2008-07-04 (mca) : fixed IE entity display bug */
+/* 2008-07-08 (mca) : added support for entity queries */
 
 var pg =
 {
@@ -6,6 +9,7 @@ var pg =
   authority : '',
   container : '',
   entity : '',
+  query : '',
 
   authority_add_url : '/ssds/authority/',
   authority_add_xml : '<authority>{@authority}</authority>',
@@ -14,6 +18,8 @@ var pg =
   container_delete_url : '/ssds/container/{@authority}/{@container}',
   container_add_url : '/ssds/container/{@authority}/',
   container_add_xml : '<container>{@container}</container>',
+
+  entity_query_url : '/ssds/entity/{@authority}/{@container}/%20/{@query}',
 
   entity_list_url : '/ssds/container/{@authority}/{@container}',
   entity_item_url : '/ssds/entity/{@authority}/{@container}/{@entity}',
@@ -29,50 +35,44 @@ var pg =
     pg.authority = pg.getAuthorityArg();
     pg.container = pg.getContainerArg();
     pg.entity = pg.getEntityArg();
+    pg.query = pg.getQueryArg();
 
     pg.attachEvents();
     pg.toggleUser();
     pg.updateUI();
+    pg.selectView();
+  },
 
-    pg.loadAuthorities();
-
+  selectView:function()
+  {
+    // entity view
     if(pg.authority!='' && pg.container!='' && pg.entity!='')
     {
       pg.showEntityItem();
+      return;
+    }
+    // query view
+    if(pg.authority!='' && pg.container!='' && pg.query!='')
+    {
+      pg.entityQueryExecute();
+      return;
+    }
+    // entity list
+    if(pg.authority!='' && pg.container!='')
+    {
+      pg.showEntityList();
+      return;
+    }
+    // container list or command view
+    if(pg.authority!='')
+    {
+      pg.showContainerList();
+      return;
     }
     else
     {
-      if(pg.authority!='' && pg.container!='')
-      {
-        pg.showEntityList();
-      }
-      else
-      {
-        if(pg.authority!='')
-        {
-          pg.showContainerList();
-        }
-        else
-        {
-          pg.toggleView('commands');
-        }
-      }
-    }
-  },
-
-  loadAuthorities:function()
-  {
-    var elm,i;
-
-    elm = document.getElementById('containerFilter-authority');
-    if(elm && (elm.tagName.toLowerCase()=='select'))
-    {
-      elm.options.length=0;
-      elm.options[0] = new Option('--Select--','');
-      for(i=0;i<pg.authority_list.length;i++)
-      {
-        elm.options[i+1] = new Option(pg.authority_list[i],pg.authority_list[i]);
-      }
+      pg.toggleView('commands');
+      return;
     }
   },
 
@@ -110,11 +110,18 @@ var pg =
   showAuthorityView:function()
   {
     var elm;
-    elm = document.getElementById('authority-name')
-    pg.toggleView('authorityView');
-    elm.value='';
-    elm.focus();
 
+    if(cookies.read('x-form-authorization')===null)
+    {
+      alert('You must login first.');
+    }
+    else
+    {
+      elm = document.getElementById('authority-name')
+      pg.toggleView('authorityView');
+      elm.value='';
+      elm.focus();
+    }
     return false;
   },
 
@@ -126,9 +133,16 @@ var pg =
     if(elm && elm.value!='')
     {
       name = elm.value.replace(/\s/g,'-').toLowerCase();
-      url = pg.authority_add_url;
-      data = pg.authority_add_xml.replace('{@authority}',name);
-      ajax.httpPost(url,null,pg.onAjaxComplete,true,'addAuthority','application/xml',data);
+      if (name.match(/^[0-9a-z]+$/i))
+      {
+        url = pg.authority_add_url;
+        data = pg.authority_add_xml.replace('{@authority}',name);
+        ajax.httpPost(url,null,pg.onAjaxComplete,true,'addAuthority','application/xml',data);
+      }
+      else
+      {
+        alert('Invalid authority name.\nUse a-z and 0-9');
+      }
     }
     return false;
   },
@@ -142,15 +156,21 @@ var pg =
   {
     var elm;
 
-    elm = document.getElementById('containerFilter-authority');
-    if(pg.authority!='')
+    if(cookies.read('x-form-authorization')==null)
     {
-      elm.value = pg.authority;
+      alert('You must login first.')
     }
+    else
+    {
+      elm = document.getElementById('containerFilter-authority');
+      if(pg.authority!='')
+      {
+        elm.value = pg.authority;
+      }
 
-    pg.toggleView('containerFilter');
-    elm.focus();
-
+      pg.toggleView('containerFilter');
+      elm.focus();
+    }
     return false;
   },
 
@@ -208,7 +228,7 @@ var pg =
     if(elm && elm.value!='')
     {
       name = elm.value.replace(/\s/g,'-').toLowerCase();
-      if (name.match(/^[a-z\-]+$/i))
+      if (name.match(/^[0-9a-z\-]+$/i))
       {
         url = pg.container_add_url.replace('{@authority}',pg.authority);
         data = pg.container_add_xml.replace('{@container}',name);
@@ -235,6 +255,30 @@ var pg =
     pg.toggleView('loading');
     url = pg.entity_list_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container);
     ajax.httpGet(url,null,pg.onAjaxComplete,true,'getEntityList',{'content-type':'application/xml'});
+  },
+
+  entityListQuery:function()
+  {
+    var elm;
+    elm = document.getElementById('entityQuery-text');
+    if(elm)
+    {
+      if(pg.query!='')
+      {
+        elm.value = unescape(pg.query);
+      }
+      else
+      {
+        elm.value='from e in entities where e.Id>"1" select e';
+      }
+    }
+    pg.toggleView('entityQuery');
+    elm.focus();
+  },
+
+  entityListClear:function()
+  {
+    location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container;
   },
 
   entityListAdd:function()
@@ -335,6 +379,30 @@ var pg =
     location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container+'&eid='+encodeURIComponent(pg.entity);
   },
 
+  entityQuerySubmit:function()
+  {
+    var elm,url,data;
+
+    elm = document.getElementById('entityQuery-text');
+    if(elm)
+    {
+      data = encodeURIComponent(elm.value);
+      location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container+'&qry='+data;
+    }
+    return false;
+  },
+
+  entityQueryBack:function()
+  {
+    location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container
+  },
+
+  entityQueryExecute:function()
+  {
+    var url = pg.entity_query_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container).replace('{@query}',encodeURIComponent(pg.query));
+    ajax.httpGet(url,null,pg.onAjaxComplete,true,'queryEntity',{'content-type':'application/xml'});
+  },
+
   onAjaxComplete : function(response,headers,context,status,msg)
   {
     switch(status)
@@ -370,6 +438,7 @@ var pg =
       case 'getContainerList':
         pg.processGetContainerList(response,headers);
         break;
+      case "queryEntity":
       case 'getEntityList':
         pg.processGetEntityList(response,headers);
         break;
@@ -423,7 +492,7 @@ var pg =
 
   processGetEntityList:function(response,headers)
   {
-    var list,xml,a,li,i,id,kind;
+    var list,xml,a,li,i,id,kind,elm;
 
     list = document.getElementById('entityList-items');
     xml = response.selectNodes('//s:EntitySet/*');
@@ -441,6 +510,20 @@ var pg =
       li.appendChild(a);
 
       list.appendChild(li);
+    }
+    elm = document.getElementById('query-text');
+    if(elm)
+    {
+      if(pg.query!='')
+      {
+        elm.innerHTML = unescape(pg.query);
+        elm.style.display='block';
+      }
+      else
+      {
+        elm.innerHTML = '';
+        elm.style.display = 'none';
+      }
     }
     pg.toggleView('entityList');
   },
@@ -464,7 +547,7 @@ var pg =
     var xml,dl,dt,dd,name,value;
 
     dl = document.getElementById('entityItem-fields');
-    xml = response.selectNodes('descendant::*');
+    xml = response.selectNodes('//*');
     for(i=0;i<xml.length;i++)
     {
       name = xml[i].tagName;
@@ -569,6 +652,24 @@ var pg =
     return id;
   },
 
+  getQueryArg : function()
+  {
+    var srch,id,rex,match;
+
+    srch = location.search;
+    rex = /\&qry=([^&]*)/i;
+    match = rex.exec(srch);
+    if (match != null)
+    {
+      id=match[1];
+    }
+    else
+    {
+      id='';
+    }
+    return id;
+  },
+
   attachEvents : function()
   {
     document.getElementById('commands-createAuthority').onclick = pg.showAuthorityView;
@@ -591,6 +692,8 @@ var pg =
     document.getElementById('containerAdd-form').onsubmit = pg.containerAddSubmit;
     document.getElementById('containerAdd-back').onclick = pg.containerAddBack;
 
+    document.getElementById('entityList-query').onclick = pg.entityListQuery;
+    document.getElementById('entityList-clear').onclick = pg.entityListClear;
     document.getElementById('entityList-add').onclick = pg.entityListAdd;
     document.getElementById('entityList-delete').onclick = pg.entityListDelete;
     document.getElementById('entityList-back').onclick = pg.entityListBack;
@@ -604,6 +707,9 @@ var pg =
 
     document.getElementById('entityEdit-update').onclick = pg.entityEditUpdate;
     document.getElementById('entityEdit-back').onclick = pg.entityEditBack;
+
+    document.getElementById('entityQuery-form').onsubmit = pg.entityQuerySubmit;
+    document.getElementById('entityQuery-back').onclick = pg.entityQueryBack;
   },
 
   updateUI:function()
@@ -658,45 +764,48 @@ var pg =
     var vw,vs;
 
     vw = view || 'commands';
-    vs = {'commands':'block','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','loading':'none'};
+    vs = {'commands':'block','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
 
     switch(vw)
     {
       case 'commands':
-        vs = {'commands':'block','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','loading':'none'};
+        vs = {'commands':'block','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
         break;
       case 'authenticateUser':
-        vs = {'commands':'none','authenticateUser':'block','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','loading':'none'};
+        vs = {'commands':'none','authenticateUser':'block','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
         break;
       case 'authorityView':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'block','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','loading':'none'};
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'block','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
         break;
       case 'containerFilter':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'block','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','loading':'none'};
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'block','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
         break;
       case 'containerList':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'block','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','loading':'none'};
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'block','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
         break;
       case 'containerAdd':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'block','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','loading':'none'};
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'block','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
         break;
       case 'entityList':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'block','entityItem':'none','entityAdd':'none','entityEdit':'none','loading':'none'};
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'block','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
         break;
       case 'entityItem':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'block','entityAdd':'none','entityEdit':'none','loading':'none'};
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'block','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
         break;
       case 'entityAdd':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'block','entityEdit':'none','loading':'none'};
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'block','entityEdit':'none','entityQuery':'none','loading':'none'};
         break;
       case 'entityEdit':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'block','loading':'none'};
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'block','entityQuery':'none','loading':'none'};
+        break;
+      case 'entityQuery':
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'block','loading':'none'};
         break;
       case 'loading':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','loading':'block'};
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'block'};
         break;
       default:
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','loading':'none'};
+        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
         break;
     }
 
@@ -710,6 +819,7 @@ var pg =
     document.getElementById('entityItem').style.display = vs.entityItem;
     document.getElementById('entityAdd').style.display = vs.entityAdd;
     document.getElementById('entityEdit').style.display = vs.entityEdit;
+    document.getElementById('entityQuery').style.display = vs.entityQuery;
     document.getElementById('loading').style.display = vs.loading;
   }
 }
