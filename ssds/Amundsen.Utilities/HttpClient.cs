@@ -84,6 +84,28 @@ namespace Amundsen.Utilities
       set { _UserAgent = value; }
     }
 
+    private bool _PreAuthenticate = true;
+
+    public bool PreAuthenticate
+    {
+      get { return _PreAuthenticate; }
+      set { _PreAuthenticate = value; }
+    }
+    private string _HttpVersion = "1.1";
+
+    public string HttpVersion
+    {
+      get { return _HttpVersion; }
+      set { _HttpVersion = value; }
+    }
+    private bool _FollowRedirects = true;
+
+    public bool FollowRedirects
+    {
+      get { return _FollowRedirects; }
+      set { _FollowRedirects = value; }
+    }
+
     public HttpClient() { }
     public HttpClient(NetworkCredential credentials)
     {
@@ -121,7 +143,7 @@ namespace Amundsen.Utilities
         req.ContentType = contentType;
         req.Accept = contentType;
         req.ContentLength = body.Length;
-        req.PreAuthenticate = true;
+        req.PreAuthenticate = this.PreAuthenticate;
         if (this.Credentials.UserName.Length!=0)
         {
           req.Credentials = this.Credentials;
@@ -172,6 +194,10 @@ namespace Amundsen.Utilities
             sw.Close();
           }
         }
+
+        // tweak request
+        req.ProtocolVersion = new Version(this.HttpVersion);
+        req.AllowAutoRedirect = this.FollowRedirects;
 
         // now use request obj to populate response obj
         resp = (HttpWebResponse)req.GetResponse();

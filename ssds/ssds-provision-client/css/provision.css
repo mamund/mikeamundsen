@@ -1,4 +1,7 @@
+/* mike amundsen - http://amundsen.com/blog/ */
 /* 2008-06-27 (mca) : for SSDS provisioning client */
+/* 2008-07-04 (mca) : fixed IE entity display bug */
+/* 2008-07-08 (mca) : added support for entity queries */
 
 body
 {
@@ -92,8 +95,52 @@ input[type='submit']
 {
   font-weight:bold;
   float:left;
-  width:100px;
+  width:150px;
 }
 #entityItem dd
 {
+  clear:right;
+  margin-left:150px;
+  border:1px solid #fff; /*hack to force IE to display properly */
+}
+
+fieldset code
+{
+  font-weight:bold;
+}
+#query-text
+{
+  display:block;
+}
+
+.operators
+{
+  margin:0;
+}
+.operators dt
+{
+  font-style:italic;
+}
+
+.whats-new
+{
+  margin:0;
+}
+.whats-new dt
+{
+  font-weight:bold;
+}
+.whats-new dd
+{
+  margin:0 0 .3em 0;
+}
+
+.commands
+{
+  margin-top:0;
+}
+
+#login-block
+{
+  margin-bottom:1em;
 }
