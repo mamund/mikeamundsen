@@ -12,16 +12,19 @@ namespace Amundsen.SSDS.Provisioning
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
-  /// @version 1.0 (2008-07-03)
+  /// @version 1.1 (2008-07-09)
   /// </summary>
   class Authority : IHttpHandler
   {
     private WebUtility wu;
     private HttpClient client;
     private HttpContext ctx;
+    private CacheService cs;
 
     string ssdsUser = string.Empty;
     string ssdsPassword = string.Empty;
+    bool showExpires = false;
+    int maxAge = 60;
 
     bool IHttpHandler.IsReusable
     {
@@ -33,6 +36,7 @@ namespace Amundsen.SSDS.Provisioning
       ctx = context;
       client = new HttpClient();
       wu = new WebUtility();
+      cs = new CacheService();
 
       try
       {
@@ -103,6 +107,8 @@ namespace Amundsen.SSDS.Provisioning
     {
       string rtn = string.Empty;
       string authority = string.Empty;
+      CacheItem item = null;
+      string request_url = ctx.Request.Url.ToString();
 
       // get authority from query string
       authority = (ctx.Request.QueryString["authority"] != null ? ctx.Request.QueryString["authority"] : string.Empty);
@@ -111,12 +117,47 @@ namespace Amundsen.SSDS.Provisioning
         throw new HttpException(400, "Missing Authority ID");
       }
 
-      // make call to remote server
-      rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}", authority, Constants.SsdsRoot), "get", Constants.SsdsType);
-
-      if (ctx.Request.UserAgent!=null && ctx.Request.UserAgent.IndexOf("IE", StringComparison.CurrentCultureIgnoreCase) != -1)
+      // check local cache first (if allowed)
+      if (wu.CheckNoCache(ctx) == true)
       {
-        ctx.Response.AppendHeader("cache-control", "post-check=1,pre-check=2");
+        cs.RemoveItem(request_url);
+      }
+      else
+      {
+        item = cs.GetItem(request_url);
+      }
+
+      // did our copy expire?
+      if (item != null && (item.Expires < DateTime.UtcNow))
+      {
+        cs.RemoveItem(request_url);
+        item = null;
+      }
+
+      // get a new copy, if needed
+      if (item == null)
+      {
+        // make call to remote server
+        rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}", authority, Constants.SsdsRoot), "get", Constants.SsdsType);
+
+        // fill local cache
+        item = cs.PutItem(
+          new CacheItem(
+            request_url,
+            rtn,
+            string.Format(CultureInfo.CurrentCulture, "\"{0}\"", cs.MD5BinHex(rtn)),
+            DateTime.UtcNow.AddSeconds(maxAge),
+            showExpires
+          )
+        );
+
+      }
+
+      // does client have good copy?
+      string ifNoneMatch = wu.GetHeader(ctx, "if-none-match");
+      if (ifNoneMatch == item.ETag)
+      {
+        throw new HttpException((int)HttpStatusCode.NotModified, HttpStatusCode.NotModified.ToString());
       }
 
       // compose response to client
@@ -124,8 +165,24 @@ namespace Amundsen.SSDS.Provisioning
       ctx.Response.StatusCode = 200;
       ctx.Response.ContentType = "text/xml";
       ctx.Response.StatusDescription = "OK";
-      ctx.Response.Write(rtn);
+      ctx.Response.Write(item.Payload);
 
+      // validation caching
+      ctx.Response.AddHeader("etag", item.ETag);
+      ctx.Response.AppendHeader("Last-Modified", string.Format(CultureInfo.CurrentCulture, "{0:R}", item.LastModified));
+
+      // expiration caching
+      if (showExpires)
+      {
+        ctx.Response.AppendHeader("Expires", string.Format(CultureInfo.CurrentCulture, "{0:R}", item.Expires));
+        ctx.Response.AppendHeader("cache-control", string.Format(CultureInfo.CurrentCulture, "max-age={0}", maxAge));
+      }
+
+      // ie local caching hack
+      if (ctx.Request.UserAgent != null && ctx.Request.UserAgent.IndexOf("IE", StringComparison.CurrentCultureIgnoreCase) != -1)
+      {
+        ctx.Response.AppendHeader("cache-control", "post-check=1,pre-check=2");
+      }
     }
 
     // create a new authority
@@ -136,6 +193,7 @@ namespace Amundsen.SSDS.Provisioning
       string authority = string.Empty;
       string url = string.Empty;
       string data = string.Empty;
+      string request_url = string.Empty;
 
       // get body
       using (StreamReader sr = new StreamReader(ctx.Request.InputStream, ctx.Request.ContentEncoding))
@@ -150,6 +208,9 @@ namespace Amundsen.SSDS.Provisioning
       data = string.Format(CultureInfo.CurrentCulture, Constants.AuthorityFormat, authority, Constants.SitkaNS);
       url = string.Format(CultureInfo.CurrentCulture, "https://{0}", Constants.SsdsRoot);
       rtn = client.Execute(url, "post", Constants.SsdsType, data);
+
+      // remove related local cache items
+      cs.RemoveItem(ctx.Request.Url.ToString());
 
       // compose response to client
       ctx.Response.StatusCode = 201;

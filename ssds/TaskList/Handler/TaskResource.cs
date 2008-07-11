@@ -259,7 +259,7 @@ namespace Amundsen.SSDS.TaskDemo
       client.Execute(endPoint+"/"+id, "PUT", "application/xml", xmlDoc.OuterXml);
 
       // remove related local cache items
-      cs.RemoveItem(endPoint+queryAll);
+      cs.RemoveItem(endPoint + queryAll);
       cs.RemoveItem(endPoint + "/" + id);
 
       // handle response
