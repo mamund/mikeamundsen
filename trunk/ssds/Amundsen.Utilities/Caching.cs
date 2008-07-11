@@ -86,7 +86,14 @@ namespace Amundsen.Utilities
 
     public void RemoveItem(string key)
     {
-      HttpRuntime.Cache.Remove(key);
+      try
+      {
+        HttpRuntime.Cache.Remove(key);
+      }
+      catch (Exception ex)
+      {
+        string msg = ex.Message;
+      }
     }
 
     public string MD5BinHex(string data)

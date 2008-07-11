@@ -8,14 +8,22 @@ using Amundsen.Utilities;
 
 namespace Amundsen.SSDS.Provisioning
 {
+  /// <summary>
+  /// Public Domain 2008 amundsen.com, inc.
+  /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.1 (2008-07-09)
+  /// </summary>
   class Entity : IHttpHandler
   {
     private WebUtility wu;
     private HttpClient client;
     private HttpContext ctx;
+    private CacheService cs;
 
     string ssdsUser = string.Empty;
     string ssdsPassword = string.Empty;
+    bool showExpires = false;
+    int maxAge = 60;
 
     bool IHttpHandler.IsReusable
     {
@@ -27,6 +35,7 @@ namespace Amundsen.SSDS.Provisioning
       ctx = context;
       client = new HttpClient();
       wu = new WebUtility();
+      cs = new CacheService();
 
       // process request
       try
@@ -108,6 +117,8 @@ namespace Amundsen.SSDS.Provisioning
       string entity = string.Empty;
       string url = string.Empty;
       string query = string.Empty;
+      string request_url = string.Empty;
+      CacheItem item = null;
 
       // get args
       authority = (ctx.Request.QueryString["authority"] != null ? ctx.Request.QueryString["authority"] : string.Empty);
@@ -142,13 +153,48 @@ namespace Amundsen.SSDS.Provisioning
         entity = "/" + entity.Trim();
       }
 
-      // handle query
-      url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}{3}", authority, Constants.SsdsRoot, container, entity);
-      rtn = client.Execute(url, "get", Constants.SsdsType);
-
-      if (ctx.Request.UserAgent!=null && ctx.Request.UserAgent.IndexOf("IE", StringComparison.CurrentCultureIgnoreCase) != -1)
+      // check local cache first (if allowed)
+      request_url = ctx.Request.Url.ToString();
+      string ifNoneMatch = wu.GetHeader(ctx, "if-none-match");
+      if (wu.CheckNoCache(ctx) == true)
       {
-        ctx.Response.AppendHeader("cache-control", "no-cache,post-check=1,pre-check=2");
+        ifNoneMatch = string.Empty;
+        cs.RemoveItem(request_url);
+      }
+      else
+      {
+        item = cs.GetItem(request_url);
+      }
+
+      // did our copy expire?
+      if (item != null && (item.Expires < DateTime.UtcNow))
+      {
+        cs.RemoveItem(request_url);
+        item = null;
+      }
+
+      if (item == null)
+      {
+        // handle query
+        url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}{3}", authority, Constants.SsdsRoot, container, entity);
+        rtn = client.Execute(url, "get", Constants.SsdsType);
+
+        // fill local cache
+        item = cs.PutItem(
+          new CacheItem(
+            request_url,
+            rtn,
+            string.Format(CultureInfo.CurrentCulture, "\"{0}\"", cs.MD5BinHex(rtn)),
+            DateTime.UtcNow.AddSeconds(maxAge),
+            showExpires
+          )
+        );
+      }
+
+      // does client have good copy?
+      if (ifNoneMatch == item.ETag)
+      {
+        throw new HttpException((int)HttpStatusCode.NotModified, HttpStatusCode.NotModified.ToString());
       }
 
       // compose response to client
@@ -156,8 +202,24 @@ namespace Amundsen.SSDS.Provisioning
       ctx.Response.StatusCode = 200;
       ctx.Response.ContentType = "text/xml";
       ctx.Response.StatusDescription = "OK";
-      ctx.Response.Write(rtn);
+      ctx.Response.Write(item.Payload);
 
+      // validation caching
+      ctx.Response.AddHeader("etag", item.ETag);
+      ctx.Response.AppendHeader("Last-Modified", string.Format(CultureInfo.CurrentCulture, "{0:R}", item.LastModified));
+
+      // expiration caching
+      if (showExpires)
+      {
+        ctx.Response.AppendHeader("Expires", string.Format(CultureInfo.CurrentCulture, "{0:R}", item.Expires));
+        ctx.Response.AppendHeader("cache-control", string.Format(CultureInfo.CurrentCulture, "max-age={0}", maxAge));
+      }
+
+      // ie local cache hack
+      if (ctx.Request.UserAgent != null && ctx.Request.UserAgent.IndexOf("IE", StringComparison.CurrentCultureIgnoreCase) != -1)
+      {
+        ctx.Response.AppendHeader("cache-control", "no-cache,post-check=1,pre-check=2");
+      }
     }
 
     // create a new entity
@@ -221,6 +283,10 @@ namespace Amundsen.SSDS.Provisioning
       url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}", authority, Constants.SsdsRoot, container);
       rtn = client.Execute(url, "post", Constants.SsdsType, xmlDoc.OuterXml);
 
+      // clear cache
+      cs.RemoveItem(ctx.Request.Url.ToString());
+      cs.RemoveItem(ctx.Request.Url.ToString().Replace("entity.ssds", "container.ssds"));
+
       // compose response to client
       ctx.Response.StatusCode = 201;
       ctx.Response.ContentType = "text/xml";
@@ -239,6 +305,12 @@ namespace Amundsen.SSDS.Provisioning
       string entity = string.Empty;
       string entityId = string.Empty;
       string url = string.Empty;
+      string request_url = string.Empty;
+      string etag = string.Empty;
+      string if_match = string.Empty;
+
+      // get copy of complete url
+      request_url = ctx.Request.Url.ToString();
 
       // get args
       authority = (ctx.Request.QueryString["authority"] != null ? ctx.Request.QueryString["authority"] : string.Empty);
@@ -259,7 +331,26 @@ namespace Amundsen.SSDS.Provisioning
         throw new HttpException(400, "Missing Entity ID");
       }
 
-      // get request body
+      // compose url for remote server call
+      url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}/{3}", authority, Constants.SsdsRoot, container, entity);
+
+      // make sure we have an if-match header
+      if_match = wu.GetHeader(ctx,"if-match");
+      if (if_match.Length == 0)
+      {
+        throw new HttpException((int)HttpStatusCode.PreconditionFailed, "Missing If-Match header");
+      }
+
+      // now get the current record's etag
+      client.RequestHeaders.Add("cache-control", "no-cache");
+      rtn = client.Execute(request_url, "head", Constants.SsdsType);
+      etag = client.ResponseHeaders["etag"];
+      if (etag != if_match)
+      {
+        throw new HttpException((int)HttpStatusCode.PreconditionFailed, "ETag and If-Match headers do not match");
+      }
+
+      // get passed in request body
       XmlDocument xmlDoc = new XmlDocument();
       xmlDoc.Load(ctx.Request.InputStream);
 
@@ -280,15 +371,33 @@ namespace Amundsen.SSDS.Provisioning
         throw new HttpException((int)HttpStatusCode.BadRequest, "Path ID and Document ID mismatch");
       }
 
-      // handle request to remote server
-      url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}/{3}", authority, Constants.SsdsRoot, container, entity);
+      // handle PUT to remote server
+      //url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}/{3}", authority, Constants.SsdsRoot, container, entity);
       rtn = client.Execute(url, "put", Constants.SsdsType, xmlDoc.OuterXml);
+
+      // clear local cache
+      cs.RemoveItem(request_url);
+      cs.RemoveItem(request_url.Replace("entity.ssds", "container.ssds").Replace(string.Format("&entity={0}", entity), ""));
+
+      // update local copy w/ new document
+      // (cuz ssds returns wrong s:Version for PUTs!)
+      client.RequestHeaders.Add("cache-control", "no-cache");
+      rtn = client.Execute(url, "get", Constants.SsdsType);
+      CacheItem item = cs.PutItem(
+        new CacheItem(
+          request_url,
+          rtn,
+          string.Format(CultureInfo.CurrentCulture, "\"{0}\"", cs.MD5BinHex(rtn)),
+          DateTime.UtcNow.AddSeconds(maxAge),
+          showExpires
+        )
+      );
 
       // compose response to client
       ctx.Response.StatusCode = 200;
       ctx.Response.ContentType = "text/xml";
       ctx.Response.StatusDescription = "OK";
-      ctx.Response.Write(rtn);
+      ctx.Response.Write(item.Payload);
     }
 
     // delete an existing entity
@@ -322,6 +431,10 @@ namespace Amundsen.SSDS.Provisioning
       // handle request to remote server
       url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}/{3}", authority, Constants.SsdsRoot, container,entity);
       rtn = client.Execute(url, "delete", Constants.SsdsType);
+
+      // clear cache
+      cs.RemoveItem(ctx.Request.Url.ToString());
+      cs.RemoveItem(ctx.Request.Url.ToString().Replace("entity.ssds", "container.ssds").Replace(string.Format("&entity={0}", entity), ""));
 
       // compose response to client
       ctx.Response.StatusCode = 200;

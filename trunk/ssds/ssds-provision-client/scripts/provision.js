@@ -2,6 +2,7 @@
 /* 2008-06-23 (mca) for SSDS provisioning client */
 /* 2008-07-04 (mca) : fixed IE entity display bug */
 /* 2008-07-08 (mca) : added support for entity queries */
+/* 2008-07-10 (mca) : added support for caching, improved login pattern */
 
 var pg =
 {
@@ -10,6 +11,7 @@ var pg =
   container : '',
   entity : '',
   query : '',
+  etag : '',
 
   authority_add_url : '/ssds/authority/',
   authority_add_xml : '<authority>{@authority}</authority>',
@@ -91,7 +93,7 @@ var pg =
     if(user!='' && pass!='')
     {
       cookies.create('x-form-authorization',Base64.encode(user+':'+pass));
-      pg.authenticateUserBack();
+      location.href = location.href;
     }
     return false;
   },
@@ -322,7 +324,7 @@ var pg =
   {
     var url;
     url =   pg.entity_item_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container).replace('{@entity}',encodeURIComponent(pg.entity));
-    ajax.httpGet(url,null,pg.onAjaxComplete,false,'getEntityEdit',{'content-type':'application/xml'});
+    ajax.httpGet(url,null,pg.onAjaxComplete,false,'getEntityEdit',{'content-type':'application/xml','cache-control':'no-cache'});
   },
 
   entityItemDelete:function()
@@ -369,7 +371,7 @@ var pg =
     {
       data = elm.value;
       url = pg.entity_item_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container).replace('{@entity}',encodeURIComponent(pg.entity));
-      ajax.httpPut(url,null,pg.onAjaxComplete,true,'editEntity','application/xml',data);
+      ajax.httpPut(url,null,pg.onAjaxComplete,true,'editEntity','application/xml',data,{'if-match':pg.etag});
     }
     return false;
   },
@@ -426,10 +428,28 @@ var pg =
         break;
       default:    // 400 & 500 errors
         alert(status+'\n'+msg);
-        //location.href = location.pathname;
         break;
     }
 
+    // go get credentials
+    if(status==401 || status==403)
+    {
+      pg.showAuthentication();
+      return;
+    }
+    
+    // get etag for the current entity document
+    pg.etag='';
+    try
+    {
+      if(headers['etag']!=null && (context=='getEntityItem' || context=='getEntityEdit'))
+      {
+        pg.etag = headers['etag'];
+      }
+    }
+    catch(ex) {}
+    
+    // process results
     switch(context)
     {
       case 'loginUser':
@@ -492,7 +512,7 @@ var pg =
 
   processGetEntityList:function(response,headers)
   {
-    var list,xml,a,li,i,id,kind,elm;
+    var list,xml,a,li,i,id,kind,elm,qtext;
 
     list = document.getElementById('entityList-items');
     xml = response.selectNodes('//s:EntitySet/*');
@@ -511,20 +531,22 @@ var pg =
 
       list.appendChild(li);
     }
-    elm = document.getElementById('query-text');
-    if(elm)
+    
+    elm = document.getElementById('query-block');
+    qtext = document.getElementById('query-text');
+    if(elm && qtext)
     {
       if(pg.query!='')
       {
-        elm.innerHTML = unescape(pg.query);
+        qtext.innerHTML = unescape(pg.query);
         elm.style.display='block';
       }
       else
       {
-        elm.innerHTML = '';
         elm.style.display = 'none';
       }
     }
+    
     pg.toggleView('entityList');
   },
 
