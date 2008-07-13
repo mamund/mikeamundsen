@@ -1,145 +1,153 @@
-/* mike amundsen - http://amundsen.com/blog/ */
-/* 2008-06-23 (mca) for SSDS provisioning client */
-/* 2008-07-04 (mca) : fixed IE entity display bug */
-/* 2008-07-08 (mca) : added support for entity queries */
-/* 2008-07-10 (mca) : added support for caching, improved login pattern */
+/* SSDS Provisioning Client
+ * mike amundsen - http://amundsen.com/blog/
+ * 2008-06-23 (mca) : initial release
+ * 2008-07-04 (mca) : fixed IE entity display bug
+ * 2008-07-08 (mca) : added support for entity queries
+ * 2008-07-10 (mca) : added support for caching, improved login pattern
+ * 2008-07-11 (mca) : refactored javascript
+ */
 
-var pg =
+// define provision object
+var ssdsClient = function()
 {
-  user_name : '',
-  authority : '',
-  container : '',
-  entity : '',
-  query : '',
-  etag : '',
+  // private members
+  var userName = '';
+  var etag = '';
+  var ssdsContentType = 'application/xml';
+  var authCookie = 'x-form-authorization';
 
-  authority_add_url : '/ssds/authority/',
-  authority_add_xml : '<authority>{@authority}</authority>',
+  var authority = {};
+  authority.id = '';
+  authority.addUrl = '/ssds/authority/';
+  authority.addXml = '<authority>{@authority}</authority>';
 
-  container_list_url : '/ssds/container/{@authority}/',
-  container_delete_url : '/ssds/container/{@authority}/{@container}',
-  container_add_url : '/ssds/container/{@authority}/',
-  container_add_xml : '<container>{@container}</container>',
+  var container = {};
+  container.id = '';
+  container.listUrl = '/ssds/container/{@authority}/';
+  container.deleteUrl = '/ssds/container/{@authority}/{@container}';
+  container.addUrl = '/ssds/container/{@authority}/';
+  container.addXml = '<container>{@container}</container>';
 
-  entity_query_url : '/ssds/entity/{@authority}/{@container}/%20/{@query}',
+  var entity = {};
+  entity.id = '';
+  entity.query = '';
+  entity.queryUrl = '/ssds/entity/{@authority}/{@container}/%20/{@query}';
+  entity.listUrl = '/ssds/container/{@authority}/{@container}';
+  entity.itemUrl = '/ssds/entity/{@authority}/{@container}/{@entity}';
+  entity.deleteUrl = '/ssds/entity/{@authority}/{@container}/{@entity}';
+  entity.addUrl = '/ssds/entity/{@authority}/{@container}/';
+  entity.addXml = '<{@kind} xmlns:s="http://schemas.microsoft.com/sitka/2008/03/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:x="http://www.w3.org/2001/XMLSchema">\n<s:Id>$id$</s:Id>\n<name xsi:type="x:string"></name>\n</{@kind}>';
 
-  entity_list_url : '/ssds/container/{@authority}/{@container}',
-  entity_item_url : '/ssds/entity/{@authority}/{@container}/{@entity}',
-  entity_delete_url : '/ssds/entity/{@authority}/{@container}/{@entity}',
-  entity_add_url : '/ssds/entity/{@authority}/{@container}/',
-  entity_add_xml : '<{@kind} xmlns:s="http://schemas.microsoft.com/sitka/2008/03/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:x="http://www.w3.org/2001/XMLSchema"> \n \
-<s:Id>$id$</s:Id> \n \
-<name xsi:type="x:string"></name> \n \
-</{@kind}>',
+  var serverErrors = [];
+  serverErrors[401] = 'Access denied.\nPlease login.';
+  serverErrors[403] = 'Access denied.\nInvalid username or password.';
+  serverErrors[412] = 'Update cancelled.\nSomeone else has modified this item.';
 
-  init : function()
+  function init()
   {
-    pg.authority = pg.getAuthorityArg();
-    pg.container = pg.getContainerArg();
-    pg.entity = pg.getEntityArg();
-    pg.query = pg.getQueryArg();
+    // get state from url
+    authority.id = getSearchArg(/\?aid=([^&]*)/i);
+    container.id = getSearchArg(/\&cid=([^&]*)/i);
+    entity.id = getSearchArg(/\&eid=([^&]*)/i);
+    entity.query = getSearchArg(/\&qry=([^&]*)/i);
 
-    pg.attachEvents();
-    pg.toggleUser();
-    pg.updateUI();
-    pg.selectView();
-  },
+    attachEvents();
+    toggleUser();
+    updateUI();
+    selectView();
+  }
 
-  selectView:function()
+  function selectView()
   {
-    // entity view
-    if(pg.authority!='' && pg.container!='' && pg.entity!='')
+    if(authority.id!=='' && container.id!=='' && entity.id!=='')
     {
-      pg.showEntityItem();
+      showEntityItem();
       return;
     }
-    // query view
-    if(pg.authority!='' && pg.container!='' && pg.query!='')
+    if(authority.id!=='' && container.id!=='' && entity.query!=='')
     {
-      pg.entityQueryExecute();
+      entityQueryExecute();
       return;
     }
-    // entity list
-    if(pg.authority!='' && pg.container!='')
+    if(authority.id!=='' && container.id!=='')
     {
-      pg.showEntityList();
+      showEntityList();
       return;
     }
-    // container list or command view
-    if(pg.authority!='')
+    if(authority.id!=='')
     {
-      pg.showContainerList();
+      showContainerList();
       return;
     }
     else
     {
-      pg.toggleView('commands');
+      toggleView('commands');
       return;
     }
-  },
+  }
 
-  showAuthentication:function()
+  function showAuthentication()
   {
-    pg.toggleView('authenticateUser');
+    toggleView('authenticateUser');
     document.getElementById('auth-name').focus();
-  },
+  }
 
-  authenticateUserSubmit:function()
+  function authenticateUserSubmit()
   {
     var user,pass;
 
     user = document.getElementById('auth-name').value;
     pass = document.getElementById('auth-pass').value;
-    if(user!='' && pass!='')
+    if(user!=='' && pass!=='')
     {
-      cookies.create('x-form-authorization',Base64.encode(user+':'+pass));
+      cookies.create(authCookie,Base64.encode(user+':'+pass));
       location.href = location.href;
     }
     return false;
-  },
+  }
 
-  authenticateUserBack:function()
+  function authenticateUserBack()
   {
     location.href = location.pathname;
-  },
+  }
 
-  logoutUser:function()
+  function logoutUser()
   {
-    cookies.erase('x-form-authorization');
+    cookies.erase(authCookie);
     location.href = location.pathname;
-  },
+  }
 
-  showAuthorityView:function()
+  function showAuthorityView()
   {
     var elm;
 
-    if(cookies.read('x-form-authorization')===null)
+    if(cookies.read(authCookie)===null)
     {
       alert('You must login first.');
     }
     else
     {
-      elm = document.getElementById('authority-name')
-      pg.toggleView('authorityView');
+      elm = document.getElementById('authority-name');
+      toggleView('authorityView');
       elm.value='';
       elm.focus();
     }
     return false;
-  },
+  }
 
-  authorityViewSubmit:function()
+  function authorityViewSubmit()
   {
     var elm,name,data,url;
 
     elm = document.getElementById('authority-name');
-    if(elm && elm.value!='')
+    if(elm && elm.value!=='')
     {
       name = elm.value.replace(/\s/g,'-').toLowerCase();
       if (name.match(/^[0-9a-z]+$/i))
       {
-        url = pg.authority_add_url;
-        data = pg.authority_add_xml.replace('{@authority}',name);
-        ajax.httpPost(url,null,pg.onAjaxComplete,true,'addAuthority','application/xml',data);
+        url = authority.addUrl;
+        data = authority.addXml.replace('{@authority}',name);
+        ajax.httpPost(url,null,onAjaxComplete,true,'addAuthority',ssdsContentType,data);
       }
       else
       {
@@ -147,63 +155,62 @@ var pg =
       }
     }
     return false;
-  },
+  }
 
-  authorityViewBack:function()
+  function authorityViewBack()
   {
     location.href = location.pathname;
-  },
+  }
 
-  showContainerFilter:function()
+  function showContainerFilter()
   {
     var elm;
 
-    if(cookies.read('x-form-authorization')==null)
+    if(cookies.read(authCookie)===null)
     {
-      alert('You must login first.')
+      alert('You must login first.');
     }
     else
     {
       elm = document.getElementById('containerFilter-authority');
-      if(pg.authority!='')
+      if(authority.id!=='')
       {
-        elm.value = pg.authority;
+        elm.value = authority.id;
       }
 
-      pg.toggleView('containerFilter');
+      toggleView('containerFilter');
       elm.focus();
     }
     return false;
-  },
+  }
 
-  containerFilterSubmit:function()
+  function containerFilterSubmit()
   {
     var elm;
 
     elm = document.getElementById('containerFilter-authority');
-    if(elm && elm.value!='')
+    if(elm && elm.value!=='')
     {
       location.href = location.pathname+'?aid='+elm.value;
     }
-
     return false;
-  },
+  }
 
-  showContainerList:function()
+  function showContainerList()
   {
     var url;
 
-    pg.toggleView('loading');
-    url = pg.container_list_url.replace('{@authority}',pg.authority);
-    ajax.httpGet(url,null,pg.onAjaxComplete,true,'getContainerList');
-  },
+    toggleView('loading');
+    url = container.listUrl.replace('{@authority}',authority.id);
+    ajax.httpGet(url,null,onAjaxComplete,true,'getContainerList');
+  }
 
-  containerFilterBack:function()
+  function containerFilterBack()
   {
     location.href = location.pathname;
-  },
+  }
 
-  containerListAdd:function()
+  function containerListAdd()
   {
     var elm;
 
@@ -213,137 +220,136 @@ var pg =
       elm.value='';
     }
 
-    pg.toggleView('containerAdd');
+    toggleView('containerAdd');
     elm.focus();
-  },
+  }
 
-  containerListBack:function()
+  function containerListBack()
   {
-    pg.showContainerFilter();
-  },
+    showContainerFilter();
+  }
 
-  containerAddSubmit:function()
+  function containerAddSubmit()
   {
     var elm,name,url,data;
 
     elm = document.getElementById('container-name');
-    if(elm && elm.value!='')
+    if(elm && elm.value!=='')
     {
       name = elm.value.replace(/\s/g,'-').toLowerCase();
       if (name.match(/^[0-9a-z\-]+$/i))
       {
-        url = pg.container_add_url.replace('{@authority}',pg.authority);
-        data = pg.container_add_xml.replace('{@container}',name);
-        ajax.httpPost(url,null,pg.onAjaxComplete,true,'addContainer','application/xml',data);
+        url = container.addUrl.replace('{@authority}',authority.id);
+        data = container.addXml.replace('{@container}',name);
+        ajax.httpPost(url,null,onAjaxComplete,true,'addContainer',ssdsContentType,data);
       }
       else
       {
         alert('Invalid container name.\nUse a-z, 0-9, and -');
       }
     }
-
     return false;
-  },
+  }
 
-  containerAddBack:function()
+  function containerAddBack()
   {
     location.href = location.href;
-  },
+  }
 
-  showEntityList:function()
+  function showEntityList()
   {
     var url;
 
-    pg.toggleView('loading');
-    url = pg.entity_list_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container);
-    ajax.httpGet(url,null,pg.onAjaxComplete,true,'getEntityList',{'content-type':'application/xml'});
-  },
+    toggleView('loading');
+    url = entity.listUrl.replace('{@authority}',authority.id).replace('{@container}',container.id);
+    ajax.httpGet(url,null,onAjaxComplete,true,'getEntityList',{'content-type':ssdsContentType});
+  }
 
-  entityListQuery:function()
+  function entityListQuery()
   {
     var elm;
     elm = document.getElementById('entityQuery-text');
     if(elm)
     {
-      if(pg.query!='')
+      if(entity.query!=='')
       {
-        elm.value = unescape(pg.query);
+        elm.value = unescape(entity.query);
       }
       else
       {
         elm.value='from e in entities where e.Id>"1" select e';
       }
     }
-    pg.toggleView('entityQuery');
+    toggleView('entityQuery');
     elm.focus();
-  },
+  }
 
-  entityListClear:function()
+  function entityListClear()
   {
-    location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container;
-  },
+    location.href = location.pathname+'?aid='+authority.id+'&cid='+container.id;
+  }
 
-  entityListAdd:function()
+  function entityListAdd()
   {
     var elm;
     elm = document.getElementById('entityAdd-xml');
     if(elm)
     {
-      elm.value=pg.entity_add_xml;
+      elm.value=entity.addXml;
     }
-    pg.toggleView('entityAdd');
+    toggleView('entityAdd');
     elm.focus();
-  },
+  }
 
-  entityListDelete:function()
+  function entityListDelete()
   {
     var url;
 
-    if(confirm('Ready to Delete the '+pg.container+' Container?')==true)
+    if(confirm('Ready to Delete the '+container.id+' Container?')===true)
     {
-      url = pg.container_delete_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container);
-      ajax.httpDelete(url,null,pg.onAjaxComplete,true,'deleteContainer',{'content-type':'application/xml'});
+      url = container.deleteUrl.replace('{@authority}',authority.id).replace('{@container}',container.id);
+      ajax.httpDelete(url,null,onAjaxComplete,true,'deleteContainer',{'content-type':ssdsContentType});
     }
-  },
+  }
 
-  entityListBack:function()
+  function entityListBack()
   {
-    location.href = location.pathname+'?aid='+pg.authority;
-  },
+    location.href = location.pathname+'?aid='+authority.id;
+  }
 
-  showEntityItem:function()
-  {
-    var url;
-
-    pg.toggleView('loading');
-    url = pg.entity_item_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container).replace('{@entity}',encodeURIComponent(pg.entity));
-    ajax.httpGet(url,null,pg.onAjaxComplete,true,'getEntityItem',{'content-type':'application/xml'});
-  },
-
-  entityItemEdit:function()
-  {
-    var url;
-    url =   pg.entity_item_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container).replace('{@entity}',encodeURIComponent(pg.entity));
-    ajax.httpGet(url,null,pg.onAjaxComplete,false,'getEntityEdit',{'content-type':'application/xml','cache-control':'no-cache'});
-  },
-
-  entityItemDelete:function()
+  function showEntityItem()
   {
     var url;
 
-    if(confirm('Ready to Delete '+pg.container+' entity ['+pg.entity+']?')==true)
+    toggleView('loading');
+    url = entity.itemUrl.replace('{@authority}',authority.id).replace('{@container}',container.id).replace('{@entity}',encodeURIComponent(entity.id));
+    ajax.httpGet(url,null,onAjaxComplete,true,'getEntityItem',{'content-type':ssdsContentType});
+  }
+
+  function entityItemEdit()
+  {
+    var url;
+    url =   entity.itemUrl.replace('{@authority}',authority.id).replace('{@container}',container.id).replace('{@entity}',encodeURIComponent(entity.id));
+    ajax.httpGet(url,null,onAjaxComplete,false,'getEntityEdit',{'content-type':ssdsContentType,'cache-control':'no-cache'});
+  }
+
+  function entityItemDelete()
+  {
+    var url;
+
+    if(confirm('Ready to Delete '+container.id+' entity ['+entity.id+']?')===true)
     {
-      url = pg.entity_delete_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container).replace('{@entity}',encodeURIComponent(pg.entity));
-      ajax.httpDelete(url,null,pg.onAjaxComplete,true,'deleteEntity',{'content-type':'application/xml'});
+      url = entity.deleteUrl.replace('{@authority}',authority.id).replace('{@container}',container.id).replace('{@entity}',encodeURIComponent(entity.id));
+      ajax.httpDelete(url,null,onAjaxComplete,true,'deleteEntity',{'content-type':ssdsContentType});
     }
-  },
+  }
 
-  entityItemBack:function()
+  function entityItemBack()
   {
-    location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container
-  },
+    location.href = location.pathname+'?aid='+authority.id+'&cid='+container.id;
+  }
 
-  entityAddSubmit:function()
+  function entityAddSubmit()
   {
     var elm,url,data;
 
@@ -351,18 +357,18 @@ var pg =
     if(elm)
     {
       data = elm.value;
-      url = pg.entity_add_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container);
-      ajax.httpPost(url,null,pg.onAjaxComplete,true,'addEntity','application/xml',data);
+      url = entity.addUrl.replace('{@authority}',authority.id).replace('{@container}',container.id);
+      ajax.httpPost(url,null,onAjaxComplete,true,'addEntity',ssdsContentType,data);
     }
     return false;
-  },
+  }
 
-  entityAddBack:function()
+  function entityAddBack()
   {
-    location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container
-  },
+    location.href = location.pathname+'?aid='+authority.id+'&cid='+container.id;
+  }
 
-  entityEditUpdate:function()
+  function entityEditUpdate()
   {
     var elm,url,data;
 
@@ -370,18 +376,18 @@ var pg =
     if(elm)
     {
       data = elm.value;
-      url = pg.entity_item_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container).replace('{@entity}',encodeURIComponent(pg.entity));
-      ajax.httpPut(url,null,pg.onAjaxComplete,true,'editEntity','application/xml',data,{'if-match':pg.etag});
+      url = entity.itemUrl.replace('{@authority}',authority.id).replace('{@container}',container.id).replace('{@entity}',encodeURIComponent(entity.id));
+      ajax.httpPut(url,null,onAjaxComplete,true,'editEntity',ssdsContentType,data,{'if-match':etag});
     }
     return false;
-  },
+  }
 
-  entityEditBack:function()
+  function entityEditBack()
   {
-    location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container+'&eid='+encodeURIComponent(pg.entity);
-  },
+    location.href = location.pathname+'?aid='+authority.id+'&cid='+container.id+'&eid='+encodeURIComponent(entity.id);
+  }
 
-  entityQuerySubmit:function()
+  function entityQuerySubmit()
   {
     var elm,url,data;
 
@@ -389,105 +395,111 @@ var pg =
     if(elm)
     {
       data = encodeURIComponent(elm.value);
-      location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container+'&qry='+data;
+      location.href = location.pathname+'?aid='+authority.id+'&cid='+container.id+'&qry='+data;
     }
     return false;
-  },
+  }
 
-  entityQueryBack:function()
+  function entityQueryBack()
   {
-    location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container
-  },
+    location.href = location.pathname+'?aid='+authority.id+'&cid='+container.id;
+  }
 
-  entityQueryExecute:function()
+  function entityQueryExecute()
   {
-    var url = pg.entity_query_url.replace('{@authority}',pg.authority).replace('{@container}',pg.container).replace('{@query}',encodeURIComponent(pg.query));
-    ajax.httpGet(url,null,pg.onAjaxComplete,true,'queryEntity',{'content-type':'application/xml'});
-  },
+    var url = entity.queryUrl.replace('{@authority}',authority.id).replace('{@container}',container.id).replace('{@query}',encodeURIComponent(entity.query));
+    ajax.httpGet(url,null,onAjaxComplete,true,'queryEntity',{'content-type':ssdsContentType});
+  }
 
-  onAjaxComplete : function(response,headers,context,status,msg)
+  function onAjaxComplete(response,headers,context,status,msg)
   {
     switch(status)
     {
-      case 0:
-        // ie abort code
+      case 0:     // ie abort code
         return;
-        break;
+        //break;
       case 200:   // OK
       case 201:   // Created
       case 202:   // Accepted
       case 204:   // NoContent
         break;
-      case 301:
+      case 301:   // redirects
       case 302:
-        if(headers["location"] && headers['location']!='')
+        if(headers.location && headers.location!=='')
         {
-          location.href=headers["location"];
+          location.href=headers.location;
         }
         return;
-        break;
+        // break;
       default:    // 400 & 500 errors
-        alert(status+'\n'+msg);
+        if(serverErrors[status])
+        {
+          alert(serverErrors[status]);
+        }
+        else
+        {
+          alert(status+'\n'+msg);
+        }
         break;
     }
 
-    // go get credentials
+    // get credentials
     if(status==401 || status==403)
     {
-      pg.showAuthentication();
+      showAuthentication();
       return;
     }
-    
+
     // get etag for the current entity document
-    pg.etag='';
+    etag='';
     try
     {
-      if(headers['etag']!=null && (context=='getEntityItem' || context=='getEntityEdit'))
+      if(headers.etag!==null && (context==='getEntityItem' || context==='getEntityEdit'))
       {
-        pg.etag = headers['etag'];
+        etag = headers.etag;
       }
     }
     catch(ex) {}
-    
+
     // process results
     switch(context)
     {
       case 'loginUser':
-        pg.processLoginUser(response,headers);
+        processLoginUser(response,headers);
         break;
       case 'getContainerList':
-        pg.processGetContainerList(response,headers);
+        processGetContainerList(response,headers);
         break;
       case "queryEntity":
       case 'getEntityList':
-        pg.processGetEntityList(response,headers);
+        processGetEntityList(response,headers);
         break;
       case 'getEntityItem':
-        pg.processGetEntityItem(response,headers);
+        processGetEntityItem(response,headers);
         break;
       case 'getEntityEdit':
-        pg.processGetEntityEdit(response,headers);
+        processGetEntityEdit(response,headers);
         break;
       case 'addEntity':
       case 'deleteEntity':
-        pg.processUpdateEntity(status);
+        processUpdateEntity(status);
         break;
       case 'editEntity':
-        pg.processEditEntity(status);
+        processEditEntity(status);
         break;
       case 'addContainer':
       case 'deleteContainer':
-        pg.processUpdateContainer(status);
+        processUpdateContainer(status);
         break;
       case 'addAuthority':
-        pg.processAddAuthority(status);
+        processAddAuthority(status);
         break;
       default:
         alert('Unknown context\n'+context);
     }
-  },
+  }
 
-  processGetContainerList:function(response,headers)
+  function processGetContainerList(response,headers)
   {
     var list,xml,li,a,i,id;
 
@@ -498,7 +510,7 @@ var pg =
       id = xml[i].selectSingleNode('s:Id/text()').nodeValue;
 
       a = document.createElement('a');
-      a.href = location.pathname+'?aid='+pg.authority+'&cid='+escape(id);
+      a.href = location.pathname+'?aid='+authority.id+'&cid='+escape(id);
       a.title='View Entities';
       a.appendChild(document.createTextNode(id));
 
@@ -507,10 +519,10 @@ var pg =
 
       list.appendChild(li);
     }
-    pg.toggleView('containerList');
-  },
+    toggleView('containerList');
+  }
 
-  processGetEntityList:function(response,headers)
+  function processGetEntityList(response,headers)
   {
     var list,xml,a,li,i,id,kind,elm,qtext;
 
@@ -522,7 +534,7 @@ var pg =
       id = xml[i].selectSingleNode('s:Id/text()').nodeValue;
 
       a = document.createElement('a');
-      a.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container+'&eid='+encodeURIComponent(id);
+      a.href = location.pathname+'?aid='+authority.id+'&cid='+container.id+'&eid='+encodeURIComponent(id);
       a.title='Entity Detail';
       a.appendChild(document.createTextNode(kind+' ['+id+']'));
 
@@ -531,14 +543,14 @@ var pg =
 
       list.appendChild(li);
     }
-    
+
     elm = document.getElementById('query-block');
     qtext = document.getElementById('query-text');
     if(elm && qtext)
     {
-      if(pg.query!='')
+      if(entity.query!=='')
       {
-        qtext.innerHTML = unescape(pg.query);
+        qtext.innerHTML = unescape(entity.query);
         elm.style.display='block';
       }
       else
@@ -546,11 +558,10 @@ var pg =
         elm.style.display = 'none';
       }
     }
-    
-    pg.toggleView('entityList');
-  },
+    toggleView('entityList');
+  }
 
-  processGetEntityEdit:function(response,headers)
+  function processGetEntityEdit(response,headers)
   {
     var xml,elm;
 
@@ -560,11 +571,11 @@ var pg =
     {
       elm.value = xml;
     }
-    pg.toggleView('entityEdit');
+    toggleView('entityEdit');
     elm.focus();
-  },
+  }
 
-  processGetEntityItem:function(response,headers)
+  function processGetEntityItem(response,headers)
   {
     var xml,dl,dt,dd,name,value;
 
@@ -574,7 +585,7 @@ var pg =
     {
       name = xml[i].tagName;
       try{value = xml[i].firstChild.nodeValue.replace(/^\s+|\s+$/g, '');}catch(ex){value='';}
-      if(value==''){value='.'};
+      if(value===''){value='.';}
 
       dt = document.createElement('dt');
       dt.appendChild(document.createTextNode(name));
@@ -584,50 +595,49 @@ var pg =
       dl.appendChild(dt);
       dl.appendChild(dd);
     }
-    pg.toggleView('entityItem');
-  },
+    toggleView('entityItem');
+  }
 
-  processAddAuthority:function(status)
+  function processAddAuthority(status)
   {
     if(status<400)
     {
-      alert('Authority has been added.')
+      alert('Authority has been added.');
       location.href = location.pathname;
     }
-  },
+  }
 
-  processUpdateContainer:function(status)
+  function processUpdateContainer(status)
   {
     if(status<400)
     {
-      location.href = location.pathname+'?aid='+pg.authority;
+      location.href = location.pathname+'?aid='+authority.id;
     }
-  },
+  }
 
-  processUpdateEntity:function(status)
+  function processUpdateEntity(status)
   {
     if(status<400)
     {
-      location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container;
+      location.href = location.pathname+'?aid='+authority.id+'&cid='+container.id;
     }
-  },
+  }
 
-  processEditEntity:function(status)
+  function processEditEntity(status)
   {
     if(status<400)
     {
-      location.href = location.pathname+'?aid='+pg.authority+'&cid='+pg.container+'&eid='+encodeURIComponent(pg.entity);
+      location.href = location.pathname+'?aid='+authority.id+'&cid='+container.id+'&eid='+encodeURIComponent(entity.id);
     }
-  },
+  }
 
-  getAuthorityArg : function()
+  function getSearchArg(rex)
   {
-    var srch,id,rex,match;
+    var srch,id,match;
 
     srch = location.search;
-    rex = /\?aid=([^&]*)/i;
     match = rex.exec(srch);
-    if (match != null)
+    if (match !== null)
     {
       id=match[1];
     }
@@ -636,198 +646,143 @@ var pg =
       id='';
     }
     return id;
-  },
+  }
 
-  getContainerArg : function()
+  function attachEvents()
   {
-    var srch,id,rex,match;
+    document.getElementById('commands-createAuthority').onclick = showAuthorityView;
+    document.getElementById('commands-manageContainers').onclick = showContainerFilter;
+    document.getElementById('commands-authenticateUser').onclick = showAuthentication;
+    document.getElementById('commands-logout').onclick = logoutUser;
 
-    srch = location.search;
-    rex = /\&cid=([^&]*)/i;
-    match = rex.exec(srch);
-    if (match != null)
-    {
-      id=match[1];
-    }
-    else
-    {
-      id='';
-    }
-    return id;
-  },
+    document.getElementById('authenticateUser-form').onsubmit = authenticateUserSubmit;
+    document.getElementById('authenticateUser-back').onclick = authenticateUserBack;
 
-  getEntityArg : function()
-  {
-    var srch,id,rex,match;
+    document.getElementById('authorityView-form').onsubmit = authorityViewSubmit;
+    document.getElementById('authorityView-back').onclick = authorityViewBack;
 
-    srch = location.search;
-    rex = /\&eid=([^&]*)/i;
-    match = rex.exec(srch);
-    if (match != null)
-    {
-      id=match[1];
-    }
-    else
-    {
-      id='';
-    }
-    return id;
-  },
+    document.getElementById('containerFilter-form').onsubmit = containerFilterSubmit;
+    document.getElementById('containerFilter-back').onclick = containerFilterBack;
 
-  getQueryArg : function()
-  {
-    var srch,id,rex,match;
+    document.getElementById('containerList-add').onclick = containerListAdd;
+    document.getElementById('containerList-back').onclick = containerListBack;
 
-    srch = location.search;
-    rex = /\&qry=([^&]*)/i;
-    match = rex.exec(srch);
-    if (match != null)
-    {
-      id=match[1];
-    }
-    else
-    {
-      id='';
-    }
-    return id;
-  },
+    document.getElementById('containerAdd-form').onsubmit = containerAddSubmit;
+    document.getElementById('containerAdd-back').onclick = containerAddBack;
 
-  attachEvents : function()
-  {
-    document.getElementById('commands-createAuthority').onclick = pg.showAuthorityView;
-    document.getElementById('commands-manageContainers').onclick = pg.showContainerFilter;
-    document.getElementById('commands-authenticateUser').onclick = pg.showAuthentication;
-    document.getElementById('commands-logout').onclick = pg.logoutUser;
+    document.getElementById('entityList-query').onclick = entityListQuery;
+    document.getElementById('entityList-clear').onclick = entityListClear;
+    document.getElementById('entityList-add').onclick = entityListAdd;
+    document.getElementById('entityList-delete').onclick = entityListDelete;
+    document.getElementById('entityList-back').onclick = entityListBack;
 
-    document.getElementById('authenticateUser-form').onsubmit = pg.authenticateUserSubmit;
-    document.getElementById('authenticateUser-back').onclick = pg.authenticateUserBack;
+    document.getElementById('entityItem-edit').onclick = entityItemEdit;
+    document.getElementById('entityItem-delete').onclick = entityItemDelete;
+    document.getElementById('entityItem-back').onclick = entityItemBack;
 
-    document.getElementById('authorityView-form').onsubmit = pg.authorityViewSubmit;
-    document.getElementById('authorityView-back').onclick = pg.authorityViewBack;
+    document.getElementById('entityAdd-form').onsubmit = entityAddSubmit;
+    document.getElementById('entityAdd-back').onclick = entityAddBack;
 
-    document.getElementById('containerFilter-form').onsubmit = pg.containerFilterSubmit;
-    document.getElementById('containerFilter-back').onclick = pg.containerFilterBack;
+    document.getElementById('entityEdit-update').onclick = entityEditUpdate;
+    document.getElementById('entityEdit-back').onclick = entityEditBack;
 
-    document.getElementById('containerList-add').onclick = pg.containerListAdd;
-    document.getElementById('containerList-back').onclick = pg.containerListBack;
+    document.getElementById('entityQuery-form').onsubmit = entityQuerySubmit;
+    document.getElementById('entityQuery-back').onclick = entityQueryBack;
+  }
 
-    document.getElementById('containerAdd-form').onsubmit = pg.containerAddSubmit;
-    document.getElementById('containerAdd-back').onclick = pg.containerAddBack;
-
-    document.getElementById('entityList-query').onclick = pg.entityListQuery;
-    document.getElementById('entityList-clear').onclick = pg.entityListClear;
-    document.getElementById('entityList-add').onclick = pg.entityListAdd;
-    document.getElementById('entityList-delete').onclick = pg.entityListDelete;
-    document.getElementById('entityList-back').onclick = pg.entityListBack;
-
-    document.getElementById('entityItem-edit').onclick = pg.entityItemEdit;
-    document.getElementById('entityItem-delete').onclick = pg.entityItemDelete;
-    document.getElementById('entityItem-back').onclick = pg.entityItemBack;
-
-    document.getElementById('entityAdd-form').onsubmit = pg.entityAddSubmit;
-    document.getElementById('entityAdd-back').onclick = pg.entityAddBack;
-
-    document.getElementById('entityEdit-update').onclick = pg.entityEditUpdate;
-    document.getElementById('entityEdit-back').onclick = pg.entityEditBack;
-
-    document.getElementById('entityQuery-form').onsubmit = pg.entityQuerySubmit;
-    document.getElementById('entityQuery-back').onclick = pg.entityQueryBack;
-  },
-
-  updateUI:function()
+  function updateUI()
   {
     var coll,i;
 
     coll = document.getElementsByClassName('authority-name');
     for(i=0;i<coll.length;i++)
     {
-      coll[i].innerHTML = pg.authority;
+      coll[i].innerHTML = authority.id;
     }
 
     coll = document.getElementsByClassName('container-name');
     for(i=0;i<coll.length;i++)
     {
-      coll[i].innerHTML = pg.container;
+      coll[i].innerHTML = container.id;
     }
 
-    if(pg.user_name!='')
+    if(userName!=='')
     {
       coll = document.getElementsByClassName('user-name');
       for(i=0;i<coll.length;i++)
       {
-        coll[i].innerHTML = "Logged in as: "+pg.user_name;
+        coll[i].innerHTML = "Logged in as: "+userName;
       }
     }
+  }
 
-  },
-
-  toggleUser:function()
+  function toggleUser()
   {
     var auth,name,coll,i;
 
-    auth = cookies.read('x-form-authorization');
+    auth = cookies.read(authCookie);
     if(auth)
     {
       document.getElementById('login').style.display='none';
       document.getElementById('logout').style.display='inline';
 
-      pg.user_name = Base64.decode(auth).split(':')[0];
+      userName = Base64.decode(auth).split(':')[0];
     }
     else
     {
-      pg.user_name = '';
+      userName = '';
       document.getElementById('login').style.display='inline';
       document.getElementById('logout').style.display='none';
     }
-  },
+  }
 
-  toggleView:function(view)
+  function toggleView(view)
   {
     var vw,vs;
 
     vw = view || 'commands';
-    vs = {'commands':'block','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
+    vs = {commands:'block',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
 
     switch(vw)
     {
       case 'commands':
-        vs = {'commands':'block','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
+        vs = {commands:'block',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'authenticateUser':
-        vs = {'commands':'none','authenticateUser':'block','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
+        vs = {commands:'none',authenticateUser:'block',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'authorityView':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'block','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'block',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'containerFilter':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'block','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'block',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'containerList':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'block','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'block',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'containerAdd':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'block','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'block',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'entityList':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'block','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'block',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'entityItem':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'block','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'block',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'entityAdd':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'block','entityEdit':'none','entityQuery':'none','loading':'none'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'block',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'entityEdit':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'block','entityQuery':'none','loading':'none'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'block',entityQuery:'none',loading:'none'};
         break;
       case 'entityQuery':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'block','loading':'none'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'block',loading:'none'};
         break;
       case 'loading':
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'block'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'block'};
         break;
       default:
-        vs = {'commands':'none','authenticateUser':'none','authorityView':'none','containerFilter':'none','containerList':'none','containerAdd':'none','entityList':'none','entityItem':'none','entityAdd':'none','entityEdit':'none','entityQuery':'none','loading':'none'};
+        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
     }
 
@@ -844,7 +799,12 @@ var pg =
     document.getElementById('entityQuery').style.display = vs.entityQuery;
     document.getElementById('loading').style.display = vs.loading;
   }
-}
+
+  // publish members & return ref
+  var that = {};
+  that.init = init;
+  return that;
+};
 
 // extend document object, if needed
 if(!document.getElementsByClassName)
@@ -871,5 +831,5 @@ if(!document.getElementsByClassName)
 // execute on startup
 window.onload = function()
 {
-  pg.init();
-}
+  ssdsClient().init();
+};
