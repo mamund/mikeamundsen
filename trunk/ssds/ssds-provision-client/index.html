@@ -6,6 +6,7 @@
 /* 2008-07-04 (mca) : fixed IE entity display bug */
 /* 2008-07-08 (mca) : added support for entity queries */
 /* 2008-07-10 (mca) : added support for caching, improved login pattern */
+/* 2008-07-13 (mca) : refactored javascript, fixed container caching bug */
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -24,7 +25,7 @@
       <div id="login" style="display:none;"><input type="button" id="commands-authenticateUser" title="Authenticate User" value="Login" class="inline-button"/></div>
       <div id="logout" style="display:none;"><input type="button" id="commands-logout" title="Logout User" value="Logout" class="inline-button"/></div>
     </div>
-    
+
     <div id="commands" style="display:none;" class="view">
       <h2>Commands</h2>
       <ul class="commands">
@@ -34,6 +35,8 @@
       <fieldset>
         <legend>What's New</legend>
         <dl class="whats-new">
+          <dt>1.4 - 2008-07-10</dt>
+          <dd>Refactored javascript. Fixed Container caching bug.</dd>
           <dt>1.3 - 2008-07-10</dt>
           <dd>Added support for caching. Improved login pattern.</dd>
           <dt>1.2 - 2008-07-08</dt>
