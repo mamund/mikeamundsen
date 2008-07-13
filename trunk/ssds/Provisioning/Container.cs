@@ -231,7 +231,7 @@ namespace Amundsen.SSDS.Provisioning
       // clear cache
       cs.RemoveItem(ctx.Request.Url.ToString());
       cs.RemoveItem(ctx.Request.Url.ToString().Replace(container, ""));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace(string.Format("&container={0}", container), ""));
+      cs.RemoveItem(ctx.Request.Url.ToString().Replace("&container=", ""));
 
       // compose response to client
       ctx.Response.StatusCode = 201;
@@ -269,7 +269,7 @@ namespace Amundsen.SSDS.Provisioning
       // clear cache
       cs.RemoveItem(ctx.Request.Url.ToString());
       cs.RemoveItem(ctx.Request.Url.ToString().Replace(container, ""));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace(string.Format("&container={0}", container), ""));
+      cs.RemoveItem(ctx.Request.Url.ToString().Replace("&container=", ""));
 
       // compose response to client
       ctx.Response.StatusCode = 200;

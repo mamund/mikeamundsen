@@ -6,7 +6,7 @@ var cookies =
   {
     var expires,date,p;
 
-    p = path || '/'
+    p = path || '/';
 
     if (days)
     {
@@ -23,13 +23,20 @@ var cookies =
 
   read:function(name)
   {
+    var c;
     var nameEQ = name + "=";
     var ca = document.cookie.split(';');
     for(var i=0;i < ca.length;i++)
     {
-      var c = ca[i];
-      while (c.charAt(0)==' ') c = c.substring(1,c.length);
-      if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+      c = ca[i];
+      while (c.charAt(0)==' ')
+      {
+        c = c.substring(1,c.length);
+      }
+      if (c.indexOf(nameEQ) === 0)
+      {
+        return c.substring(nameEQ.length,c.length);
+      }
     }
     return null;
   },
@@ -38,4 +45,4 @@ var cookies =
   {
     cookies.create(name,"",-1);
   }
-}
+};

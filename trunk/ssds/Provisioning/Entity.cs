@@ -372,7 +372,6 @@ namespace Amundsen.SSDS.Provisioning
       }
 
       // handle PUT to remote server
-      //url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}/{3}", authority, Constants.SsdsRoot, container, entity);
       rtn = client.Execute(url, "put", Constants.SsdsType, xmlDoc.OuterXml);
 
       // clear local cache
