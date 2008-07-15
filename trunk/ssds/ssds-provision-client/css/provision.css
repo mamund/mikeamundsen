@@ -1,7 +1,9 @@
-/* mike amundsen - http://amundsen.com/blog/ */
-/* 2008-06-27 (mca) : for SSDS provisioning client */
-/* 2008-07-04 (mca) : fixed IE entity display bug */
-/* 2008-07-08 (mca) : added support for entity queries */
+/* Public Domain 2008 amundsen.com, inc.
+ * @author mike amundsen (http://amundsen.com/blog/)
+ * 2008-06-27 (mca) : for SSDS provisioning client
+ * 2008-07-04 (mca) : fixed IE entity display bug
+ * 2008-07-08 (mca) : added support for entity queries
+ */
 
 body
 {

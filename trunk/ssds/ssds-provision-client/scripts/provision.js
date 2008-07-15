@@ -1,18 +1,19 @@
 /* SSDS Provisioning Client
  * mike amundsen - http://amundsen.com/blog/
- * 2008-06-23 (mca) : initial release
- * 2008-07-04 (mca) : fixed IE entity display bug
- * 2008-07-08 (mca) : added support for entity queries
+ * 2008-07-14 (mca) : refactored javascript
  * 2008-07-10 (mca) : added support for caching, improved login pattern
- * 2008-07-11 (mca) : refactored javascript
+ * 2008-07-08 (mca) : added support for entity queries
+ * 2008-07-04 (mca) : fixed IE entity display bug
+ * 2008-06-23 (mca) : initial release
  */
 
 // define provision object
-var ssdsClient = function()
+var provision = function()
 {
   // private members
   var userName = '';
   var etag = '';
+  var noCache = '';
   var ssdsContentType = 'application/xml';
   var authCookie = 'x-form-authorization';
 
@@ -50,6 +51,7 @@ var ssdsClient = function()
     container.id = getSearchArg(/\&cid=([^&]*)/i);
     entity.id = getSearchArg(/\&eid=([^&]*)/i);
     entity.query = getSearchArg(/\&qry=([^&]*)/i);
+    noCache = getSearchArg(/\&nc=([^&]*)/i);
 
     attachEvents();
     toggleUser();
@@ -202,12 +204,24 @@ var ssdsClient = function()
 
     toggleView('loading');
     url = container.listUrl.replace('{@authority}',authority.id);
-    ajax.httpGet(url,null,onAjaxComplete,true,'getContainerList');
+    if(noCache=='1')
+    {
+      ajax.httpGet(url,null,onAjaxComplete,true,'getContainerList',{'cache-control':'no-cache'});
+    }
+    else
+    {
+      ajax.httpGet(url,null,onAjaxComplete,true,'getContainerList');
+    }
   }
 
   function containerFilterBack()
   {
     location.href = location.pathname;
+  }
+
+  function containerListRefresh()
+  {
+    location.href = location.pathname+'?aid='+authority.id+'&nc=1';
   }
 
   function containerListAdd()
@@ -262,7 +276,19 @@ var ssdsClient = function()
 
     toggleView('loading');
     url = entity.listUrl.replace('{@authority}',authority.id).replace('{@container}',container.id);
-    ajax.httpGet(url,null,onAjaxComplete,true,'getEntityList',{'content-type':ssdsContentType});
+    if(noCache=='1')
+    {
+      ajax.httpGet(url,null,onAjaxComplete,true,'getEntityList',{'content-type':ssdsContentType,'cache-control':'no-cache'});
+    }
+    else
+    {
+      ajax.httpGet(url,null,onAjaxComplete,true,'getEntityList',{'content-type':ssdsContentType});
+    }
+  }
+
+  function entityListRefresh()
+  {
+    location.href = location.pathname+'?aid='+authority.id+'&cid='+container.id+'&nc=1';
   }
 
   function entityListQuery()
@@ -665,6 +691,7 @@ var ssdsClient = function()
     document.getElementById('containerFilter-back').onclick = containerFilterBack;
 
     document.getElementById('containerList-add').onclick = containerListAdd;
+    document.getElementById('containerList-refresh').onclick = containerListRefresh;
     document.getElementById('containerList-back').onclick = containerListBack;
 
     document.getElementById('containerAdd-form').onsubmit = containerAddSubmit;
@@ -672,6 +699,7 @@ var ssdsClient = function()
 
     document.getElementById('entityList-query').onclick = entityListQuery;
     document.getElementById('entityList-clear').onclick = entityListClear;
+    document.getElementById('entityList-refresh').onclick = entityListRefresh;
     document.getElementById('entityList-add').onclick = entityListAdd;
     document.getElementById('entityList-delete').onclick = entityListDelete;
     document.getElementById('entityList-back').onclick = entityListBack;
@@ -831,5 +859,6 @@ if(!document.getElementsByClassName)
 // execute on startup
 window.onload = function()
 {
-  ssdsClient().init();
+  var p = provision();
+  p.init();
 };
