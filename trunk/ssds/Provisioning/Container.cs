@@ -147,7 +147,7 @@ namespace Amundsen.SSDS.Provisioning
       if (item == null)
       {
         // handle query
-        url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}{3}", authority, Constants.SsdsRoot, container, Constants.QueryAll);
+        url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}{3}", authority, Constants.SsdsRoot, container, (container.Length!=0?"":Constants.QueryAll));
         rtn = client.Execute(url, "get", Constants.SsdsType);
 
         // fill local cache
@@ -231,14 +231,7 @@ namespace Amundsen.SSDS.Provisioning
       rtn = client.Execute(url, "post", Constants.SsdsType, data);
 
       // clear cache
-      // might be overkill, but i'm trying to drop all copies
       cs.RemoveItem(ctx.Request.Url.ToString());
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace(container, ""));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace(container, "").Replace("container.ssds","entity.ssds"));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace(container, "").Replace("container.ssds", "authority.ssds"));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace("&container=", ""));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace("&container=", "").Replace("container.ssds", "entity.ssds"));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace("&container=", "").Replace("container.ssds", "authority.ssds"));
 
       // compose response to client
       ctx.Response.StatusCode = 201;
@@ -274,14 +267,8 @@ namespace Amundsen.SSDS.Provisioning
       rtn = client.Execute(url, "delete", Constants.SsdsType);
 
       // clear cache
-      // might be overkill, but i'm trying to drop all copies
       cs.RemoveItem(ctx.Request.Url.ToString());
       cs.RemoveItem(ctx.Request.Url.ToString().Replace(container, ""));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace(container, "").Replace("container.ssds", "entity.ssds"));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace(container, "").Replace("container.ssds", "authority.ssds"));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace("&container=", ""));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace("&container=", "").Replace("container.ssds", "entity.ssds"));
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace("&container=", "").Replace("container.ssds", "authority.ssds"));
 
       // compose response to client
       ctx.Response.StatusCode = 200;

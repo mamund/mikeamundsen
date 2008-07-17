@@ -287,7 +287,6 @@ namespace Amundsen.SSDS.Provisioning
 
       // clear cache
       cs.RemoveItem(ctx.Request.Url.ToString());
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace("entity.ssds", "container.ssds"));
 
       // compose response to client
       ctx.Response.StatusCode = 201;
@@ -344,7 +343,6 @@ namespace Amundsen.SSDS.Provisioning
       }
 
       // now get the current record's etag
-      client.RequestHeaders.Add("cache-control", "no-cache");
       rtn = client.Execute(request_url, "head", Constants.SsdsType);
       etag = client.ResponseHeaders["etag"];
       if (etag != if_match)
@@ -356,7 +354,7 @@ namespace Amundsen.SSDS.Provisioning
       XmlDocument xmlDoc = new XmlDocument();
       xmlDoc.Load(ctx.Request.InputStream);
 
-      // get id from within the doc
+      // validate id from within the doc
       XmlNamespaceManager xmlNS = new XmlNamespaceManager(xmlDoc.NameTable);
       xmlNS.AddNamespace("s", Constants.SitkaNS);
       XmlNode node = xmlDoc.SelectSingleNode("//s:Id", xmlNS);
@@ -378,12 +376,12 @@ namespace Amundsen.SSDS.Provisioning
 
       // clear local cache
       cs.RemoveItem(request_url);
-      cs.RemoveItem(request_url.Replace("entity.ssds", "container.ssds").Replace(string.Format("&entity={0}", entity), ""));
+      cs.RemoveItem(request_url.Replace(entity, ""));
 
       // update local copy w/ new document
       // (cuz ssds returns wrong s:Version for PUTs!)
-      client.RequestHeaders.Add("cache-control", "no-cache");
       rtn = client.Execute(url, "get", Constants.SsdsType);
+
       CacheItem item = cs.PutItem(
         new CacheItem(
           request_url,
@@ -435,7 +433,7 @@ namespace Amundsen.SSDS.Provisioning
 
       // clear cache
       cs.RemoveItem(ctx.Request.Url.ToString());
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace("entity.ssds", "container.ssds").Replace(string.Format("&entity={0}", entity), ""));
+      cs.RemoveItem(ctx.Request.Url.ToString().Replace(entity, ""));
 
       // compose response to client
       ctx.Response.StatusCode = 200;
