@@ -1,5 +1,6 @@
 /* SSDS Provisioning Client
  * mike amundsen - http://amundsen.com/blog/
+ * 2008-07-16 (mca) : updated to use new ssds-proxy URIs
  * 2008-07-14 (mca) : refactored javascript
  * 2008-07-10 (mca) : added support for caching, improved login pattern
  * 2008-07-08 (mca) : added support for entity queries
@@ -19,24 +20,24 @@ var provision = function()
 
   var authority = {};
   authority.id = '';
-  authority.addUrl = '/ssds/authority/';
+  authority.addUrl = '/ssds-proxy/';
   authority.addXml = '<authority>{@authority}</authority>';
 
   var container = {};
   container.id = '';
-  container.listUrl = '/ssds/container/{@authority}/';
-  container.deleteUrl = '/ssds/container/{@authority}/{@container}';
-  container.addUrl = '/ssds/container/{@authority}/';
+  container.listUrl = '/ssds-proxy/{@authority}/';
+  container.deleteUrl = '/ssds-proxy/{@authority}/{@container}';
+  container.addUrl = '/ssds-proxy/{@authority}/';
   container.addXml = '<container>{@container}</container>';
 
   var entity = {};
   entity.id = '';
   entity.query = '';
-  entity.queryUrl = '/ssds/entity/{@authority}/{@container}/%20/{@query}';
-  entity.listUrl = '/ssds/container/{@authority}/{@container}';
-  entity.itemUrl = '/ssds/entity/{@authority}/{@container}/{@entity}';
-  entity.deleteUrl = '/ssds/entity/{@authority}/{@container}/{@entity}';
-  entity.addUrl = '/ssds/entity/{@authority}/{@container}/';
+  entity.queryUrl = '/ssds-proxy/{@authority}/{@container}/?{@query}';
+  entity.listUrl = '/ssds-proxy/{@authority}/{@container}/';
+  entity.itemUrl = '/ssds-proxy/{@authority}/{@container}/{@entity}';
+  entity.deleteUrl = '/ssds-proxy/{@authority}/{@container}/{@entity}';
+  entity.addUrl = '/ssds-proxy/{@authority}/{@container}/';
   entity.addXml = '<{@kind} xmlns:s="http://schemas.microsoft.com/sitka/2008/03/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:x="http://www.w3.org/2001/XMLSchema">\n<s:Id>$id$</s:Id>\n<name xsi:type="x:string"></name>\n</{@kind}>';
 
   var serverErrors = [];

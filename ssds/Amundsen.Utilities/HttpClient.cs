@@ -144,11 +144,11 @@ namespace Amundsen.Utilities
         req.Accept = contentType;
         req.ContentLength = body.Length;
         req.PreAuthenticate = this.PreAuthenticate;
-        if (this.Credentials.UserName.Length!=0)
+        if (this.Credentials.UserName.Length != 0)
         {
           req.Credentials = this.Credentials;
         }
-
+        
         // set headers
         if (this.RequestHeaders != null)
         {
@@ -247,6 +247,7 @@ namespace Amundsen.Utilities
         {
           string msg = string.Empty;
           string code = string.Empty;
+          string xcode = string.Empty;
           HttpWebResponse wrsp = (HttpWebResponse)wex.Response;
 
           msg = wrsp.StatusDescription;
@@ -268,9 +269,9 @@ namespace Amundsen.Utilities
             node = xml_doc.SelectSingleNode("//s:Code", xml_ns);
             if (node != null)
             {
-              code = node.InnerText;
+              xcode = node.InnerText;
             }
-            msg = msg + "[" + code + "]";
+            msg = msg + "[" + xcode + "]";
           }
           catch (XmlException xex)
           {

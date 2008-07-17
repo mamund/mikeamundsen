@@ -213,7 +213,6 @@ namespace Amundsen.SSDS.Provisioning
 
       // remove related local cache items
       cs.RemoveItem(ctx.Request.Url.ToString());
-      cs.RemoveItem(ctx.Request.Url.ToString());
 
       // compose response to client
       ctx.Response.StatusCode = 201;

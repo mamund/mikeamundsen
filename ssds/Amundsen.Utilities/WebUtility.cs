@@ -163,6 +163,8 @@ namespace Amundsen.Utilities
       {
         username = string.Empty;
         password = string.Empty;
+        //ctx.Response.Headers.Add("WWW-Authenticate", "Basic");
+        //throw new HttpException(401, HttpStatusCode.Unauthorized.ToString());
       }
 
     }
