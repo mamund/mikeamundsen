@@ -8,13 +8,13 @@ namespace Amundsen.SSDS.Provisioning
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.1 (2008-07-20)
   /// @version 1.0 (2008-07-18)
   /// </summary>
   class SsdsPC
   {
     static string ssdsUser = string.Empty;
     static string ssdsPassword = string.Empty;
-
     static string authority_regex = "^/([^/]*)$"; 
     static string container_regex = "^/([^/]*)/([^/]*)$"; 
     static string entity_regex = "^/([^/]*)/([^/]*)/([^/?]*)$"; 
@@ -23,6 +23,8 @@ namespace Amundsen.SSDS.Provisioning
     static void Main(string[] args)
     {
       SsdsCommands ssds = new SsdsCommands();
+      string uri = string.Empty;
+      string cmd = string.Empty;
 
       try
       {
@@ -36,12 +38,13 @@ namespace Amundsen.SSDS.Provisioning
         ssds.UserName = ssdsUser;
         ssds.Password = ssdsPassword;
 
-        string uri = args[1];
+        uri = args[0];
+        cmd = (args.Length==1?"get":(uri.IndexOf("?")==-1?args[1]:"get"));
 
         // authority command
         if (Regex.IsMatch(uri, authority_regex, RegexOptions.IgnoreCase))
         {
-          ssds.Authorities(new string[]{args[0],uri.Replace("/","")});
+          ssds.Authorities(new string[]{cmd,uri.Replace("/","")});
           return;
         }
 
@@ -49,7 +52,7 @@ namespace Amundsen.SSDS.Provisioning
         if (Regex.IsMatch(uri, container_regex, RegexOptions.IgnoreCase))
         {
           string[] elm = uri.Split('/');
-          ssds.Containers(new string[] { args[0], elm[1], elm[2] });
+          ssds.Containers(new string[] { cmd, elm[1], elm[2] });
           return;
         }
 
@@ -57,7 +60,7 @@ namespace Amundsen.SSDS.Provisioning
         if (Regex.IsMatch(uri, entity_regex, RegexOptions.IgnoreCase))
         {
           string[] elm = uri.Split('/');
-          ssds.Entities(new string[] { args[0], elm[1], elm[2], elm[3], (args.Length==3?args[2]:string.Empty)});
+          ssds.Entities(new string[] { cmd, elm[1], elm[2], elm[3], (args.Length==3?args[2]:string.Empty)});
           return;
         }
 
@@ -65,11 +68,12 @@ namespace Amundsen.SSDS.Provisioning
         if (Regex.IsMatch(uri, query_regex, RegexOptions.IgnoreCase))
         {
           string[] elm = uri.Split('/');
-          ssds.Queries(new string[] { args[0], elm[1], elm[2], args[2] });
+          ssds.Queries(new string[] { cmd, elm[1], elm[2], args[1] });
           return;
         }
 
         // failed to recognize command uri
+        Console.WriteLine("***ERROR: unable to parse command line!");
         ShowHelp();
         return;
 
@@ -82,27 +86,27 @@ namespace Amundsen.SSDS.Provisioning
 
     private static void ShowHelp()
     {
-      Console.WriteLine("\nSSDS Provisioning Console (1.0 - 2008-07-18)\n");
+      Console.WriteLine("\nSSDS Provisioning Console (1.1 - 2008-07-20)\n");
 
       Console.WriteLine("Authorities:");
-      Console.WriteLine("\t[g]et /{aid} \n\tex: a /my-authority\n");
-      Console.WriteLine("\t[p]post /{aid} \n\tex: p /my-new-authority\n");
+      Console.WriteLine("\t/{aid} [[g]get]\n\tex: /my-authority\n");
+      Console.WriteLine("\t/{aid} [p]post\n\tex: /my-new-authority p\n");
 
       Console.WriteLine("Containers:");
-      Console.WriteLine("\t[g]et /{aid}/ \n\tex: g /my-authority/\n");
-      Console.WriteLine("\t[g]et /{aid}/{cid} \n\tex: g /my-authority/my-container\n");
-      Console.WriteLine("\t[p]ost /{aid}/{cid} \n\tex: p /my-authority/my-new-container\n");
-      Console.WriteLine("\t[d]elete /{aid}/{cid} \n\tex: d /my-authority/my-container\n");
+      Console.WriteLine("\t/{aid}/ [[g]get]\n\tex: /my-authority/\n");
+      Console.WriteLine("\t/{aid}/{cid} [[g]get]\n\tex: /my-authority/my-container\n");
+      Console.WriteLine("\t/{aid}/{cid} [p]ost\n\tex: /my-authority/my-new-container p \n");
+      Console.WriteLine("\t/{aid}/{cid} [d]elete\n\tex: /my-authority/my-container d\n");
 
       Console.WriteLine("Entities:");
-      Console.WriteLine("\t[g]et /{aid}/{cid}/ \n\tex: g /my-authority/my-container/\n");
-      Console.WriteLine("\t[g]et /{aid}/{cid}/{eid} \n\tex: g /my-authority/my-container/id001\n");
-      Console.WriteLine("\t[p]ost /{aid}/{cid}/ \"{xml}|{filename}\" \n\tex: p /my-authority/my-container/ c:\\new-data.xml\n");
-      Console.WriteLine("\t[u]pdate /{aid}/{cid}/{eid} \"{xml|filename}\" \n\tex: u /my-authority/my-container/id001 c:\\modified-data.xml\n");
-      Console.WriteLine("\t[d]elete /{aid}/{cid}/{eid} \n\tex: d /my-authority/my-container/id001\n");
+      Console.WriteLine("\t/{aid}/{cid}/ [[g]et]\n\tex: /my-authority/my-container/\n");
+      Console.WriteLine("\t/{aid}/{cid}/{eid} [[g]get]\n\tex: /my-authority/my-container/id001\n");
+      Console.WriteLine("\t/{aid}/{cid}/ \"{xml}|{filename}\" [p]ost\n\tex: /my-authority/my-container/ c:\\new-data.xml p\n");
+      Console.WriteLine("\t/{aid}/{cid}/{eid} \"{xml|filename}\" [u]pdate|put\n\tex: /my-authority/my-container/id001 c:\\modified-data.xml u\n");
+      Console.WriteLine("\t/{aid}/{cid}/{eid} [d]elete\n\tex: /my-authority/my-container/id001 d\n");
 
       Console.WriteLine("Queries:");
-      Console.WriteLine("\t[q]uery /{aid}/{cid}/? \"{query}\" \n\tex: q /my-authority/my-container/? \"from e in entities where e.Id>\\\"1\\\" $and$ e.Id<\\\"30\\\" select e\"\n");
+      Console.WriteLine("\t/{aid}/{cid}/? \"{query}\" [[g]get]\n\tex: /my-authority/my-container/? \"from e in entities where e.Id>\\\"1\\\" $and$ e.Id<\\\"30\\\" select e\"\n");
     }
 
     private static void HandleConfigSettings()
