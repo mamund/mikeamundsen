@@ -1,0 +1,41 @@
+SSDS Provisioning Console (1.0 - 2008-07-18)
+
+Authorities:
+	[g]et /{aid} 
+	ex: a /my-authority
+
+	[p]post /{aid} 
+	ex: p /my-new-authority
+
+Containers:
+	[g]et /{aid}/ 
+	ex: g /my-authority/
+
+	[g]et /{aid}/{cid} 
+	ex: g /my-authority/my-container
+
+	[p]ost /{aid}/{cid} 
+	ex: p /my-authority/my-new-container
+
+	[d]elete /{aid}/{cid} 
+	ex: d /my-authority/my-container
+
+Entities:
+	[g]et /{aid}/{cid}/ 
+	ex: g /my-authority/my-container/
+
+	[g]et /{aid}/{cid}/{eid} 
+	ex: g /my-authority/my-container/id001
+
+	[p]ost /{aid}/{cid}/ "{xml}|{filename}" 
+	ex: p /my-authority/my-container/ c:\new-data.xml
+
+	[u]pdate /{aid}/{cid}/{eid} "{xml|filename}" 
+	ex: u /my-authority/my-container/id001 c:\modified-data.xml
+
+	[d]elete /{aid}/{cid}/{eid} 
+	ex: d /my-authority/my-container/id001
+
+Queries:
+	[q]uery /{aid}/{cid}/? "{query}" 
+	ex: q /my-authority/my-container/? "from e in entities where e.Id>\"1\" $and$ e.Id<\"30\" select e"

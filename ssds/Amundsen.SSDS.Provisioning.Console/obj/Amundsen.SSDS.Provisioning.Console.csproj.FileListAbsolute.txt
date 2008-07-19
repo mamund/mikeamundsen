@@ -3,11 +3,11 @@ C:\Projects\SSDS\TaskList\Amundsen.SSDS.Provisioning.Console\bin\Debug\ssdspc.pd
 C:\Projects\SSDS\TaskList\Amundsen.SSDS.Provisioning.Console\obj\Debug\ResolveAssemblyReference.cache
 C:\Projects\SSDS\TaskList\Amundsen.SSDS.Provisioning.Console\obj\Debug\ssdspc.exe
 C:\Projects\SSDS\TaskList\Amundsen.SSDS.Provisioning.Console\obj\Debug\ssdspc.pdb
-C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\obj\Debug\ssdspc.exe
-C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\obj\Debug\ssdspc.pdb
-C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\bin\Debug\ssdspc.exe.config
 C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\obj\Debug\ResolveAssemblyReference.cache
-C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\bin\Debug\ssdspc.exe
-C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\bin\Debug\ssdspc.pdb
 C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\bin\Debug\Amundsen.Utilities.dll
 C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\bin\Debug\Amundsen.Utilities.pdb
+C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\bin\Debug\ssds.exe.config
+C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\bin\Debug\ssds.exe
+C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\bin\Debug\ssds.pdb
+C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\obj\Debug\ssds.exe
+C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\obj\Debug\ssds.pdb
