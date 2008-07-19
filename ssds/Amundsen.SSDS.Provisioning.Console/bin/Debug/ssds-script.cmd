@@ -3,18 +3,20 @@ rem script ssds console
 
 rem NOTE: 
 rem set ssdsUser and ssdsPassword in the config file
-rem modify this script to use an your authority 
+rem modify this script to use your own authority
 
-set authority=mamund
+set authority=your-authority
 
-ssds get    /%authority%
-ssds post   /%authority%/fish
-ssds get    /%authority%/fish
-ssds post   /%authority%/fish/ fish-001.xml
-ssds post   /%authority%/fish/ fish-002.xml
-ssds get    /%authority%/fish/ 
-ssds get    /%authority%/fish/fish-001 
-ssds delete /%authority%/fish/fish-002
-ssds get    /%authority%/fish/
+ssds /%authority%/ get
+ssds /%authority%/fish post
+ssds /%authority%/fish get
+ssds /%authority%/fish/ post fish-001.xml
+ssds /%authority%/fish/ post fish-002.xml
+ssds /%authority%/fish/ get
+ssds /%authority%/fish/fish-001 get
+ssds /%authority%/fish/fish-002 delete
+ssds /%authority%/fish/ get
 
 set authority=
+
+rem ##eof##
