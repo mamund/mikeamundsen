@@ -1,0 +1,4 @@
+<fish xmlns:s="http://schemas.microsoft.com/sitka/2008/03/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:x="http://www.w3.org/2001/XMLSchema">
+  <s:Id>fish-001</s:Id>
+  <name xsi:type="x:string">Herring</name>
+</fish>
