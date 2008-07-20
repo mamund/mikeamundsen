@@ -15,6 +15,7 @@ namespace Amundsen.SSDS.Provisioning
   {
     static string ssdsUser = string.Empty;
     static string ssdsPassword = string.Empty;
+    static string ssdsProxy = string.Empty;
     static string authority_regex = "^/([^/]*)$"; 
     static string container_regex = "^/([^/]*)/([^/]*)$"; 
     static string entity_regex = "^/([^/]*)/([^/]*)/([^/?]*)$"; 
@@ -37,6 +38,7 @@ namespace Amundsen.SSDS.Provisioning
         HandleConfigSettings();
         ssds.UserName = ssdsUser;
         ssds.Password = ssdsPassword;
+        ssds.ssdsProxy = ssdsProxy;
 
         uri = args[0];
         cmd = (args.Length==1?"get":(uri.IndexOf("?")==-1?args[1]:"get"));
@@ -114,6 +116,7 @@ namespace Amundsen.SSDS.Provisioning
       WebUtility wu = new WebUtility();
       ssdsUser = wu.GetConfigSectionItem("ssdsSettings", "ssdsUser");
       ssdsPassword = wu.GetConfigSectionItem("ssdsSettings", "ssdsPassword");
+      ssdsProxy = wu.GetConfigSectionItem("ssdsSettings", "ssdsProxy");
     }
   }
 
@@ -125,6 +128,7 @@ namespace Amundsen.SSDS.Provisioning
 
     public string UserName = string.Empty;
     public string Password = string.Empty;
+    public string ssdsProxy = string.Empty;
 
     public SsdsCommands() {}
     public SsdsCommands(string user,string pass)
@@ -147,14 +151,14 @@ namespace Amundsen.SSDS.Provisioning
       {
         case "g":
         case "get":
-          url = string.Format("http://{0}{1}", Constants.proxyRoot, args[authority]);
+          url = string.Format("{0}{1}", this.ssdsProxy, args[authority]);
           Console.WriteLine(client.Execute(url, "get", Constants.SsdsType));
           break;
 
         case "p":
         case "post":
           body = string.Format("<authority>{0}</authority>", args[authority]);
-          url = string.Format("http://{0}", Constants.proxyRoot);
+          url = string.Format("{0}", this.ssdsProxy);
           Console.WriteLine(client.Execute(url, "post", Constants.SsdsType, body));
           Console.WriteLine(string.Format("Authority [{0}] has been added.", args[authority]));
           break;
@@ -179,20 +183,20 @@ namespace Amundsen.SSDS.Provisioning
       {
         case "g":
         case "get":
-          Console.WriteLine(client.Execute(string.Format("http://{0}{1}/{2}", Constants.proxyRoot, args[authority], args[container]), "get", Constants.SsdsType));
+          Console.WriteLine(client.Execute(string.Format("{0}{1}/{2}", this.ssdsProxy, args[authority], args[container]), "get", Constants.SsdsType));
           break;
 
         case "p":
         case "post":
           body = string.Format("<container>{0}</container>", args[container]);
-          url = string.Format("http://{0}{1}/", Constants.proxyRoot, args[authority] );
+          url = string.Format("{0}{1}/", this.ssdsProxy, args[authority]);
           Console.WriteLine(client.Execute(url, "post", Constants.SsdsType, body));
           Console.WriteLine(string.Format("Container [{0}] has been added to [{1}].", args[container], args[authority]));
           break;
 
         case "d":
         case "delete":
-          url = string.Format("http://{0}{1}/{2}", Constants.proxyRoot, args[authority], args[container]);
+          url = string.Format("{0}{1}/{2}", this.ssdsProxy, args[authority], args[container]);
           Console.WriteLine(client.Execute(url, "delete", Constants.SsdsType));
           Console.WriteLine(string.Format("Container [{0}] has been deleted.", args[container]));
           break;
@@ -220,13 +224,13 @@ namespace Amundsen.SSDS.Provisioning
       {
         case "g":
         case "get":
-          Console.WriteLine(client.Execute(string.Format("http://{0}{1}/{2}/{3}", Constants.proxyRoot, args[authority], args[container], args[entity]), "get", Constants.SsdsType));
+          Console.WriteLine(client.Execute(string.Format("{0}{1}/{2}/{3}", this.ssdsProxy, args[authority], args[container], args[entity]), "get", Constants.SsdsType));
           break;
 
         case "p":
         case "post":
           body = ResolveDocument(args[doc]);
-          url = string.Format("http://{0}{1}/{2}/", Constants.proxyRoot, args[authority], args[container]);
+          url = string.Format("{0}{1}/{2}/", this.ssdsProxy, args[authority], args[container]);
           Console.WriteLine(client.Execute(url, "post", Constants.SsdsType, body));
           Console.WriteLine("Entity has been added.");
           break;
@@ -235,7 +239,7 @@ namespace Amundsen.SSDS.Provisioning
         case "update":
         case "put":
           body = ResolveDocument(args[doc]);
-          url = string.Format("http://{0}{1}/{2}/{3}", Constants.proxyRoot, args[authority], args[container], args[entity]);
+          url = string.Format("{0}{1}/{2}/{3}", this.ssdsProxy, args[authority], args[container], args[entity]);
 
           // get current record's etag value
           client.RequestHeaders.Add("cache-control", "no-cache");
@@ -250,7 +254,7 @@ namespace Amundsen.SSDS.Provisioning
 
         case "d":
         case "delete":
-          url = string.Format("http://{0}{1}/{2}/{3}", Constants.proxyRoot, args[authority], args[container], args[entity]);
+          url = string.Format("{0}{1}/{2}/{3}", this.ssdsProxy, args[authority], args[container], args[entity]);
           Console.WriteLine(client.Execute(url, "delete", Constants.SsdsType));
           Console.WriteLine(string.Format("Entity [{0}] has been deleted.", args[entity]));
           break;
@@ -273,9 +277,9 @@ namespace Amundsen.SSDS.Provisioning
 
       // parse into valid query string using jscript library
       query_string = args[query].Replace("$and$", "%26%26").Replace("$or$", "||");
-      url = string.Format("http://{0}{1}/{2}/?{3}", Constants.proxyRoot, args[authority], args[container], query_string);
+      url = string.Format("{0}{1}/{2}/?{3}", this.ssdsProxy, args[authority], args[container], query_string);
       query_string = Microsoft.JScript.GlobalObject.encodeURIComponent(new Uri(url).Query);
-      url = string.Format("http://{0}{1}/{2}/?{3}", Constants.proxyRoot, args[authority], args[container], query_string.Substring(3));
+      url = string.Format("{0}{1}/{2}/?{3}", this.ssdsProxy, args[authority], args[container], query_string.Substring(3));
 
       // execute and show results
       Console.WriteLine(client.Execute(url, "get", Constants.SsdsType));

@@ -13,7 +13,6 @@ namespace Amundsen.SSDS.Provisioning
   /// </summary>
   static class Constants
   {
-    static public string proxyRoot = "amundsen.com/ssds-proxy/";
     static public string SsdsRoot = "data.beta.mssds.com/v1/";
     static public string SsdsType = "application/xml";
     static public string QueryAll = "?q=''";

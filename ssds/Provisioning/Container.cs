@@ -269,6 +269,7 @@ namespace Amundsen.SSDS.Provisioning
       // clear cache
       cs.RemoveItem(ctx.Request.Url.ToString());
       cs.RemoveItem(ctx.Request.Url.ToString().Replace(container, ""));
+      cs.RemoveItem(ctx.Request.Url.ToString().Replace("container.ssds", "entity.ssds")+"&entity=");
 
       // compose response to client
       ctx.Response.StatusCode = 200;
