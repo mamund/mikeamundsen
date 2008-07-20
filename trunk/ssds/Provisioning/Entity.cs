@@ -236,6 +236,10 @@ namespace Amundsen.SSDS.Provisioning
 
       string url = string.Empty;
 
+      // hack to support isap rewrite utility
+      // added to support proper returning location header in response
+      string request_url = (ctx.Request.Headers["X-Rewrite-URL"] != null ? ctx.Request.Headers["X-Rewrite-URL"] : ctx.Request.Url.ToString());
+
       // get args
       authority = (ctx.Request.QueryString["authority"] != null ? ctx.Request.QueryString["authority"] : string.Empty);
       if (authority.Length==0)
@@ -271,13 +275,16 @@ namespace Amundsen.SSDS.Provisioning
       {
         case "$id$":
         case "$id-asc$":
-          xmlDoc.SelectSingleNode("//s:Id", xmlNS).InnerText = wu.MakeAscendingId(); 
+          entityId = wu.MakeAscendingId();
+          xmlDoc.SelectSingleNode("//s:Id", xmlNS).InnerText = entityId; 
           break;
         case "$id-desc$":
-          xmlDoc.SelectSingleNode("//s:Id", xmlNS).InnerText = wu.MakeDescendingId();
+          entityId = wu.MakeDescendingId();
+          xmlDoc.SelectSingleNode("//s:Id", xmlNS).InnerText = entityId;
           break;
         case "$guid$":
-          xmlDoc.SelectSingleNode("//s:Id", xmlNS).InnerText = Guid.NewGuid().ToString();
+          entityId = Guid.NewGuid().ToString();
+          xmlDoc.SelectSingleNode("//s:Id", xmlNS).InnerText = entityId;
           break;
       }
 
@@ -292,6 +299,7 @@ namespace Amundsen.SSDS.Provisioning
       ctx.Response.StatusCode = 201;
       ctx.Response.ContentType = "text/xml";
       ctx.Response.StatusDescription = "Entity has been created.";
+      ctx.Response.RedirectLocation = string.Format("{0}{1}", request_url, entityId);
       ctx.Response.Write(rtn);
     }
 
