@@ -1,8 +1,12 @@
 /* Public Domain 2008 amundsen.com, inc.
  * @author mike amundsen (http://amundsen.com/blog/)
- * 2008-06-27 (mca) : for SSDS provisioning client
- * 2008-07-04 (mca) : fixed IE entity display bug
+ * 2008-07-21 (mca) : minor tweaks to the UI
+ * 2008-07-16 (mca) : updated to use new ssds-proxy URIs
+ * 2008-07-14 (mca) : refactored javascript, fixed container caching bug, added refresh button
+ * 2008-07-10 (mca) : added support for caching, improved login pattern
  * 2008-07-08 (mca) : added support for entity queries
+ * 2008-07-04 (mca) : fixed IE entity display bug
+ * 2008-06-27 (mca) : SSDS provisioning client
  */
 
 body
@@ -43,6 +47,10 @@ h5
   font-size:smaller;
 }
 
+#home
+{
+  cursor:pointer;
+}
 .view
 {
   width:760px;
@@ -113,10 +121,10 @@ fieldset code
 }
 #query-block
 {
-	margin: .6em;
-	padding: .3em;
-	border: 1px solid silver;
-	background-color: #e9e9e9;
+  margin: .6em;
+  padding: .3em;
+  border: 1px solid silver;
+  background-color: #e9e9e9;
 }
 #query-prompt
 {
@@ -133,6 +141,10 @@ fieldset code
   font-style:italic;
 }
 
+#whats-new-legend
+{
+  cursor:pointer;
+}
 .whats-new
 {
   margin:0;
@@ -154,4 +166,27 @@ fieldset code
 #login-block
 {
   margin-bottom:1em;
+}
+
+#alert
+{
+	margin:.5em 0;
+  border:1px solid red;
+  padding: .2em;
+  background-color:#ffc;
+  width:760px;
+}
+#alert h3,h4,p
+{
+  margin:0;
+}
+.urgent
+{
+	font-weight:bold;
+	color:red;
+}
+.sig
+{
+	font-style:italic;
+	font-weight:bold;
 }

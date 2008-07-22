@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Amundsen.SSDS.Provisioning
 {
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.3 (2008-07-20)
   /// @version 1.2 (2008-07-13)
   /// @version 1.1 (2008-07-09)
   /// @version 1.0 (2008-07-03)

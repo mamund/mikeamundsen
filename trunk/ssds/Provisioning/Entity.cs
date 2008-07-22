@@ -1,7 +1,7 @@
 using System;
 using System.Web;
-using System.Xml;
 using System.Net;
+using System.Xml;
 using System.Globalization;
 
 using Amundsen.Utilities;
@@ -11,6 +11,7 @@ namespace Amundsen.SSDS.Provisioning
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.3 (2008-07-20)
   /// @version 1.2 (2008-07-13)
   /// @version 1.1 (2008-07-09)
   /// @version 1.0 (2008-07-03)
@@ -155,9 +156,10 @@ namespace Amundsen.SSDS.Provisioning
         entity = "/" + entity.Trim();
       }
 
-      // check local cache first (if allowed)
       request_url = ctx.Request.Url.ToString();
       string ifNoneMatch = wu.GetHeader(ctx, "if-none-match");
+
+      // check local cache first (if allowed)
       if (wu.CheckNoCache(ctx) == true)
       {
         ifNoneMatch = string.Empty;
@@ -193,7 +195,7 @@ namespace Amundsen.SSDS.Provisioning
         );
       }
 
-      // does client have good copy?
+      // if client has same copy, just send 304
       if (ifNoneMatch == item.ETag)
       {
         throw new HttpException((int)HttpStatusCode.NotModified, HttpStatusCode.NotModified.ToString());

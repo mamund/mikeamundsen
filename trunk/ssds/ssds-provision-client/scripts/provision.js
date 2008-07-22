@@ -1,5 +1,6 @@
 /* SSDS Provisioning Client
  * mike amundsen - http://amundsen.com/blog/
+ * 2008-07-21 (mca) : minor tweaks to the UI
  * 2008-07-16 (mca) : updated to use new ssds-proxy URIs
  * 2008-07-14 (mca) : refactored javascript
  * 2008-07-10 (mca) : added support for caching, improved login pattern
@@ -17,6 +18,7 @@ var provision = function()
   var noCache = '';
   var ssdsContentType = 'application/xml';
   var authCookie = 'x-form-authorization';
+  var alertUrl = 'alert-text.html';
 
   var authority = {};
   authority.id = '';
@@ -55,6 +57,7 @@ var provision = function()
     noCache = getSearchArg(/\&nc=([^&]*)/i);
 
     attachEvents();
+    checkAlert();
     toggleUser();
     updateUI();
     selectView();
@@ -89,6 +92,34 @@ var provision = function()
     }
   }
 
+  function checkAlert()
+  {
+    ajax.httpGet(alertUrl,null,onAjaxComplete,false,'checkAlert',{'cache-control':'no-cache'});
+  }
+  
+  function showHome()
+  {
+    location.href = location.pathname;
+  }
+
+  function showWhatsNew()
+  {
+    var elm
+    elm = document.getElementsByClassName('whats-new')[0];
+    if(elm)
+    {
+      if(elm.style.display=='none')
+      {
+        elm.style.display='block';
+        this.title = "Click to hide"
+      }
+      else
+      {
+        elm.style.display='none';
+        this.title = "Click to view"
+      }
+    }
+  }
   function showAuthentication()
   {
     toggleView('authenticateUser');
@@ -491,6 +522,9 @@ var provision = function()
     // process results
     switch(context)
     {
+      case 'checkAlert':
+        processCheckAlert(response,headers);
+        break;
       case 'loginUser':
         processLoginUser(response,headers);
         break;
@@ -526,6 +560,25 @@ var provision = function()
     }
   }
 
+  function processCheckAlert(response,headers)
+  {
+    var elm;
+    elm = document.getElementById('alert');
+    if(elm)
+    {
+      if(response && response.length!=0)
+      {
+        elm.innerHTML = response;
+        elm.style.display='block';
+      }
+      else
+      {
+        elm.innerHTML = '';
+        elm.style.display='none'
+      }
+    }
+  }
+  
   function processGetContainerList(response,headers)
   {
     var list,xml,li,a,i,id;
@@ -677,6 +730,9 @@ var provision = function()
 
   function attachEvents()
   {
+    document.getElementById('home').onclick = showHome;
+    document.getElementById('whats-new-legend').onclick = showWhatsNew;
+
     document.getElementById('commands-createAuthority').onclick = showAuthorityView;
     document.getElementById('commands-manageContainers').onclick = showContainerFilter;
     document.getElementById('commands-authenticateUser').onclick = showAuthentication;
@@ -694,6 +750,7 @@ var provision = function()
     document.getElementById('containerList-add').onclick = containerListAdd;
     document.getElementById('containerList-refresh').onclick = containerListRefresh;
     document.getElementById('containerList-back').onclick = containerListBack;
+    document.getElementById('containerList-home').onclick = showHome;
 
     document.getElementById('containerAdd-form').onsubmit = containerAddSubmit;
     document.getElementById('containerAdd-back').onclick = containerAddBack;
@@ -704,6 +761,7 @@ var provision = function()
     document.getElementById('entityList-add').onclick = entityListAdd;
     document.getElementById('entityList-delete').onclick = entityListDelete;
     document.getElementById('entityList-back').onclick = entityListBack;
+    document.getElementById('entityList-home').onclick = showHome;
 
     document.getElementById('entityItem-edit').onclick = entityItemEdit;
     document.getElementById('entityItem-delete').onclick = entityItemDelete;

@@ -16,6 +16,7 @@ namespace Amundsen.SSDS.Provisioning
     static string ssdsUser = string.Empty;
     static string ssdsPassword = string.Empty;
     static string ssdsProxy = string.Empty;
+
     static string authority_regex = "^/([^/]*)$"; 
     static string container_regex = "^/([^/]*)/([^/]*)$"; 
     static string entity_regex = "^/([^/]*)/([^/]*)/([^/?]*)$"; 
@@ -160,7 +161,7 @@ namespace Amundsen.SSDS.Provisioning
           body = string.Format("<authority>{0}</authority>", args[authority]);
           url = string.Format("{0}", this.ssdsProxy);
           Console.WriteLine(client.Execute(url, "post", Constants.SsdsType, body));
-          Console.WriteLine(string.Format("Authority [{0}] has been added.", args[authority]));
+          Console.WriteLine(string.Format("Authority [{0}] has been added.", (client.ResponseHeaders["location"]!=null?client.ResponseHeaders["location"]:args[authority])));
           break;
 
         default:
@@ -191,7 +192,7 @@ namespace Amundsen.SSDS.Provisioning
           body = string.Format("<container>{0}</container>", args[container]);
           url = string.Format("{0}{1}/", this.ssdsProxy, args[authority]);
           Console.WriteLine(client.Execute(url, "post", Constants.SsdsType, body));
-          Console.WriteLine(string.Format("Container [{0}] has been added to [{1}].", args[container], args[authority]));
+          Console.WriteLine(string.Format("Container [{0}] has been added.", (client.ResponseHeaders["location"]!=null?client.ResponseHeaders["location"]:args[container])));
           break;
 
         case "d":
@@ -232,7 +233,7 @@ namespace Amundsen.SSDS.Provisioning
           body = ResolveDocument(args[doc]);
           url = string.Format("{0}{1}/{2}/", this.ssdsProxy, args[authority], args[container]);
           Console.WriteLine(client.Execute(url, "post", Constants.SsdsType, body));
-          Console.WriteLine("Entity has been added.");
+          Console.WriteLine(string.Format("Entity [{0}] has been added.",(client.ResponseHeaders["location"]!=null?client.ResponseHeaders["location"]:string.Empty)));
           break;
 
         case "u":
@@ -275,7 +276,8 @@ namespace Amundsen.SSDS.Provisioning
       // set auth header
       client.RequestHeaders.Add("authorization", "Basic " + h.Base64Encode(string.Format("{0}:{1}", this.UserName, this.Password)));
 
-      // parse into valid query string using jscript library
+      // parse into valid query string
+      // note using jscript library to handle proper encoding for SSDS
       query_string = args[query].Replace("$and$", "%26%26").Replace("$or$", "||");
       url = string.Format("{0}{1}/{2}/?{3}", this.ssdsProxy, args[authority], args[container], query_string);
       query_string = Microsoft.JScript.GlobalObject.encodeURIComponent(new Uri(url).Query);
@@ -289,6 +291,7 @@ namespace Amundsen.SSDS.Provisioning
     private string ResolveDocument(string doc)
     {
       string rtn = string.Empty;
+
       if (doc.IndexOf(Constants.SitkaNS) != -1)
       {
         rtn = doc;
