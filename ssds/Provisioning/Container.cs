@@ -1,6 +1,5 @@
 using System;
 using System.Web;
-using System.Xml;
 using System.Net;
 using System.IO;
 using System.Globalization;
@@ -12,6 +11,7 @@ namespace Amundsen.SSDS.Provisioning
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.3 (2008-07-20)
   /// @version 1.2 (2008-07-13)
   /// @version 1.1 (2008-07-09)
   /// @version 1.0 (2008-07-03)
@@ -124,9 +124,10 @@ namespace Amundsen.SSDS.Provisioning
 
       container = (ctx.Request.QueryString["container"] != null ? ctx.Request.QueryString["container"] : string.Empty);
 
-      // check local cache first (if allowed)
       request_url = ctx.Request.Url.ToString();
       string ifNoneMatch = wu.GetHeader(ctx, "if-none-match");
+
+      // check local cache first (if allowed)
       if (wu.CheckNoCache(ctx) == true)
       {
         ifNoneMatch = string.Empty;
@@ -163,7 +164,7 @@ namespace Amundsen.SSDS.Provisioning
 
       }
 
-      // does client have good copy?
+      // if client has same copy, just send 304
       if (ifNoneMatch == item.ETag)
       {
         throw new HttpException((int)HttpStatusCode.NotModified, HttpStatusCode.NotModified.ToString());
@@ -203,7 +204,10 @@ namespace Amundsen.SSDS.Provisioning
       string authority = string.Empty;
       string container = string.Empty;
       string url = string.Empty;
-      string request_url = string.Empty;
+
+      // hack to support isap rewrite utility
+      // added to support proper returning location header in response
+      string request_url = (ctx.Request.Headers["X-Rewrite-URL"] != null ? ctx.Request.Headers["X-Rewrite-URL"] : ctx.Request.Url.ToString());
 
       // get args
       authority = (ctx.Request.QueryString["authority"] != null ? ctx.Request.QueryString["authority"] : string.Empty);
@@ -237,6 +241,7 @@ namespace Amundsen.SSDS.Provisioning
       ctx.Response.StatusCode = 201;
       ctx.Response.ContentType = "text/xml";
       ctx.Response.StatusDescription = "Container has been created.";
+      ctx.Response.RedirectLocation = string.Format("{0}{1}", request_url, container);
       ctx.Response.Write(rtn);
     }
 
