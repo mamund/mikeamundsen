@@ -13,7 +13,7 @@ namespace Amundsen.SSDS.Provisioning
   {
     static public string SsdsRoot = "data.beta.mssds.com/v1/";
     static public string SsdsType = "application/xml";
-    static public string QueryAll = "?q=''";
+    static public string QueryAll = "?q=";
     static public string SitkaNS = "http://schemas.microsoft.com/sitka/2008/03/";
 
     static public string ErrorFormat = "<s:Error xmlns:s='{2}'><s:Code>{0}</s:Code><s:Message>{1}</s:Message></s:Error>";

@@ -389,7 +389,6 @@ namespace Amundsen.SSDS.Provisioning
       cs.RemoveItem(request_url.Replace(entity, ""));
 
       // update local copy w/ new document
-      // (cuz ssds returns wrong s:Version for PUTs!)
       rtn = client.Execute(url, "get", Constants.SsdsType);
 
       CacheItem item = cs.PutItem(
