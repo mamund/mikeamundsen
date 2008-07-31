@@ -253,30 +253,6 @@ namespace Amundsen.Utilities
           msg = wrsp.StatusDescription;
           code = ((int)wrsp.StatusCode).ToString();
 
-          // hack to check for SSDS custom error msg (should be in the StatusDescription...)
-          try
-          {
-            XmlNode node = null;
-            XmlDocument xml_doc = new XmlDocument();
-            xml_doc.Load(wrsp.GetResponseStream());
-            XmlNamespaceManager xml_ns = new XmlNamespaceManager(xml_doc.NameTable);
-            xml_ns.AddNamespace("s", "http://schemas.microsoft.com/sitka/2008/03/");
-            node = xml_doc.SelectSingleNode("//s:Message", xml_ns);
-            if (node != null)
-            {
-              msg = node.InnerText;
-            }
-            node = xml_doc.SelectSingleNode("//s:Code", xml_ns);
-            if (node != null)
-            {
-              xcode = node.InnerText;
-            }
-            msg = msg + "[" + xcode + "]";
-          }
-          catch (XmlException xex)
-          {
-            throw new HttpException(Int32.Parse(code), msg);
-          }
           throw new HttpException(Int32.Parse(code), msg);
         }
         else

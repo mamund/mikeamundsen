@@ -16,7 +16,7 @@ var provision = function()
   var userName = '';
   var etag = '';
   var noCache = '';
-  var ssdsContentType = 'application/xml';
+  var ssdsContentType = 'application/x-ssds+xml';
   var authCookie = 'x-form-authorization';
   var alertUrl = 'alert-text.html';
 
@@ -45,6 +45,7 @@ var provision = function()
   var serverErrors = [];
   serverErrors[401] = 'Access denied.\nPlease login.';
   serverErrors[403] = 'Access denied.\nInvalid username or password.';
+  serverErrors[409] = 'Add cancelled.\nAn item with that ID already exists.';
   serverErrors[412] = 'Update cancelled.\nSomeone else has modified this item.';
 
   function init()
@@ -96,7 +97,7 @@ var provision = function()
   {
     ajax.httpGet(alertUrl,null,onAjaxComplete,false,'checkAlert',{'cache-control':'no-cache'});
   }
-  
+
   function showHome()
   {
     location.href = location.pathname;
@@ -578,7 +579,7 @@ var provision = function()
       }
     }
   }
-  
+
   function processGetContainerList(response,headers)
   {
     var list,xml,li,a,i,id;

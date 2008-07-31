@@ -1,0 +1,14 @@
+C:\Projects\SSDS\TaskList\Amundsen.SSDS.GuestBook\obj\Debug\ResolveAssemblyReference.cache
+C:\Projects\SSDS\TaskList\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.SSDS.GuestBook.dll
+C:\Projects\SSDS\TaskList\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.SSDS.GuestBook.pdb
+C:\Projects\SSDS\TaskList\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.Utilities.dll
+C:\Projects\SSDS\TaskList\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.Utilities.pdb
+C:\Projects\SSDS\TaskList\Amundsen.SSDS.GuestBook\obj\Debug\Amundsen.SSDS.GuestBook.dll
+C:\Projects\SSDS\TaskList\Amundsen.SSDS.GuestBook\obj\Debug\Amundsen.SSDS.GuestBook.pdb
+C:\Projects\SSDS\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.SSDS.GuestBook.dll
+C:\Projects\SSDS\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.SSDS.GuestBook.pdb
+C:\Projects\SSDS\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.Utilities.dll
+C:\Projects\SSDS\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.Utilities.pdb
+C:\Projects\SSDS\Amundsen.SSDS.GuestBook\obj\Debug\ResolveAssemblyReference.cache
+C:\Projects\SSDS\Amundsen.SSDS.GuestBook\obj\Debug\Amundsen.SSDS.GuestBook.dll
+C:\Projects\SSDS\Amundsen.SSDS.GuestBook\obj\Debug\Amundsen.SSDS.GuestBook.pdb

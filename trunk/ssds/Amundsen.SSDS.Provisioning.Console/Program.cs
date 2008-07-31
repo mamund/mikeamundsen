@@ -91,7 +91,7 @@ namespace Amundsen.SSDS.Provisioning
 
     private static void ShowHelp()
     {
-      Console.Out.WriteLine("\nSSDS Provisioning Console (1.1 - 2008-07-20)\n");
+      Console.Out.WriteLine("\nSSDS Provisioning Console (1.2 - 2008-07-24)\n");
 
       Console.Out.WriteLine("Authorities:");
       Console.Out.WriteLine("\t/{aid} [[g]get]\n\tex: /my-authority\n");

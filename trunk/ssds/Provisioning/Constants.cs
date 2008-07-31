@@ -12,7 +12,7 @@ namespace Amundsen.SSDS.Provisioning
   static class Constants
   {
     static public string SsdsRoot = "data.beta.mssds.com/v1/";
-    static public string SsdsType = "application/xml";
+    static public string SsdsType = "application/x-ssds+xml";
     static public string QueryAll = "?q=";
     static public string SitkaNS = "http://schemas.microsoft.com/sitka/2008/03/";
 

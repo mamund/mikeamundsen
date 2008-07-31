@@ -43,7 +43,7 @@ namespace Amundsen.SSDS.Provisioning
       // process request
       try
       {
-        string rtn = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes);
+        string rtn = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes,Constants.SsdsType);
         if (rtn.Length == 0)
         {
           Options();

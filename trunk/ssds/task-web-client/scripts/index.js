@@ -47,7 +47,7 @@ var pg =
     xml = xml.replace('{@name}',document.getElementById('add-name').value);
     xml = xml.replace('{@is-completed}',document.getElementById('add-completed').value);
 
-    ajax.httpPost(pg.tasks_url,null,pg.onAjaxComplete,true,'addItem','application/xml',xml);
+    ajax.httpPost(pg.tasks_url,null,pg.onAjaxComplete,true,'addItem','application/x-ssds+xml',xml);
   },
 
   addCancel : function()
@@ -64,7 +64,7 @@ var pg =
     xml = xml.replace('{@name}',document.getElementById('edit-name').value);
     xml = xml.replace('{@is-completed}',document.getElementById('edit-completed').value);
 
-    ajax.httpPut(pg.tasks_url+pg.id,null,pg.onAjaxComplete,true,'updateItem','application/xml',xml);
+    ajax.httpPut(pg.tasks_url+pg.id,null,pg.onAjaxComplete,true,'updateItem','application/x-ssds+xml',xml);
   },
 
   editDelete:function()

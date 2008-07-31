@@ -43,7 +43,7 @@ namespace Amundsen.SSDS.Provisioning
       // process request
       try
       {
-        string rtn = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes);
+        string rtn = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes,Constants.SsdsType);
         if (rtn.Length == 0)
         {
           Options();
@@ -98,7 +98,7 @@ namespace Amundsen.SSDS.Provisioning
     private void Options()
     {
       ctx.Response.AppendHeader("Allow", "GET,HEAD,POST,OPTIONS");
-      ctx.Response.AppendHeader("X-Acceptable", "application/xml,text/xml");
+      ctx.Response.AppendHeader("X-Acceptable", "application/x-ssds+xml,application/xml,text/xml");
     }
 
     // get metadata for requested authority
