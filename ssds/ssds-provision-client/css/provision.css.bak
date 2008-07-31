@@ -1,0 +1,104 @@
+/* 2008-06-27 (mca) : for SSDS provisioning client */
+
+body
+{
+  padding:0;
+}
+
+#loading
+{
+  width:200px;
+  margin: 5em auto;
+  padding: 2em;
+  border: 3px outset #111;
+  color:black;
+  background-color:#e6e6e6;
+  text-align:center;
+}
+h1,h2,h3,h4,h5
+{
+  margin-bottom:0;
+}
+h3,h4,h5
+{
+  margin-top:0;
+}
+h5
+{
+  font-style:italic;
+}
+#details,
+#details p
+{
+  margin:0 auto;
+}
+#details p.version
+{
+  font-style:italic;
+  font-size:smaller;
+}
+
+.view
+{
+  width:760px;
+}
+.space
+{
+  margin-top:.5em;
+}
+fieldset legend
+{
+  color:black;
+  font-weight:bold;
+}
+fieldset p
+{
+  margin:.2em 0;
+  float:none;
+  clear:both;
+}
+fieldset p label
+{
+  display:block;
+  width:5em;
+  float:left;
+}
+fieldset.buttons
+{
+  padding:.3em;
+}
+p.buttons
+{
+  border:solid 1px #000;
+  background-color:#e6e6e6;
+  padding:.2em;
+}
+p.buttons input,
+p.buttons select,
+.inline-button
+{
+  font-size:x-small;
+}
+input[type='submit']
+{
+  font-weight:bold;
+}
+
+.hidden
+{
+  display:none;
+}
+#entityItem dt
+{
+  font-weight:bold;
+  float:left;
+  width:100px;
+}
+#entityItem dd
+{
+}
+#query-text
+{
+  display:block;
+  font-weight:bold;
+}
