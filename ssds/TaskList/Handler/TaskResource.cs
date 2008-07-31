@@ -46,7 +46,7 @@ namespace Amundsen.SSDS.TaskDemo
 
       try
       {
-        string rtn = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes);
+        string rtn = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes,"application/x-ssds+xml");
         if (rtn.Length == 0)
         {
           Options();
@@ -106,7 +106,7 @@ namespace Amundsen.SSDS.TaskDemo
     private void Options()
     {
       ctx.Response.AppendHeader("Allow", "GET,HEAD,POST,PUT,DELETE,OPTIONS");
-      ctx.Response.AppendHeader("X-Acceptable", "application/xml,text/xml");
+      ctx.Response.AppendHeader("X-Acceptable", "application/x-ssds+xml,application/xml,text/xml");
     }
 
     // get task list or single task

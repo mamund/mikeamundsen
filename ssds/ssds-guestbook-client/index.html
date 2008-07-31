@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>SSDS Guestbook Demo</title>
+    <link href="css/guestbook.css" rel="stylesheet" type="text/css" />
+    <meta http-equiv="refresh" content="120" />
+  </head>
+  <body>
+    <!-- app details -->
+    <div id="details">
+      <h1 id="home" title="Home">SSDS Guestbook Demo</h1>
+      <p class="version">version 1.0 (2008-07-29)</p>
+      <p>by <a href="http://amundsen.com/blog/" title="Mike Amundsen">Mike Amundsen</a></p>
+      <p><a href="http://amundsen.com/examples/ssds/">SSDS Examples Home</a></p>
+      <p><a href="http://amundsen.com/examples/ssds/feedback/">Feedback for SSDS Examples</a></p>
+    </div>
+
+    <!-- commands -->
+    <div id="command-block" class="view">
+      <h4 class="nickname"></h4>
+      <span id="login"><input type="button" id="commands-guestLogin" title="Login User" value="Login" class="inline-button"/></span>
+      <span id="create"><input type="button" id="commands-guestCreate" title="Create Account" value="Create Account" class="inline-button"/></span>
+      <span id="delete" style="display:none;"><input type="button" id="commands-guestDelete" title="Delete Account" value="Delete Account" class="inline-button"/></span>
+      <span id="message-view"><input type="button" id="commands-messages" title="View Messages" value="All Messages" class="inline-button"/></span>
+      <span id="guest-view"><input type="button" id="commands-guests" title="View Guests" value="Guests" class="inline-button"/></span>
+      <span id="logout"><input type="button" id="commands-guestLogout" title="Logout User" value="Logout" class="inline-button"/></span>
+      <span id="about-view"><input type="button" id="commands-about" title="About this application" value="About" class="inline-button"/></span>
+    </div>
+
+    <!-- current messages -->
+    <div id="messages" class="view">
+      <h2>Recent Messages</h2>
+      <p class="add-click">
+        <a href="#" id="messageCreate-link" title="Add a new message">Post a message</a>
+      </p>
+      <form id="messageCreate-form" method="post" action="#" style="display:none;">
+        <p class="buttons">
+          <input type="submit" id="messageCreate-submit" value="Post" />
+          <input type="button" id="messageCreate-back" value="Back" />
+        </p>
+        <fieldset>
+          <legend>Enter Message [<span id="textCount"></span>]</legend>
+          <textarea name="message" rows="3" cols="60" id="textMessage"></textarea>
+        </fieldset>
+      </form>
+      <div id="messageList">
+        <dl id="recent-messages"></dl>
+      </div>
+    </div>
+
+    <!-- active guests -->
+    <div id="guests" class="view" style="display:none;">
+      <h2>Guests</h2>
+      <ol id="recent-guests">
+        <li><a href="#" title="View messages">MikeAmundsen</a></li>
+      </ol>
+    </div>
+
+    <!-- create new guest -->
+    <div id="guest-create" class="view" style="display:none;">
+      <h2>Create Account</h2>
+      <form id="guestCreate-form" method="post" action="#">
+        <p class="buttons">
+          <input type="submit" id="guestCreate-submit" value="Create" />
+          <input type="button" id="guestCreate-back" value="Back" />
+        </p>
+        <fieldset>
+          <legend>Enter a Nickname, Password, and Email</legend>
+          <p class="inputs">
+            <label for="nickname">Nickname</label>
+            <input type="text" name="nickname" size="20" value="" />
+          </p>
+          <p class="inputs">
+            <label for="password">Password</label>
+            <input type="password" name="password" size="20" value="" />
+          </p>
+          <p class="inputs">
+            <label for="email">Email</label>
+            <input type="text" name="email" size="20" value="" />
+          </p>
+        </fieldset>
+        <fieldset>
+          <legend>Notes</legend>
+          <p>
+            Your nickname will be public. Your email will be kept private.
+            Login using your nickname and password.
+            Be sure to remember your password. It cannot be recovered or
+            reset!
+          </p>
+        </fieldset>
+      </form>
+    </div>
+
+    <!-- delete existing guest -->
+    <div id="guest-delete" class="view" style="display:none;">
+      <h2>Delete Account</h2>
+      <p class="buttons">
+        <input type="button" id="guestDelete-delete" value="Delete" />
+        <input type="button" id="guestDelete-back" value="Back" />
+      </p>
+      <fieldset>
+        <legend>Notes</legend>
+        <p>
+          Deleting your account cannot be 'undone.'
+          You will no longer be able to login with this account.
+          Any messages you created *will not* be deleted.
+        </p>
+      </fieldset>
+    </div>
+
+    <!-- get login info -->
+    <div id="guest-login" class="view" style="display:none;">
+      <h2>Login</h2>
+      <form id="guestLogin-form" method="post" action="#">
+        <p class="buttons">
+          <input type="submit" id="guestLogin-submit" value="Login" />
+          <input type="button" id="guestLogin-back" value="Back" />
+        </p>
+        <fieldset>
+          <legend>Enter Your Guestbook Nickname and Password</legend>
+          <p class="inputs">
+            <label for="nickname">Nickname</label>
+            <input type="text" name="nickname" class="nickname" size="20" value="" />
+          </p>
+          <p class="inputs">
+            <label for="password">Password</label>
+            <input type="password" name="password" class="password" size="20" value="" />
+          </p>
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="about" class="view" style="display:none;">
+      <h2>About</h2>
+      <fieldset>
+        <p>
+          This demo application was built to explore Microsoft's <a href="http://www.microsoft.com/sql/dataservices/default.mspx" title="SQL Server Data Services">SSDS</a>
+          cloud database services. It was built using C#/ASP.NET on the server and a simple HTML/Javascript client.
+          You can get details on this and other samples at the <a href="http://amundsen.com/examples/ssds/" title="SSDS Examples">SSDS Examples</a> web page.
+        </p>
+        <p>
+          This application was built using a single SSDS Container (<code>guestbook</code>) and multiple SSDS Entity Types (<code>message</code> and <code>guest</code>).
+          The server code handles user authentication using either standard HTTP Basic or a custom cookie (<code>x-forms-authorization</code>). This makes it possible
+          to use either a web browser or standard HTTP request services to interact with the database.
+        </p>
+      </fieldset>
+    </div>
+    <div id="loading" style="display:none;">
+      <h2>loading...</h2>
+      <img src="images/loading.gif" alt="working..."/>
+    </div>
+
+  </body>
+  <script type="text/javascript" src="scripts/ajax.js">// na</script>
+  <script type="text/javascript" src="scripts/mozxpath.js">// na</script>
+  <script type="text/javascript" src="scripts/base64.js">// na</script>
+  <script type="text/javascript" src="scripts/md5.js">// na</script>
+  <script type="text/javascript" src="scripts/cookies.js">// na</script>
+  <script type="text/javascript" src="scripts/guestbook.js">// na</script>
+  <script type="text/javascript" src="scripts/date.js">// na</script>
+  <script type="text/javascript" src="scripts/pretty.js">// na</script>
+</html>

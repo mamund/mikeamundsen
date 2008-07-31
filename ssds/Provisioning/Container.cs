@@ -43,7 +43,7 @@ namespace Amundsen.SSDS.Provisioning
       // process request
       try
       {
-        string rtn = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes);
+        string rtn = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes,Constants.SsdsType);
         if (rtn.Length == 0)
         {
           Options();
@@ -189,7 +189,7 @@ namespace Amundsen.SSDS.Provisioning
       }
 
       // ie local cache hack
-      if (ctx.Request.UserAgent.IndexOf("IE", StringComparison.CurrentCultureIgnoreCase) != -1)
+      if (ctx.Request.UserAgent != null && ctx.Request.UserAgent.IndexOf("IE", StringComparison.CurrentCultureIgnoreCase) != -1)
       {
         ctx.Response.AppendHeader("cache-control", "no-cache,post-check=1,pre-check=2");
       }
