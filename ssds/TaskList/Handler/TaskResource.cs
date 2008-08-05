@@ -11,6 +11,7 @@ namespace Amundsen.SSDS.TaskDemo
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.2 (2008-08-05)
   /// @version 1.1 (2008-07-03)
   /// </summary>
   public class TaskResource : IHttpHandler
@@ -24,6 +25,7 @@ namespace Amundsen.SSDS.TaskDemo
     const string queryAll = "?q=''";
     const string sitkaNS = "http://schemas.microsoft.com/sitka/2008/03/";
     const string errorFormat = "<s:Error xmlns:s='{2}'><s:Code>{0}</s:Code><s:Message>{1}</s:Message></s:Error>";
+    const string MsftRequestId = "x-msft-request-id";
 
     DateTime ifModifiedSinceDate = DateTime.MaxValue;
 
@@ -34,6 +36,7 @@ namespace Amundsen.SSDS.TaskDemo
     string ssdsUser = string.Empty;
     string ssdsPassword = string.Empty;
     string queryFormat = string.Empty;
+    string msft_request = string.Empty;
 
     bool IHttpHandler.IsReusable
     {
@@ -149,6 +152,7 @@ namespace Amundsen.SSDS.TaskDemo
       if (item == null)
       {
         rtn = client.Execute(url, "get", "application/xml");
+        msft_request = (client.ResponseHeaders[MsftRequestId] != null ? client.ResponseHeaders[MsftRequestId] : string.Empty);
 
         // fill local cache
         item = cs.PutItem(
@@ -172,6 +176,12 @@ namespace Amundsen.SSDS.TaskDemo
       ctx.Response.ContentType = reply_type;
       ctx.Response.Write(item.Payload);
       ctx.Response.SuppressContent = supressContent;
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(MsftRequestId, msft_request);
+      }
 
       // validation caching
       ctx.Response.AddHeader("etag", item.ETag);
@@ -215,9 +225,16 @@ namespace Amundsen.SSDS.TaskDemo
 
       // send to the server
       client.Execute(endPoint, "POST", "application/xml", xmlDoc.OuterXml);
+      msft_request = (client.ResponseHeaders[MsftRequestId] != null ? client.ResponseHeaders[MsftRequestId] : string.Empty);
 
       // remove related local cache items
       cs.RemoveItem(endPoint + queryAll);
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(MsftRequestId, msft_request);
+      }
 
       // redirect client to the new location
       ctx.Response.ContentType = reply_type;
@@ -257,10 +274,17 @@ namespace Amundsen.SSDS.TaskDemo
 
       // send to the server
       client.Execute(endPoint+"/"+id, "PUT", "application/xml", xmlDoc.OuterXml);
+      msft_request = (client.ResponseHeaders[MsftRequestId] != null ? client.ResponseHeaders[MsftRequestId] : string.Empty);
 
       // remove related local cache items
       cs.RemoveItem(endPoint + queryAll);
       cs.RemoveItem(endPoint + "/" + id);
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(MsftRequestId, msft_request);
+      }
 
       // handle response
       if (ctx.Request.UserAgent != null && ctx.Request.UserAgent.IndexOf("IE", StringComparison.CurrentCultureIgnoreCase) != -1)
@@ -291,10 +315,17 @@ namespace Amundsen.SSDS.TaskDemo
 
       // send to the server
       client.Execute(endPoint + "/" + id, "DELETE", "application/xml");
+      msft_request = (client.ResponseHeaders[MsftRequestId] != null ? client.ResponseHeaders[MsftRequestId] : string.Empty);
 
       // remove related local cache items
       cs.RemoveItem(endPoint + queryAll);
       cs.RemoveItem(endPoint + "/" + id);
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(MsftRequestId, msft_request);
+      }
 
       // handle response
       if (ctx.Request.UserAgent!=null && ctx.Request.UserAgent.IndexOf("Safari", StringComparison.CurrentCultureIgnoreCase) != -1)

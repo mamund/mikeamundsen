@@ -11,6 +11,7 @@ namespace Amundsen.SSDS.Provisioning
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.4 (2008-08-05)
   /// @version 1.3 (2008-07-20)
   /// @version 1.2 (2008-07-13)
   /// @version 1.1 (2008-07-09)
@@ -27,6 +28,7 @@ namespace Amundsen.SSDS.Provisioning
     string ssdsPassword = string.Empty;
     bool showExpires = false;
     int maxAge = 60;
+    string msft_request = string.Empty;
 
     bool IHttpHandler.IsReusable
     {
@@ -182,6 +184,7 @@ namespace Amundsen.SSDS.Provisioning
         // handle query
         url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}{3}", authority, Constants.SsdsRoot, container, entity);
         rtn = client.Execute(url, "get", Constants.SsdsType);
+        msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
         // fill local cache
         item = cs.PutItem(
@@ -207,6 +210,12 @@ namespace Amundsen.SSDS.Provisioning
       ctx.Response.ContentType = "text/xml";
       ctx.Response.StatusDescription = "OK";
       ctx.Response.Write(item.Payload);
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
+      }
 
       // validation caching
       ctx.Response.AddHeader("etag", item.ETag);
@@ -293,9 +302,16 @@ namespace Amundsen.SSDS.Provisioning
       // handle request to remote server
       url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}", authority, Constants.SsdsRoot, container);
       rtn = client.Execute(url, "post", Constants.SsdsType, xmlDoc.OuterXml);
+      msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
       // clear cache
       cs.RemoveItem(ctx.Request.Url.ToString());
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
+      }
 
       // compose response to client
       ctx.Response.StatusCode = 201;
@@ -383,6 +399,7 @@ namespace Amundsen.SSDS.Provisioning
 
       // handle PUT to remote server
       rtn = client.Execute(url, "put", Constants.SsdsType, xmlDoc.OuterXml);
+      msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
       // clear local cache
       cs.RemoveItem(request_url);
@@ -400,6 +417,12 @@ namespace Amundsen.SSDS.Provisioning
           showExpires
         )
       );
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
+      }
 
       // compose response to client
       ctx.Response.StatusCode = 200;
@@ -439,10 +462,17 @@ namespace Amundsen.SSDS.Provisioning
       // handle request to remote server
       url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}/{3}", authority, Constants.SsdsRoot, container,entity);
       rtn = client.Execute(url, "delete", Constants.SsdsType);
+      msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
       // clear cache
       cs.RemoveItem(ctx.Request.Url.ToString());
       cs.RemoveItem(ctx.Request.Url.ToString().Replace(entity, ""));
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
+      }
 
       // compose response to client
       ctx.Response.StatusCode = 200;

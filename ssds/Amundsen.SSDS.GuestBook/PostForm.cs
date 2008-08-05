@@ -14,13 +14,11 @@ namespace Amundsen.SSDS.GuestBook
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
   /// @version 1.1 (2008-08-05)
-  /// @version 1.0 (2008-08-01)
   /// 
   /// uses SSDS Proxy server (http://amundsen.com/ssds-proxy/)
-  /// GET, HEAD, POST, OPTIONS  /guestbook/guests/
-  /// GET, HEAD, DELETE         /guestbook/guests/{nickname}
+  /// GET, HEAD, POST, OPTIONS  /guestbook/form/
   /// </summary>
-  class Guests : IHttpHandler
+  class PostForm : IHttpHandler
   {
     private WebUtility wu;
     private HttpClient client;
@@ -28,18 +26,21 @@ namespace Amundsen.SSDS.GuestBook
     private CacheService cs;
     private Hashing h;
 
-    static string ssdsUser = string.Empty;
-    static string ssdsPassword = string.Empty;
-    static string ssdsProxy = string.Empty;
+    string ssdsUser = string.Empty;
+    string ssdsPassword = string.Empty;
+    string ssdsProxy = string.Empty;
 
+    string guestbookUser = string.Empty;
+    string guestbookPassword = string.Empty;
+    string msft_request = string.Empty;
 
     bool showExpires = false;
     int maxAge = 60;
-    string msft_request = string.Empty;
 
     string authority = "mikeamundsen";
     string container = "guestbook";
-    string guest_list_query = @"from e in entities where e.Kind==""guest"" select e";
+    string message_list_query = @"from e in entities where e.Kind==""message"" select e";
+    string message_nick_query = @"from e in entities where e.Kind==""message"" %2526%2526 e[""nickname""]==""{0}"" select e";
 
     bool IHttpHandler.IsReusable
     {
@@ -57,15 +58,15 @@ namespace Amundsen.SSDS.GuestBook
       // process request
       try
       {
-        string rtn = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes, Constants.SsdsType);
-        if (rtn.Length == 0)
-        {
-          Options();
-          throw new HttpException((int)HttpStatusCode.NotAcceptable, HttpStatusCode.NotAcceptable.ToString());
-        }
-
         HandleConfigSettings();
         client.RequestHeaders.Add("authorization", "Basic " + h.Base64Encode(string.Format("{0}:{1}", ssdsUser, ssdsPassword)));
+        if (!HandleAuthentication())
+        {
+          ctx.Response.AddHeader("WWW-Authenticate", "Basic Realm=\"amundsen.com\"");
+          ctx.Response.StatusCode = 401;
+          ctx.Response.StatusDescription = "Unauthorized";
+          return;
+        }
 
         wu.SetCompression(ctx);
 
@@ -81,9 +82,6 @@ namespace Amundsen.SSDS.GuestBook
           case "post":
             Post();
             break;
-          case "delete":
-            Delete();
-            break;
           case "options":
             Options();
             break;
@@ -94,8 +92,8 @@ namespace Amundsen.SSDS.GuestBook
       }
       catch (HttpException hex)
       {
-        ctx.Response.ContentType = "text/xml";
-        ctx.Response.Write(string.Format(CultureInfo.CurrentCulture, Constants.ErrorFormat, hex.GetHttpCode(), hex.Message, Constants.SitkaNS));
+        ctx.Response.ContentType = "text/html";
+        ctx.Response.Write(string.Format(CultureInfo.CurrentCulture, Constants.ErrorFormatHtml, hex.GetHttpCode(), hex.Message, Constants.SitkaNS));
         ctx.Response.Write(" ".PadRight(500));
         ctx.Response.StatusCode = hex.GetHttpCode();
         ctx.Response.StatusDescription = hex.Message;
@@ -103,8 +101,8 @@ namespace Amundsen.SSDS.GuestBook
       }
       catch (Exception ex)
       {
-        ctx.Response.ContentType = "text/xml";
-        ctx.Response.Write(string.Format(CultureInfo.CurrentCulture, Constants.ErrorFormat, 500, ex.Message, Constants.SitkaNS));
+        ctx.Response.ContentType = "text/html";
+        ctx.Response.Write(string.Format(CultureInfo.CurrentCulture, Constants.ErrorFormatHtml, 500, ex.Message, Constants.SitkaNS));
         ctx.Response.Write(" ".PadRight(500));
         ctx.Response.StatusCode = 500;
         ctx.Response.StatusDescription = ex.Message;
@@ -114,7 +112,7 @@ namespace Amundsen.SSDS.GuestBook
     // reflect valid methods and mimetypes to client
     private void Options()
     {
-      ctx.Response.AppendHeader("Allow", "GET,HEAD,POST,DELETE,OPTIONS");
+      ctx.Response.AppendHeader("Allow", "GET,HEAD,POST,OPTIONS");
       ctx.Response.AppendHeader("X-Acceptable", "application/x-ssds+xml,application/xml,text/xml");
     }
 
@@ -127,22 +125,17 @@ namespace Amundsen.SSDS.GuestBook
     {
       string rtn = string.Empty;
       string entity = string.Empty;
-      string validate = string.Empty;
       string url = string.Empty;
       string query = string.Empty;
       string request_url = string.Empty;
       CacheItem item = null;
-
-      entity = (ctx.Request.QueryString["entity"] != null ? ctx.Request.QueryString["entity"].Trim().ToLower() : string.Empty);
-      if (entity.Length == 0)
-      {
-        // just return list of guests
-        entity = "?" + ctx.Server.UrlPathEncode(guest_list_query);
-      }
+      string nickname = string.Empty;
+      string password = string.Empty;
+      string valid_password = string.Empty;
 
       request_url = ctx.Request.Url.ToString();
       string ifNoneMatch = wu.GetHeader(ctx, "if-none-match");
-      bool noCache = (wu.GetHeader(ctx, "cache-control").IndexOf("no-cache")!=-1 ? true : false);
+      bool noCache = (wu.GetHeader(ctx, "cache-control").IndexOf("no-cache") != -1 ? true : false);
 
       // check local cache first (if allowed)
       if (wu.CheckNoCache(ctx) == true)
@@ -164,23 +157,7 @@ namespace Amundsen.SSDS.GuestBook
 
       if (item == null)
       {
-        // handle query
-        url = string.Format(CultureInfo.CurrentCulture, "{0}{1}/{2}/{3}", ssdsProxy,authority, container, entity);
-        if (noCache)
-        {
-          client.RequestHeaders.Add("cache-control", "no-cache");
-        }
-        rtn = client.Execute(url, "get", Constants.SsdsType);
-        msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
-
-        // make sure we got at least one guest document
-        XmlDocument xmldoc = new XmlDocument();
-        xmldoc.LoadXml(rtn);
-        XmlNodeList nodes = xmldoc.SelectNodes("//guest");
-        if (nodes.Count==0)
-        {
-          throw new HttpException(404,string.Format("Guest record not found [{0}]",entity));
-        }
+        rtn = postTemplate;
 
         // fill local cache
         item = cs.PutItem(
@@ -203,15 +180,9 @@ namespace Amundsen.SSDS.GuestBook
       // compose response to client
       ctx.Response.SuppressContent = supressContent;
       ctx.Response.StatusCode = 200;
-      ctx.Response.ContentType = "text/xml";
+      ctx.Response.ContentType = "text/html";
       ctx.Response.StatusDescription = "OK";
       ctx.Response.Write(item.Payload);
-
-      // add msft_header, if present
-      if (msft_request.Length != 0)
-      {
-        ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
-      }
 
       // validation caching
       ctx.Response.AddHeader("etag", item.ETag);
@@ -238,10 +209,10 @@ namespace Amundsen.SSDS.GuestBook
       string body = string.Empty;
       string entityId = string.Empty;
 
+      string valid_password = string.Empty;
       string nickname = string.Empty;
-      string email = string.Empty;
       string password = string.Empty;
-
+      string message = string.Empty;
       string url = string.Empty;
 
       // hack to support isapi rewrite utility
@@ -249,35 +220,19 @@ namespace Amundsen.SSDS.GuestBook
       string request_url = (ctx.Request.Headers["X-Rewrite-URL"] != null ? ctx.Request.Headers["X-Rewrite-URL"] : ctx.Request.Url.ToString());
 
       // get form arguments
-      nickname = (ctx.Request.Form["nickname"] != null ? ctx.Request.Form["nickname"].Trim().ToLower() : string.Empty);
-      if (nickname.Length == 0)
+      message = (ctx.Request.Form["message"] != null ? ctx.Request.Form["message"].Trim() : string.Empty);
+      if (message.Length == 0)
       {
-        throw new HttpException(400, "Missing Nickname");
+        throw new HttpException(400, "Missing Message");
       }
-      if (!Regex.IsMatch(nickname, "^[0-9a-z]+$"))
+      if (message.Length > 140)
       {
-        throw new HttpException(400, "Invalid Nickname. Use only 0-9 and letters a-z");
-      }
-
-      email = (ctx.Request.Form["email"] != null ? ctx.Request.Form["email"].Trim() : string.Empty);
-      if (email.Length == 0)
-      {
-        throw new HttpException(400, "Missing Email");
-      }
-      if (!Regex.IsMatch(email, @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"))
-      {
-        throw new HttpException(400, "Invalid Email Address");
-      }
-
-      password = (ctx.Request.Form["password"] != null ? ctx.Request.Form["password"].Trim() : string.Empty);
-      if (password.Length == 0)
-      {
-        throw new HttpException(400, "Missing Password");
+        throw new HttpException(400, "Message exceeds 140 chars.");
       }
 
       // compose valid SSDS Entity
       entityId = wu.MakeDescendingId();
-      data = EntityTemplate.Replace("$nickname$", nickname).Replace("$email$", email).Replace("$password$", password).Replace("$date$", DateTime.UtcNow.ToString());
+      data = EntityTemplate.Replace("$id$", entityId).Replace("$nickname$", guestbookUser).Replace("$message$", message).Replace("$date$", DateTime.UtcNow.ToString());
       XmlDocument xmlDoc = new XmlDocument();
       xmlDoc.LoadXml(data);
 
@@ -286,9 +241,11 @@ namespace Amundsen.SSDS.GuestBook
       rtn = client.Execute(url, "post", Constants.SsdsType, xmlDoc.OuterXml);
       msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
-      // clear cache
+      // refresh cache
       cs.RemoveItem(ctx.Request.Url.ToString());
-      rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "{0}{1}/{2}/?{3}", ssdsProxy, authority, container, guest_list_query), "get", Constants.SsdsType);
+      client.RequestHeaders.Add("cache-control", "no-cache");
+      rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "{0}{1}/{2}/?{3}", ssdsProxy, authority, container, message_list_query), "get", Constants.SsdsType);
+      rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "{0}{1}/{2}/?{3}", ssdsProxy, authority, container, string.Format(message_nick_query,guestbookUser)), "get", Constants.SsdsType);
 
       // add msft_header, if present
       if (msft_request.Length != 0)
@@ -298,13 +255,13 @@ namespace Amundsen.SSDS.GuestBook
 
       // compose response to client
       ctx.Response.StatusCode = 201;
-      ctx.Response.ContentType = "text/xml";
+      ctx.Response.ContentType = "text/html";
       ctx.Response.StatusDescription = "Entity has been created.";
       ctx.Response.RedirectLocation = string.Format("{0}{1}", request_url, entityId);
-      ctx.Response.Write(rtn);
+      ctx.Response.Write("<html><body><h1>Success</h1><h3>Your mesage has been posted.</h3></body></html>");
     }
 
-    private static void HandleConfigSettings()
+    private void HandleConfigSettings()
     {
       WebUtility wu = new WebUtility();
       ssdsUser = wu.GetConfigSectionItem("ssdsSettings", "ssdsUser");
@@ -312,49 +269,64 @@ namespace Amundsen.SSDS.GuestBook
       ssdsProxy = wu.GetConfigSectionItem("ssdsSettings", "ssdsProxy");
     }
 
-    private void Delete()
+
+    private bool HandleAuthentication()
     {
-      string rtn = string.Empty;
-      string entity = string.Empty;
-      string deleteAll = string.Empty;
-      string url = string.Empty;
+      string data = string.Empty;
+      string nickname = string.Empty;
+      string password = string.Empty;
+      string valid_password = string.Empty;
+      bool rtn = false;
 
-      // get query arg
-      entity = (ctx.Request.QueryString["entity"] != null ? ctx.Request.QueryString["entity"] : string.Empty);
-      if (entity.Length == 0)
+      // make sure they are logged in
+      try
       {
-        throw new HttpException(400, "Missing Nickname");
+        wu.GetBasicAuthCredentials(ctx, ref guestbookUser, ref guestbookPassword, "guestbook_auth");
+
+        if (guestbookUser.Length != 0 && guestbookPassword.Length != 0)
+        {
+          data = client.Execute(string.Format("{0}{1}/{2}/{3}", ssdsProxy, authority, container, guestbookUser), "get", Constants.SsdsType);
+          XmlDocument xmldoc = new XmlDocument();
+          xmldoc.LoadXml(data);
+          XmlNode node = xmldoc.SelectSingleNode("//password");
+          if (node != null)
+          {
+            valid_password = node.InnerText;
+          }
+          if (valid_password == h.MD5BinHex(guestbookPassword))
+          {
+            rtn=true;
+          }
+        }
       }
-
-      // handle request to remote server
-      url = string.Format(CultureInfo.CurrentCulture, "{0}{1}/{2}/{3}", ssdsProxy, authority, container,entity);
-      rtn = client.Execute(url, "delete", Constants.SsdsType);
-      msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
-
-      // clear cache
-      cs.RemoveItem(ctx.Request.Url.ToString());
-      cs.RemoveItem(ctx.Request.Url.ToString().Replace(entity, ""));
-      rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "{0}{1}/{2}/?{3}", ssdsProxy, authority, container, guest_list_query), "get", Constants.SsdsType);
-
-      // add msft_header, if present
-      if (msft_request.Length != 0)
+      catch (Exception ex)
       {
-        ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
+        throw new HttpException(500, ex.Message);
       }
-
-      // compose response to client
-      ctx.Response.StatusCode = 200;
-      ctx.Response.ContentType = "text/xml";
-      ctx.Response.StatusDescription = "OK";
-      ctx.Response.Write(rtn);
+      return rtn;
     }
 
-    string EntityTemplate = @"<guest xmlns:s=""http://schemas.microsoft.com/sitka/2008/03/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"">
-  <s:Id>$nickname$</s:Id>
+    string EntityTemplate = @"<message xmlns:s=""http://schemas.microsoft.com/sitka/2008/03/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"">
+  <s:Id>$id$</s:Id>
   <date-created xsi:type=""x:dateTime"">$date$</date-created>
-  <email xsi:type=""x:string"">$email$</email>
-  <password xsi:type=""x:string"">$password$</password>
-</guest>";
+  <nickname xsi:type=""x:string"">$nickname$</nickname>
+  <body xsi:type=""x:string"">$message$</body>
+</message>";
+
+    string postTemplate = @"<html>
+  <head>
+    <title>SSDS Guestbook PostForm</title>
+  </head>
+  <body>
+    <h1>SSDS Guestbook Post Form</h1>
+    <form action=""./"" method=""post"">
+      <textarea name=""message"" rows=""3"" cols=""40""></textarea>
+      <br />
+      <input type=""submit"" value=""Post"" />
+      <input type=""reset"" value=""Reset"" />
+    </form>
+  </body>
+</html>";
 
   }
 }
