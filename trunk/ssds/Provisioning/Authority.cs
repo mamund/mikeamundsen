@@ -11,6 +11,7 @@ namespace Amundsen.SSDS.Provisioning
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.4 (2008-08-05)
   /// @version 1.3 (2008-07-20)
   /// @version 1.2 (2008-07-13)
   /// @version 1.1 (2008-07-09)
@@ -27,6 +28,7 @@ namespace Amundsen.SSDS.Provisioning
     string ssdsPassword = string.Empty;
     bool showExpires = false;
     int maxAge = 60;
+    string msft_request = string.Empty;
 
     bool IHttpHandler.IsReusable
     {
@@ -145,6 +147,7 @@ namespace Amundsen.SSDS.Provisioning
       {
         // make call to remote server
         rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}", authority, Constants.SsdsRoot), "get", Constants.SsdsType);
+        msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
         // fill local cache
         item = cs.PutItem(
@@ -171,6 +174,12 @@ namespace Amundsen.SSDS.Provisioning
       ctx.Response.ContentType = "text/xml";
       ctx.Response.StatusDescription = "OK";
       ctx.Response.Write(item.Payload);
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
+      }
 
       // validation caching
       ctx.Response.AddHeader("etag", item.ETag);
@@ -216,9 +225,16 @@ namespace Amundsen.SSDS.Provisioning
       data = string.Format(CultureInfo.CurrentCulture, Constants.AuthorityFormat, authority, Constants.SitkaNS);
       url = string.Format(CultureInfo.CurrentCulture, "https://{0}", Constants.SsdsRoot);
       rtn = client.Execute(url, "post", Constants.SsdsType, data);
+      msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
       // remove related local cache items
       cs.RemoveItem(ctx.Request.Url.ToString());
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
+      }
 
       // compose response to client
       ctx.Response.StatusCode = 201;

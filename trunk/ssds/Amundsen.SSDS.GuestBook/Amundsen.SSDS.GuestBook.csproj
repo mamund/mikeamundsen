@@ -39,8 +39,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
-    <Compile Include="Guests.cs" />
     <Compile Include="Messages.cs" />
+    <Compile Include="Guests.cs" />
+    <Compile Include="PostForm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

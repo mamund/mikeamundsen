@@ -13,7 +13,8 @@ namespace Amundsen.SSDS.GuestBook
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
-  /// @version 1.0 (2008-07-28)
+  /// @version 1.1 (2008-08-05)
+  /// @version 1.0 (2008-08-01)
   /// 
   /// uses SSDS Proxy server (http://amundsen.com/ssds-proxy/)
   /// GET, HEAD, POST, OPTIONS  /guestbook/messages/
@@ -33,6 +34,7 @@ namespace Amundsen.SSDS.GuestBook
 
     bool showExpires = false;
     int maxAge = 60;
+    string msft_request = string.Empty;
 
     string authority = "mikeamundsen";
     string container = "guestbook";
@@ -143,6 +145,7 @@ namespace Amundsen.SSDS.GuestBook
 
       request_url = ctx.Request.Url.ToString();
       string ifNoneMatch = wu.GetHeader(ctx, "if-none-match");
+      bool noCache = (wu.GetHeader(ctx, "cache-control").IndexOf("no-cache") != -1 ? true : false);
 
       // check local cache first (if allowed)
       if (wu.CheckNoCache(ctx) == true)
@@ -166,9 +169,14 @@ namespace Amundsen.SSDS.GuestBook
       {
         // handle query
         url = string.Format(CultureInfo.CurrentCulture, "{0}{1}/{2}/{3}", ssdsProxy,authority, container, entity);
+        if (noCache)
+        {
+          client.RequestHeaders.Add("cache-control", "no-cache");
+        }
         rtn = client.Execute(url, "get", Constants.SsdsType);
+        msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
-        // make sure we got at leat one message document
+        // make sure we got at least one message document
         XmlDocument xmldoc = new XmlDocument();
         xmldoc.LoadXml(rtn);
         XmlNodeList nodes = xmldoc.SelectNodes("//message");
@@ -201,6 +209,12 @@ namespace Amundsen.SSDS.GuestBook
       ctx.Response.ContentType = "text/xml";
       ctx.Response.StatusDescription = "OK";
       ctx.Response.Write(item.Payload);
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
+      }
 
       // validation caching
       ctx.Response.AddHeader("etag", item.ETag);
@@ -240,7 +254,7 @@ namespace Amundsen.SSDS.GuestBook
       // handle local login stuff
       try
       {
-        wu.GetBasicAuthCredentials(ctx, ref nickname, ref password);
+        wu.GetBasicAuthCredentials(ctx, ref nickname, ref password, "guestbook_auth");
 
         rtn = client.Execute(string.Format("{0}{1}/{2}/{3}", ssdsProxy, authority, container, nickname), "get", Constants.SsdsType);
         XmlDocument xmldoc = new XmlDocument();
@@ -250,7 +264,7 @@ namespace Amundsen.SSDS.GuestBook
         {
           valid_password = node.InnerText;
         }
-        if (valid_password != password)
+        if (valid_password != h.MD5BinHex(password) && valid_password!=password)
         {
           throw new HttpException(403, "Not Authorized");
         }
@@ -284,6 +298,13 @@ namespace Amundsen.SSDS.GuestBook
       cs.RemoveItem(ctx.Request.Url.ToString());
       client.RequestHeaders.Add("cache-control", "no-cache");
       rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "{0}{1}/{2}/?{3}", ssdsProxy, authority, container, message_list_query), "get", Constants.SsdsType);
+      msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
+
+      // add msft_header, if present
+      if (msft_request.Length != 0)
+      {
+        ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
+      }
 
       // compose response to client
       ctx.Response.StatusCode = 201;
