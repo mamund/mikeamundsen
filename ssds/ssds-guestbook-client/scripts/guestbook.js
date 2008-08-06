@@ -1,5 +1,6 @@
 /* SSDS Guestbook Client
  * mike amundsen - http://amundsen.com/blog/
+ * 2008-08-01 (mca) : improve input validation and link rendering
  * 2008-07-29 (mca) : initial release
  */
 
@@ -7,7 +8,7 @@ var guestbook = function()
 {
   var g_nickname = '';
   var g_password = '';
-  var g_authCookie = 'x-form-authorization';
+  var g_authCookie = 'guestbook_auth';
 
   var g_guests_url = '/guestbook/guests/';
   var g_messages_url = '/guestbook/messages/';
@@ -17,7 +18,8 @@ var guestbook = function()
   errors[401] = 'Please login to continue.';
   errors[403] = 'Invalid login. Please try again.';
   errors[404] = 'No record(s) found.';
-  errors[409] = 'Update cancelled. Someone else already updated this record.';
+  errors[409] = 'Add cancelled. An item with that ID already exists.';
+  errors[412] = 'Update cancelled. Someone else already updated this record.';
 
   function init()
   {
@@ -27,6 +29,7 @@ var guestbook = function()
     toggleButtons();
     attachEvents();
     getMessages(g_filter);
+    lastUpdated();
   }
 
   function showAbout()
@@ -36,7 +39,11 @@ var guestbook = function()
 
   function showLogin()
   {
+    var frm;
+
+    frm = document.getElementById('guestLogin-form');
     toggleView('guestLogin');
+    frm.nickname.focus();
   }
 
   function loginSubmit()
@@ -73,7 +80,9 @@ var guestbook = function()
       elm.password.value='';
       elm.email.value='';
     }
+
     toggleView('guestCreate');
+    elm.nickname.focus();
   }
 
   function guestCreateBack()
@@ -83,7 +92,7 @@ var guestbook = function()
 
   function guestCreateSubmit()
   {
-    var elm,nick,pass,email,data;
+    var elm,nick,pass,email,pass2,data;
 
     elm = document.getElementById('guestCreate-form');
     if(elm)
@@ -99,6 +108,18 @@ var guestbook = function()
       if(pass==null || pass=='')
       {
         alert('Must enter a password.');
+        return false;
+      }
+
+      pass2 = elm.password_confirm.value;
+      if(pass==null || pass2=='')
+      {
+        alert('Must confirm your password.');
+        return false;
+      }
+      if(pass!=pass2)
+      {
+        alert('Password and Confirm Password do not match!');
         return false;
       }
 
@@ -128,17 +149,26 @@ var guestbook = function()
   function getMessages(nick)
   {
     nick = nick || '';
-    ajax.httpGet(g_messages_url+nick,null,onAjaxComplete,true,'getMessages');
+    ajax.httpGet(g_messages_url+nick,null,onAjaxComplete,true,'getMessages',{'cache-control':'no-cache'});
   }
 
-  function showCreateMessage()
+  function showCreateMessage(reply)
   {
-    var elm;
+    var elm, rp_value,txa;
 
     if(g_nickname==null || g_nickname=='')
     {
-      toggleView('guestLogin');
+      showLogin();
       return false;
+    }
+
+    if(reply)
+    {
+      rp_value = '@'+reply+' ';
+    }
+    else
+    {
+      rp_value = '';
     }
 
     elm = document.getElementById('messageCreate-form');
@@ -147,6 +177,14 @@ var guestbook = function()
       elm.style.display='block';
       messageCounter();
     }
+
+    txa = document.getElementById('textMessage');
+    if(txa)
+    {
+      txa.value = rp_value;
+      txa.focus();
+    }
+
     return false;
   }
 
@@ -161,11 +199,23 @@ var guestbook = function()
       if(msg==null || msg=='')
       {
         alert('Must enter a message.');
+        return false;
+      }
+
+      // validate & clean input string
+      var html = /\<\/?[a-z][a-z0-9]*[^\>]*?\>/ig;
+      if(html.test(msg))
+      {
+        alert('Invalid characters in message!');
+        return false;
       }
       else
       {
-        ajax.httpPost(g_messages_url,null,onAjaxComplete,true,'addMessage','application/x-www-form-urlencoded','message='+escape(msg));
+        msg = msg.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/&/g,'&amp;');
       }
+
+      // ok, send it to the server
+      ajax.httpPost(g_messages_url,null,onAjaxComplete,true,'addMessage','application/x-www-form-urlencoded','message='+escape(msg));
     }
     return false;
   }
@@ -180,6 +230,19 @@ var guestbook = function()
       elm.style.display='none';
     }
     location.href = location.pathname;
+  }
+
+  function messageReply()
+  {
+    if(g_nickname==null || g_nickname=='')
+    {
+      showLogin();
+    }
+    else
+    {
+      showCreateMessage(this.getAttribute('value'));
+    }
+    return false;
   }
 
   function showGuests()
@@ -226,7 +289,7 @@ var guestbook = function()
           showMessages();
         }
         return;
-        break;
+        //break;
     }
 
     // process results
@@ -254,7 +317,7 @@ var guestbook = function()
 
   function processGetMessages(response,headers)
   {
-    var list,xml,a,sp,dd,dt,i,id,created,msg,nick;
+    var list,xml,a1,sp1,a2,sp2,dd,dt,i,id,created,msg,nick;
 
     list = document.getElementById('recent-messages');
     list.innerHTML = '';
@@ -267,23 +330,40 @@ var guestbook = function()
       nick = xml[i].selectSingleNode('nickname/text()').nodeValue;
       msg = xml[i].selectSingleNode('body/text()').nodeValue;
 
-      // fixup date display
-      a = document.createElement('a');
-      a.className='guest';
-      a.href = location.pathname+'?filter='+encodeURIComponent(nick);
-      a.title='View messages';
-      a.appendChild(document.createTextNode(nick));
+      // convert any links in the message
+      msg = msg.replace(/\b((https?|ftp):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;]*[\-A-Z0-9+&@#\/%=~_|])/ig, "<a href=\"$1\" target=\"_blank\" title=\"$1\">#</a>");
+      // convert @replies in the message
+      msg = msg.replace(/@([^@:' ]+)/ig, '<a href="'+location.pathname+'?filter=$1" title="View messages" class="reply-link">@$1</a>');
 
-      sp = document.createElement('span');
-      sp.className='date';
-      sp.appendChild(document.createTextNode('('+modifyDate(created)+')'));
+      a1 = document.createElement('a');
+      a1.className='guest';
+      a1.href = location.pathname+'?filter='+encodeURIComponent(nick);
+      a1.title='View messages';
+      a1.appendChild(document.createTextNode(nick));
+
+      sp1 = document.createElement('span');
+      sp1.className='date';
+      sp1.appendChild(document.createTextNode('('+modifyDate(created)+')'));
+
+      a2 = document.createElement('a');
+      a2.href = '#';
+      a2.onclick = messageReply;
+      a2.setAttribute('value',nick);
+      a2.title = 'Post a reply';
+      a2.appendChild(document.createTextNode('reply'));
+
+      sp2 = document.createElement('span');
+      sp2.className = 'reply';
+      sp2.appendChild(a2);
 
       dt = document.createElement('dt');
-      dt.appendChild(a);
-      dt.appendChild(sp);
+      dt.appendChild(a1);
+      dt.appendChild(sp1);
+      dt.appendChild(sp2);
 
       dd = document.createElement('dd');
-      dd.appendChild(document.createTextNode(msg));
+      dd.innerHTML = msg;
+      //dd.appendChild(document.createTextNode(msg));
 
       list.appendChild(dt);
       list.appendChild(dd);
@@ -385,6 +465,19 @@ var guestbook = function()
     document.getElementById('textMessage').onkeyup = messageCounter;
   }
 
+  function lastUpdated()
+  {
+    var elm,i,dt,md;
+
+    dt = new Date();
+    md = dt.toString('MMM dd, yyyy @ hh:mmtt');
+
+    elm = document.getElementsByClassName('last-updated');
+    for(i=0;i<elm.length;i++)
+    {
+      elm[i].innerHTML = 'Last Updated: '+md;
+    }
+  }
 
   function messageCounter()
   {
@@ -394,12 +487,10 @@ var guestbook = function()
   {
     if (inputElm.value.length > maxChars)
     {
-      // if too long...trim it!
       inputElm.value = inputElm.value.substring(0, maxChars);
     }
     else
     {
-      // otherwise, update 'characters left' counter
       counterElm.innerHTML = maxChars - inputElm.value.length;
     }
   }
@@ -526,6 +617,7 @@ var guestbook = function()
   // publish members & return ref
   var that = {};
   that.init = init;
+  that.reply = messageReply;
   return that;
 };
 

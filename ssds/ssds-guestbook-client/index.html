@@ -10,10 +10,12 @@
     <!-- app details -->
     <div id="details">
       <h1 id="home" title="Home">SSDS Guestbook Demo</h1>
-      <p class="version">version 1.0 (2008-07-29)</p>
+      <p class="version">version 1.2 (2008-08-06)</p>
       <p>by <a href="http://amundsen.com/blog/" title="Mike Amundsen">Mike Amundsen</a></p>
       <p><a href="http://amundsen.com/examples/ssds/">SSDS Examples Home</a></p>
       <p><a href="http://amundsen.com/examples/ssds/feedback/">Feedback for SSDS Examples</a></p>
+      <p><a href="http://codeplex.com/ssdsexamples/">Get the source code</a></p>
+      <h5 class="last-updated"></h5>
     </div>
 
     <!-- commands -->
@@ -24,8 +26,8 @@
       <span id="delete" style="display:none;"><input type="button" id="commands-guestDelete" title="Delete Account" value="Delete Account" class="inline-button"/></span>
       <span id="message-view"><input type="button" id="commands-messages" title="View Messages" value="All Messages" class="inline-button"/></span>
       <span id="guest-view"><input type="button" id="commands-guests" title="View Guests" value="Guests" class="inline-button"/></span>
-      <span id="logout"><input type="button" id="commands-guestLogout" title="Logout User" value="Logout" class="inline-button"/></span>
       <span id="about-view"><input type="button" id="commands-about" title="About this application" value="About" class="inline-button"/></span>
+      <span id="logout"><input type="button" id="commands-guestLogout" title="Logout User" value="Logout" class="inline-button"/></span>
     </div>
 
     <!-- current messages -->
@@ -74,6 +76,10 @@
           <p class="inputs">
             <label for="password">Password</label>
             <input type="password" name="password" size="20" value="" />
+          </p>
+          <p class="inputs">
+            <label for="password">Confirm Password</label>
+            <input type="password" name="password_confirm" size="20" value="" />
           </p>
           <p class="inputs">
             <label for="email">Email</label>
@@ -140,9 +146,20 @@
           You can get details on this and other samples at the <a href="http://amundsen.com/examples/ssds/" title="SSDS Examples">SSDS Examples</a> web page.
         </p>
         <p>
-          This application was built using a single SSDS Container (<code>guestbook</code>) and multiple SSDS Entity Types (<code>message</code> and <code>guest</code>).
+          This application was built using a single SSDS Container (<code>guestbook</code>) with multiple SSDS Entity "Kinds" (<code>message</code> and <code>guest</code>).
           The server code handles user authentication using either standard HTTP Basic or a custom cookie (<code>x-forms-authorization</code>). This makes it possible
           to use either a web browser or standard HTTP request services to interact with the database.
+        </p>
+        <p>
+          <dl class="release-history">
+            <h4>Release History</h4>
+            <dt>1.2 (2008-08-06)</dt>
+            <dd>Added @[nickname] links; added [reply] link. modified CSS.</dd>
+            <dt>1.1 (2008-08-01)</dt>
+            <dd>Added password confirmation input; render http://... in messages as links; validate and clean HTML in messages.</dd>
+            <dt>1.0 (2008-07-29)</dt>
+            <dd>Initial release</dd>
+          </dl>
         </p>
       </fieldset>
     </div>

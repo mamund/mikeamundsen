@@ -142,15 +142,21 @@ namespace Amundsen.Utilities
 
     public void GetBasicAuthCredentials(HttpContext ctx, ref string username, ref string password)
     {
+      GetBasicAuthCredentials(ctx, ref username, ref password, string.Empty);
+    }
+
+    public void GetBasicAuthCredentials(HttpContext ctx, ref string username, ref string password, string cookieName)
+    {
       Hashing h = new Hashing();
       string authorizationHash = string.Empty;
       string authorizationInfo = string.Empty;
       string decoded = string.Empty;
-
+      string authCookie = (cookieName.Length == 0 ? "x-form-authorization" : cookieName);
+      
       authorizationInfo = GetHeader(ctx, "authorization");
       if (authorizationInfo.Length == 0)
       {
-        authorizationInfo = CookieRead(ctx, "x-form-authorization");
+        authorizationInfo = CookieRead(ctx, authCookie);
       }
 
       try

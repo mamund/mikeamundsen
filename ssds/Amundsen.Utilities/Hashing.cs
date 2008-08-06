@@ -60,6 +60,18 @@ namespace Amundsen.Utilities
         return rtn;
     }
 
+    public string MD5BinHex(string val)
+    {
+      Encoding encoding = new ASCIIEncoding();
+      byte[] bs = new MD5CryptoServiceProvider().ComputeHash(encoding.GetBytes(val));
+      string hash = "";
+
+      for (int i = 0; i < 16; i++)
+        hash = String.Concat(hash, String.Format("{0:x02}", bs[i]));
+
+      return hash;
+    }
+
     public string SHA1(string data)
     {
       string rtn = string.Empty;
