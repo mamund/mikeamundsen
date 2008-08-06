@@ -214,6 +214,7 @@ namespace Amundsen.SSDS.Provisioning
       // add msft_header, if present
       if (msft_request.Length != 0)
       {
+        ctx.Response.AppendToLog(string.Format(" [{0}={1}]", Constants.MsftRequestId, msft_request));
         ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
       }
 
@@ -310,6 +311,7 @@ namespace Amundsen.SSDS.Provisioning
       // add msft_header, if present
       if (msft_request.Length != 0)
       {
+        ctx.Response.AppendToLog(string.Format(" [{0}={1}]", Constants.MsftRequestId, msft_request));
         ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
       }
 
@@ -421,6 +423,7 @@ namespace Amundsen.SSDS.Provisioning
       // add msft_header, if present
       if (msft_request.Length != 0)
       {
+        ctx.Response.AppendToLog(string.Format(" [{0}={1}]", Constants.MsftRequestId, msft_request));
         ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
       }
 
@@ -471,6 +474,7 @@ namespace Amundsen.SSDS.Provisioning
       // add msft_header, if present
       if (msft_request.Length != 0)
       {
+        ctx.Response.AppendToLog(string.Format(" [{0}={1}]", Constants.MsftRequestId, msft_request));
         ctx.Response.AddHeader(Constants.MsftRequestId, msft_request);
       }
 

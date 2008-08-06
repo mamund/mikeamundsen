@@ -64,7 +64,7 @@ fieldset p
 fieldset p label
 {
   display:block;
-  width:5em;
+  width:8em;
   float:left;
 }
 fieldset.buttons
@@ -135,14 +135,36 @@ a.guest
 
 #recent-messages dl
 {
-
 }
 #recent-messages dt
 {
   margin-bottom: .2em;
+  margin-left:0em;
 }
 #recent-messages dd
 {
-  margin-bottom: .5em;
-  margin-left: 0;
+  margin-bottom: 1em;
+  margin-left: .5em;
+}
+.reply
+{
+  margin-left:.2em;
+  font-size:smaller;
+}
+.reply a
+{
+  color:#555;
+}
+.reply a:hover
+{
+  color:blue;
+}
+
+a.reply-link
+{
+  color:black;
+}
+a.reply-link:hover
+{
+  color:blue;
 }
