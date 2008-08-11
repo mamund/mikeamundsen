@@ -316,10 +316,10 @@ namespace Amundsen.SSDS.GuestBook
 
     string postTemplate = @"<html>
   <head>
-    <title>SSDS Guestbook PostForm</title>
+    <title>SSDS Guestbook QuickPost</title>
   </head>
   <body>
-    <h1>SSDS Guestbook Post Form</h1>
+    <h1>SSDS Guestbook QuickPost</h1>
     <form action=""./"" method=""post"">
       <textarea name=""message"" rows=""3"" cols=""40""></textarea>
       <br />
