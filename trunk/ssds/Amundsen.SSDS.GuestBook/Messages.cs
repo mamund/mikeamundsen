@@ -3,6 +3,7 @@ using System.Web;
 using System.Net;
 using System.IO;
 using System.Xml;
+using System.Xml.Xsl;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -13,6 +14,8 @@ namespace Amundsen.SSDS.GuestBook
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.3 (2008-08-10)
+  /// @version 1.2 (2008-08-06)
   /// @version 1.1 (2008-08-05)
   /// @version 1.0 (2008-08-01)
   /// 
@@ -27,6 +30,7 @@ namespace Amundsen.SSDS.GuestBook
     private HttpContext ctx;
     private CacheService cs;
     private Hashing h;
+    private Xslt x = new Xslt();
 
     static string ssdsUser = string.Empty;
     static string ssdsPassword = string.Empty;
@@ -127,6 +131,8 @@ namespace Amundsen.SSDS.GuestBook
       string url = string.Empty;
       string query = string.Empty;
       string request_url = string.Empty;
+      string rss = string.Empty;
+      string filter = string.Empty;
       CacheItem item = null;
 
       // look for args
@@ -135,6 +141,7 @@ namespace Amundsen.SSDS.GuestBook
       if (entity.Length != 0)
       {
         // return messages for passed in nickname
+        filter = entity;
         entity = "?" + ctx.Server.UrlPathEncode(string.Format(message_nick_query, entity));
       }
       else
@@ -142,6 +149,9 @@ namespace Amundsen.SSDS.GuestBook
         // just return list of messages
         entity = "?" + ctx.Server.UrlPathEncode(message_list_query);
       }
+
+      // see if rss flag appears
+      rss = (ctx.Request.QueryString["rss"] != null ? ctx.Request.QueryString["rss"] : string.Empty);
 
       request_url = ctx.Request.Url.ToString();
       string ifNoneMatch = wu.GetHeader(ctx, "if-none-match");
@@ -183,6 +193,18 @@ namespace Amundsen.SSDS.GuestBook
         if (nodes.Count == 0)
         {
           throw new HttpException(404, string.Format("Message record not found [{0}]", entity));
+        }
+
+        // generate RSS, if requested
+        if (rss != string.Empty)
+        {
+          XmlDocument xsldoc = new XmlDocument();
+          xsldoc.Load(ctx.Server.MapPath("~/transforms/messages-rss.xsl"));
+          XsltArgumentList args = new XsltArgumentList();
+          args.AddParam("max-rows", "", (filter.Length==0?"25":"10"));
+          args.AddParam("build-date", "", DateTime.UtcNow.ToString("r"));
+          args.AddParam("title", "", string.Format("{0}'s SSDS Guestbook Messages",(filter.Length!=0?filter:"Everyone")));
+          rtn = x.Transform(xmldoc, xsldoc, args);
         }
 
         // fill local cache
@@ -298,6 +320,7 @@ namespace Amundsen.SSDS.GuestBook
       // refresh cache
       cs.RemoveItem(ctx.Request.Url.ToString());
       client.RequestHeaders.Add("cache-control", "no-cache");
+      rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "{0}{1}/{2}/?{3}&rss=yes", ssdsProxy, authority, container, message_list_query), "get", Constants.SsdsType);
       rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "{0}{1}/{2}/?{3}", ssdsProxy, authority, container, message_list_query), "get", Constants.SsdsType);
       msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 

@@ -1,5 +1,6 @@
 /* SSDS Guestbook Client
  * mike amundsen - http://amundsen.com/blog/
+ * 2008-08-08 (mca) : implemtented background refreshing
  * 2008-08-01 (mca) : improve input validation and link rendering
  * 2008-07-29 (mca) : initial release
  */
@@ -21,6 +22,23 @@ var guestbook = function()
   errors[409] = 'Add cancelled. An item with that ID already exists.';
   errors[412] = 'Update cancelled. Someone else already updated this record.';
 
+  messageTimer = null;
+  messageInterval = (2 * 60 * 1000);
+
+  function startTimer()
+  {
+    messageTimer = setTimeout(getMessages,messageInterval);
+  }
+
+  function stopTimer()
+  {
+    if(messageTimer!=null)
+    {
+    	clearTimeout(messageTimer);
+    	messageTimer = null;
+  	}
+  }
+
   function init()
   {
     toggleView('loading');
@@ -28,13 +46,13 @@ var guestbook = function()
     toggleUser();
     toggleButtons();
     attachEvents();
-    getMessages(g_filter);
-    lastUpdated();
+    getMessages();
   }
 
   function showAbout()
   {
     toggleView('about');
+    stopTimer();
   }
 
   function showLogin()
@@ -44,6 +62,7 @@ var guestbook = function()
     frm = document.getElementById('guestLogin-form');
     toggleView('guestLogin');
     frm.nickname.focus();
+    stopTimer();
   }
 
   function loginSubmit()
@@ -83,6 +102,7 @@ var guestbook = function()
 
     toggleView('guestCreate');
     elm.nickname.focus();
+    stopTimer();
   }
 
   function guestCreateBack()
@@ -146,13 +166,13 @@ var guestbook = function()
     location.href = location.pathname;
   }
 
-  function getMessages(nick)
+  function getMessages()
   {
-    nick = nick || '';
+    nick = g_filter;
     ajax.httpGet(g_messages_url+nick,null,onAjaxComplete,true,'getMessages',{'cache-control':'no-cache'});
   }
 
-  function showCreateMessage(reply)
+  function showCreateMessage()
   {
     var elm, rp_value,txa;
 
@@ -160,15 +180,6 @@ var guestbook = function()
     {
       showLogin();
       return false;
-    }
-
-    if(reply)
-    {
-      rp_value = '@'+reply+' ';
-    }
-    else
-    {
-      rp_value = '';
     }
 
     elm = document.getElementById('messageCreate-form');
@@ -181,10 +192,10 @@ var guestbook = function()
     txa = document.getElementById('textMessage');
     if(txa)
     {
-      txa.value = rp_value;
       txa.focus();
     }
 
+    stopTimer();
     return false;
   }
 
@@ -232,15 +243,33 @@ var guestbook = function()
     location.href = location.pathname;
   }
 
-  function messageReply()
+	function messageReply()
   {
+    var reply = '';
+
     if(g_nickname==null || g_nickname=='')
     {
       showLogin();
     }
     else
     {
-      showCreateMessage(this.getAttribute('value'));
+        reply = this.getAttribute('value')
+        if(reply)
+        {
+          rp_value = '@'+reply+' ';
+        }
+        else
+        {
+          rp_value = '';
+        }
+
+        txa = document.getElementById('textMessage');
+        if(txa)
+        {
+          txa.value = rp_value;
+        }
+
+      showCreateMessage();
     }
     return false;
   }
@@ -248,6 +277,8 @@ var guestbook = function()
   function showGuests()
   {
     ajax.httpGet(g_guests_url,null,onAjaxComplete,true,'getGuests');
+    toggleView('loading');
+    stopTimer();
   }
 
   function onAjaxComplete(response,headers,context,status,msg)
@@ -363,13 +394,14 @@ var guestbook = function()
 
       dd = document.createElement('dd');
       dd.innerHTML = msg;
-      //dd.appendChild(document.createTextNode(msg));
 
       list.appendChild(dt);
       list.appendChild(dd);
     }
 
     toggleView('messages');
+    startTimer();
+    lastUpdated();
   }
 
   function processAddMessage(status,msg)
@@ -382,7 +414,7 @@ var guestbook = function()
 
   function processGetGuests(response,headers)
   {
-    var list,xml,a,sp,li,i,id,created;
+    var list,xml,a,sp,li,i,id,created,flink,fspan,fimg;
 
     list = document.getElementById('recent-guests');
     list.innerHTML = '';
@@ -403,8 +435,24 @@ var guestbook = function()
       sp.className='date';
       sp.appendChild(document.createTextNode('('+modifyDate(created)+')'));
 
+      fimg = document.createElement('img');
+      fimg.src = "images/feed-icon-14x14.png";
+      fimg.alt = "feed icon";
+      fimg.style.border="0";
+
+      flink = document.createElement('a');
+      flink.className ='feed-link';
+      flink.href = "/guestbook/feed/"+id;
+      flink.title = "RSS Feed for "+id;
+      flink.appendChild(fimg);
+
+      fspan = document.createElement('span');
+      fspan.className = 'feed';
+      fspan.appendChild(flink);
+
       li = document.createElement('li');
       li.appendChild(a);
+      li.appendChild(fspan);
       li.appendChild(sp);
 
       list.appendChild(li);
@@ -644,8 +692,9 @@ if(!document.getElementsByClassName)
 }
 
 // execute on startup
+var gb = null;
 window.onload = function()
 {
-  var gb = guestbook();
+  gb = guestbook();
   gb.init();
 };

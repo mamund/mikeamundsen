@@ -168,3 +168,39 @@ a.reply-link:hover
 {
   color:blue;
 }
+
+.button-row
+{
+  float:left;
+}
+.icon-row
+{
+  float:right;
+  margin:auto .6em;
+}
+.empty
+{
+  float:none;
+  clear:both;
+  height:0;
+  width:0;
+  visibility:hidden;
+  margin:0;
+  padding:0;
+}
+.feed
+{
+  padding: .3em;
+}
+#alert
+{
+  margin:.5em 0;
+  border:1px solid red;
+  padding: .2em;
+  background-color:#ffc;
+  width:754px;
+}
+#alert h3,h4,p
+{
+  margin:0;
+}
