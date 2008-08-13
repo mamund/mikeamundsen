@@ -13,43 +13,49 @@ namespace Amundsen.Utilities
   /// </summary>
   public class CacheItem
   {
-    private string _Key;
+    private byte[] _BinaryData;
+    public byte[] BinaryData
+    {
+      get { return _BinaryData; }
+      set { _BinaryData = value; }
+    }
 
+    private string _Key;
     public string Key
     {
       get { return _Key; }
       set { _Key = value; }
     }
-    private string _ETag;
 
+    private string _ETag;
     public string ETag
     {
       get { return _ETag; }
       set { _ETag = value; }
     }
-    private string _Payload;
 
+    private string _Payload;
     public string Payload
     {
       get { return _Payload; }
       set { _Payload = value; }
     }
-    private DateTime _Expires;
 
+    private DateTime _Expires;
     public DateTime Expires
     {
       get { return _Expires; }
       set { _Expires = value; }
     }
-    private bool _ShowExpires;
 
+    private bool _ShowExpires;
     public bool ShowExpires
     {
       get { return _ShowExpires; }
       set { _ShowExpires = value; }
     }
-    private DateTime _LastModified;
 
+    private DateTime _LastModified;
     public DateTime LastModified
     {
       get { return _LastModified; }
@@ -64,6 +70,17 @@ namespace Amundsen.Utilities
       this.Expires = expires;
       this.ShowExpires = showExpires;
       this.LastModified = DateTime.UtcNow;
+      this.BinaryData = null;
+    }
+    public CacheItem(string key, string payload, string entityTag, DateTime expires, bool showExpires, byte[] data)
+    {
+      this.Key = key;
+      this.ETag = entityTag;
+      this.Payload = payload;
+      this.Expires = expires;
+      this.ShowExpires = showExpires;
+      this.LastModified = DateTime.UtcNow;
+      this.BinaryData = data;
     }
   }
 
@@ -77,6 +94,10 @@ namespace Amundsen.Utilities
     public CacheItem PutItem(string key, string payload, string entityTag, DateTime expires, bool showExpires)
     {
       return PutItem(new CacheItem(key, payload, entityTag, expires, showExpires));
+    }
+    public CacheItem PutItem(string key, string payload, string entityTag, DateTime expires, bool showExpires, byte[] data)
+    {
+      return PutItem(new CacheItem(key, payload, entityTag, expires, showExpires,data));
     }
     public CacheItem PutItem(CacheItem item)
     {

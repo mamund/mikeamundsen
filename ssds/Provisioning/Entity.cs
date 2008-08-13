@@ -29,6 +29,7 @@ namespace Amundsen.SSDS.Provisioning
     bool showExpires = false;
     int maxAge = 60;
     string msft_request = string.Empty;
+    string accept_type = string.Empty;
 
     bool IHttpHandler.IsReusable
     {
@@ -45,8 +46,8 @@ namespace Amundsen.SSDS.Provisioning
       // process request
       try
       {
-        string rtn = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes,Constants.SsdsType);
-        if (rtn.Length == 0)
+        accept_type = wu.ConfirmXmlMediaType(ctx.Request.AcceptTypes,Constants.SsdsType);
+        if (accept_type.Length == 0)
         {
           Options();
           throw new HttpException((int)HttpStatusCode.NotAcceptable, HttpStatusCode.NotAcceptable.ToString());
@@ -179,21 +180,38 @@ namespace Amundsen.SSDS.Provisioning
         item = null;
       }
 
+      System.IO.MemoryStream ms = null;
       if (item == null)
       {
         // handle query
         url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}{3}", authority, Constants.SsdsRoot, container, entity);
-        rtn = client.Execute(url, "get", Constants.SsdsType);
+        if (accept_type != Constants.SsdsType)
+        {
+          ms = new System.IO.MemoryStream();
+          client.UseBinaryStream = true;
+          rtn = client.Execute(url, "get", "*/*",string.Empty,ref ms);
+          if (ms != null)
+          {
+            //ms.Seek(0, System.IO.SeekOrigin.Begin);
+            accept_type = client.ResponseHeaders["content-type"];
+          }
+        }
+        else
+        {
+          client.UseBinaryStream = true;
+          rtn = client.Execute(url, "get", Constants.SsdsType,string.Empty, ref ms);
+        }
         msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
         // fill local cache
         item = cs.PutItem(
           new CacheItem(
-            request_url,
+            request_url+accept_type,
             rtn,
             string.Format(CultureInfo.CurrentCulture, "\"{0}\"", cs.MD5BinHex(rtn)),
             DateTime.UtcNow.AddSeconds(maxAge),
-            showExpires
+            showExpires,
+            (ms!=null&&ms.Length!=0?ms.ToArray():null)
           )
         );
       }
@@ -207,9 +225,16 @@ namespace Amundsen.SSDS.Provisioning
       // compose response to client
       ctx.Response.SuppressContent = supressContent;
       ctx.Response.StatusCode = 200;
-      ctx.Response.ContentType = "text/xml";
+      ctx.Response.ContentType = (accept_type!=Constants.SsdsType?accept_type:"text/xml");
       ctx.Response.StatusDescription = "OK";
-      ctx.Response.Write(item.Payload);
+      if (item.BinaryData!=null)
+      {
+        ctx.Response.BinaryWrite(item.BinaryData);
+      }
+      else
+      {
+        ctx.Response.Write(item.Payload);
+      }
 
       // add msft_header, if present
       if (msft_request.Length != 0)

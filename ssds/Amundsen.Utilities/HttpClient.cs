@@ -20,7 +20,15 @@ namespace Amundsen.Utilities
   /// </summary>
   public class HttpClient
   {
-    // properties
+    private MemoryStream ms = new MemoryStream();
+
+    private bool _UseBinaryStream = false;
+    public bool UseBinaryStream
+    {
+      get { return _UseBinaryStream; }
+      set { _UseBinaryStream = value; }
+    }
+
     private WebHeaderCollection _RequestHeaders = new WebHeaderCollection();
     public WebHeaderCollection RequestHeaders
     {
@@ -118,17 +126,21 @@ namespace Amundsen.Utilities
     // method that makes the call
     public string Execute(string url)
     {
-      return Execute(url, "get", "text/xml", string.Empty);
+      return Execute(url, "get", "text/xml", string.Empty, ref ms);
     }
     public string Execute(string url, string method)
     {
-      return Execute(url, method, "text/xml", string.Empty);
+      return Execute(url, method, "text/xml", string.Empty, ref ms);
     }
     public string Execute(string url, string method, string contentType)
     {
-      return Execute(url, method, contentType, string.Empty);
+      return Execute(url, method, contentType, string.Empty, ref ms);
     }
     public string Execute(string url, string method, string contentType, string body)
+    {
+      return Execute(url, method, contentType, body, ref ms);
+    }
+    public string Execute(string url, string method, string contentType, string body, ref MemoryStream ms)
     {
       HttpWebRequest req = null;
       HttpWebResponse resp = null;
@@ -219,13 +231,22 @@ namespace Amundsen.Utilities
         // get body
         if (resp.ContentLength != 0)
         {
-          using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+          if (this._UseBinaryStream==true)
           {
-            rtnBody = sr.ReadToEnd();
-            sr.Close();
+            ms = new MemoryStream();
+            long size = StreamCopy(resp.GetResponseStream(), ms);
+          }
+          else
+          {
+            using (StreamReader sr = new StreamReader(resp.GetResponseStream(), true))
+            {
+              rtnBody = sr.ReadToEnd();
+              sr.Close();
+
+            }
           }
         }
-
+        
         // clean up
         if (resp != null)
           resp.Close();
@@ -264,6 +285,26 @@ namespace Amundsen.Utilities
       {
         throw new HttpException(500, ex.Message);
       }
+    }
+
+    protected static long StreamCopy(Stream input, Stream output)
+    {
+      byte[] buffer = new byte[64 * 1024];
+      long length = 0L;
+
+      for (; ; )
+      {
+        int read = input.Read(buffer, 0, buffer.Length);
+        if (read > 0)
+        {
+          length += (long)read;
+          output.Write(buffer, 0, read);
+        }
+        else
+          break;
+      }
+
+      return length;
     }
   }
 }

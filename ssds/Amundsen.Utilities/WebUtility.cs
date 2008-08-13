@@ -26,17 +26,16 @@ namespace Amundsen.Utilities
       for (int i = 0; i < media.Length; i++)
       {
         mt = media[i];
-        if (mt.IndexOf("/*", StringComparison.CurrentCultureIgnoreCase) != -1)
-        {
-          rtn = returnType;
-          break;
-        }
         if (mt.IndexOf("xml", StringComparison.CurrentCultureIgnoreCase) != -1)
         {
           rtn = returnType;
           break;
         }
-
+        if (mt == "*/*")
+        {
+          rtn = mt;
+          break;
+        }
       }
       return rtn;
     }
