@@ -1,0 +1,18 @@
+SSDS Deploy Console (1.0 - 2008-08-18)
+
+POST single binary file:
+/{a}/{c}/{e} "[c:][\folder\path\]file.ext" ["mime-type"] [y]
+where:
+	{a} = authority
+	{c} = container
+	{e} = entity
+	 y  = overwrite existing entities
+
+ex:	/my-auth/files/my-profile "c:\temp\profile.jpg" "image\jpeg" y
+
+POST multiple files using wildcard:
+/{a}/{c}/* "[c:][\folder\path\]*.*" [y]
+
+ex:	/my-authority/my-container/* "c:\uploads\*.*" y
+	or
+ex:	/my-authority/my-container/* "c:\images\*.png" y
