@@ -205,6 +205,7 @@ namespace Amundsen.SSDS.GuestBook
           args.AddParam("build-date", "", DateTime.UtcNow.ToString("r"));
           args.AddParam("title", "", string.Format("{0}'s SSDS Guestbook Messages",(filter.Length!=0?filter:"Everyone")));
           rtn = x.Transform(xmldoc, xsldoc, args);
+          rtn = rtn.Replace(@"encoding=""utf-16""", @"encoding=""utf-8""");
         }
 
         // fill local cache
@@ -228,7 +229,7 @@ namespace Amundsen.SSDS.GuestBook
       // compose response to client
       ctx.Response.SuppressContent = supressContent;
       ctx.Response.StatusCode = 200;
-      ctx.Response.ContentType = "text/xml";
+      ctx.Response.ContentType = (rss=="yes"?"application/rss+xml":"text/xml");
       ctx.Response.StatusDescription = "OK";
       ctx.Response.Write(item.Payload);
 
