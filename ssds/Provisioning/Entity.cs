@@ -11,6 +11,7 @@ namespace Amundsen.SSDS.Provisioning
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.5 (2008-09-08)
   /// @version 1.4 (2008-08-05)
   /// @version 1.3 (2008-07-20)
   /// @version 1.2 (2008-07-13)
@@ -166,17 +167,17 @@ namespace Amundsen.SSDS.Provisioning
       if (wu.CheckNoCache(ctx) == true)
       {
         ifNoneMatch = string.Empty;
-        cs.RemoveItem(request_url);
+        cs.RemoveItem(request_url+accept_type);
       }
       else
       {
-        item = cs.GetItem(request_url);
+        item = cs.GetItem(request_url + accept_type);
       }
 
       // did our copy expire?
       if (item != null && (item.Expires < DateTime.UtcNow))
       {
-        cs.RemoveItem(request_url);
+        cs.RemoveItem(request_url + accept_type);
         item = null;
       }
 
@@ -185,22 +186,27 @@ namespace Amundsen.SSDS.Provisioning
       {
         // handle query
         url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}{2}{3}", authority, Constants.SsdsRoot, container, entity);
-        if (accept_type != Constants.SsdsType)
-        {
+        //if (accept_type != Constants.SsdsType)
+        //{
           ms = new System.IO.MemoryStream();
           client.UseBinaryStream = true;
-          rtn = client.Execute(url, "get", "*/*",string.Empty,ref ms);
+        rtn = client.Execute(url, "get", accept_type,string.Empty,ref ms);
           if (ms != null)
           {
-            //ms.Seek(0, System.IO.SeekOrigin.Begin);
             accept_type = client.ResponseHeaders["content-type"];
           }
-        }
-        else
-        {
-          client.UseBinaryStream = true;
-          rtn = client.Execute(url, "get", Constants.SsdsType,string.Empty, ref ms);
-        }
+        //}
+        //else
+        //{
+        //  client.UseBinaryStream = true;
+        //  rtn = client.Execute(url, "get", Constants.SsdsType,string.Empty, ref ms);
+        //}
+
+          if (rtn.Length == 0 && ms != null)
+          {
+            System.Text.Encoding enc = System.Text.Encoding.UTF8;
+            rtn = enc.GetString(ms.ToArray());
+          }
         msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
         // fill local cache
@@ -251,7 +257,11 @@ namespace Amundsen.SSDS.Provisioning
       if (showExpires)
       {
         ctx.Response.AppendHeader("Expires", string.Format(CultureInfo.CurrentCulture, "{0:R}", item.Expires));
-        ctx.Response.AppendHeader("cache-control", string.Format(CultureInfo.CurrentCulture, "max-age={0}", maxAge));
+        ctx.Response.AppendHeader("cache-control", string.Format(CultureInfo.CurrentCulture, "max-age={0}, must-revalidate", maxAge));
+      }
+      else
+      {
+        ctx.Response.AppendHeader("cache-control", "must-revalidate");
       }
 
       // ie local cache hack

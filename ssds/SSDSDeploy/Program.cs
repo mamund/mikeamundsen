@@ -14,6 +14,7 @@ namespace Amundsen.SSDS.Deploy
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.1 (2008-09-08)
   /// @version 1.0 (2008-08-18)
   /// </summary>
   class Program
@@ -194,14 +195,18 @@ namespace Amundsen.SSDS.Deploy
                   break;
                 }
                 rs.Write(buffer, 0, bytesRead);
+                Console.Write(".");
 
-                res = wr.BeginGetResponse(new AsyncCallback(uploadCallback), wr);
-                ThreadPool.RegisterWaitForSingleObject(
-                  res.AsyncWaitHandle, 
-                  new WaitOrTimerCallback(timeoutCallback), 
-                  wr, 
-                  (30 * 1000), 
-                  true);
+                if (res == null)
+                {
+                  res = wr.BeginGetResponse(new AsyncCallback(uploadCallback), wr);
+                  ThreadPool.RegisterWaitForSingleObject(
+                    res.AsyncWaitHandle,
+                    new WaitOrTimerCallback(timeoutCallback),
+                    wr,
+                    (30 * 1000),
+                    true);
+                }
               }
             }
           }
@@ -270,7 +275,7 @@ namespace Amundsen.SSDS.Deploy
         {
           try
           {
-            Console.Out.WriteLine("status: {0}/{1} ({2})", (int)response.StatusCode, response.StatusDescription, response.Headers["ETag"]);
+            Console.Out.WriteLine(" {0}/{1} ({2})", (int)response.StatusCode, response.StatusDescription, response.Headers["ETag"]);
           }
           catch (Exception ex) 
           {

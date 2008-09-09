@@ -23,6 +23,16 @@ namespace Amundsen.Utilities
     {
       string rtn = string.Empty;
       string mt = string.Empty;
+
+      if (media[0] == returnType)
+      {
+        rtn = returnType;
+      }
+      else
+      {
+        rtn = "*/*";
+      }
+      /*
       for (int i = 0; i < media.Length; i++)
       {
         mt = media[i];
@@ -31,12 +41,8 @@ namespace Amundsen.Utilities
           rtn = returnType;
           break;
         }
-        if (mt == "*/*")
-        {
-          rtn = mt;
-          break;
-        }
       }
+       * */
       return rtn;
     }
 
