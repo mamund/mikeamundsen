@@ -1,5 +1,6 @@
 /* SSDS Provisioning Client
  * mike amundsen - http://amundsen.com/blog/
+ * 2008-09-08 (mca) : updated UI for better login, added support for viewing blobs, added support for listing authorities
  * 2008-07-21 (mca) : minor tweaks to the UI
  * 2008-07-16 (mca) : updated to use new ssds-proxy URIs
  * 2008-07-14 (mca) : refactored javascript
@@ -23,6 +24,7 @@ var provision = function()
   var authority = {};
   authority.id = '';
   authority.addUrl = '/ssds-proxy/';
+  authority.getUrl = '/ssds-proxy/';
   authority.addXml = '<authority>{@authority}</authority>';
 
   var container = {};
@@ -88,7 +90,8 @@ var provision = function()
     }
     else
     {
-      toggleView('commands');
+      // get list of authorities for the logged-in user
+      ajax.httpGet(authority.getUrl,null,onAjaxComplete,true,'getAuthorityList',{'cache-control':'no-cache'})
       return;
     }
   }
@@ -156,7 +159,7 @@ var provision = function()
   {
     var elm;
 
-    if(cookies.read(authCookie)===null)
+    if(cookies.read(authCookie)===null||cookies.read(authCookie)=='')
     {
       alert('You must login first.');
     }
@@ -201,7 +204,7 @@ var provision = function()
   {
     var elm;
 
-    if(cookies.read(authCookie)===null)
+    if(cookies.read(authCookie)===null||cookies.read(authCookie)=='')
     {
       alert('You must login first.');
     }
@@ -273,7 +276,7 @@ var provision = function()
 
   function containerListBack()
   {
-    showContainerFilter();
+    location.href = location.pathname;
   }
 
   function containerAddSubmit()
@@ -311,11 +314,11 @@ var provision = function()
     url = entity.listUrl.replace('{@authority}',authority.id).replace('{@container}',container.id);
     if(noCache=='1')
     {
-      ajax.httpGet(url,null,onAjaxComplete,true,'getEntityList',{'content-type':ssdsContentType,'cache-control':'no-cache'});
+      ajax.httpGet(url,null,onAjaxComplete,true,'getEntityList',{'accept':ssdsContentType,'cache-control':'no-cache'});
     }
     else
     {
-      ajax.httpGet(url,null,onAjaxComplete,true,'getEntityList',{'content-type':ssdsContentType});
+      ajax.httpGet(url,null,onAjaxComplete,true,'getEntityList',{'accept':ssdsContentType});
     }
   }
 
@@ -382,14 +385,14 @@ var provision = function()
 
     toggleView('loading');
     url = entity.itemUrl.replace('{@authority}',authority.id).replace('{@container}',container.id).replace('{@entity}',encodeURIComponent(entity.id));
-    ajax.httpGet(url,null,onAjaxComplete,true,'getEntityItem',{'content-type':ssdsContentType});
+    ajax.httpGet(url,null,onAjaxComplete,true,'getEntityItem',{'accept':ssdsContentType});
   }
 
   function entityItemEdit()
   {
     var url;
     url =   entity.itemUrl.replace('{@authority}',authority.id).replace('{@container}',container.id).replace('{@entity}',encodeURIComponent(entity.id));
-    ajax.httpGet(url,null,onAjaxComplete,false,'getEntityEdit',{'content-type':ssdsContentType,'cache-control':'no-cache'});
+    ajax.httpGet(url,null,onAjaxComplete,false,'getEntityEdit',{'accept':ssdsContentType,'cache-control':'no-cache'});
   }
 
   function entityItemDelete()
@@ -399,7 +402,7 @@ var provision = function()
     if(confirm('Ready to Delete '+container.id+' entity ['+entity.id+']?')===true)
     {
       url = entity.deleteUrl.replace('{@authority}',authority.id).replace('{@container}',container.id).replace('{@entity}',encodeURIComponent(entity.id));
-      ajax.httpDelete(url,null,onAjaxComplete,true,'deleteEntity',{'content-type':ssdsContentType});
+      ajax.httpDelete(url,null,onAjaxComplete,true,'deleteEntity',{'accept':ssdsContentType});
     }
   }
 
@@ -467,7 +470,7 @@ var provision = function()
   function entityQueryExecute()
   {
     var url = entity.queryUrl.replace('{@authority}',authority.id).replace('{@container}',container.id).replace('{@query}',encodeURIComponent(entity.query));
-    ajax.httpGet(url,null,onAjaxComplete,true,'queryEntity',{'content-type':ssdsContentType});
+    ajax.httpGet(url,null,onAjaxComplete,true,'queryEntity',{'accept-type':ssdsContentType});
   }
 
   function onAjaxComplete(response,headers,context,status,msg)
@@ -556,9 +559,29 @@ var provision = function()
       case 'addAuthority':
         processAddAuthority(status);
         break;
+      case 'getAuthorityList':
+        processGetAuthorityList(response,headers);
+        break;
       default:
         alert('Unknown context\n'+context);
     }
+  }
+
+  function processGetAuthorityList(response,headers)
+  {
+    var list,xml,opt,i,id;
+
+    xml = response.selectNodes('//s:Authority');
+
+    list = document.getElementById('containerFilter-authority');
+    list.options[0] = new Option('--Select--','');
+
+    for(i=0;i<xml.length;i++)
+    {
+      id = xml[i].selectSingleNode('s:Id/text()').nodeValue;
+      list.options[i] =new Option(id,id);
+    }
+    toggleView('containerFilter');
   }
 
   function processCheckAlert(response,headers)
@@ -611,6 +634,7 @@ var provision = function()
     xml = response.selectNodes('//s:EntitySet/*');
     for(i=0;i<xml.length;i++)
     {
+      aview = null;
       kind = xml[i].tagName;
       id = xml[i].selectSingleNode('s:Id/text()').nodeValue;
 
@@ -621,7 +645,6 @@ var provision = function()
 
       li = document.createElement('li');
       li.appendChild(a);
-
       list.appendChild(li);
     }
 
@@ -658,15 +681,24 @@ var provision = function()
 
   function processGetEntityItem(response,headers)
   {
-    var xml,dl,dt,dd,name,value;
+    var xml,dl,dt,dd,name,value,url,a;
 
     dl = document.getElementById('entityItem-fields');
     xml = response.selectNodes('//*');
     for(i=0;i<xml.length;i++)
     {
       name = xml[i].tagName;
-      try{value = xml[i].firstChild.nodeValue.replace(/^\s+|\s+$/g, '');}catch(ex){value='';}
-      if(value===''){value='.';}
+      if(name=='s:Content')
+      {
+        try{value = 'content-type="'+xml[i].getAttribute('content-type')+'" content-length="'+xml[i].getAttribute('content-length')+'"';}catch(ex){value='';}
+        if(value===''){value='.';}
+        url = entity.itemUrl.replace('{@authority}',authority.id).replace('{@container}',container.id).replace('{@entity}',encodeURIComponent(entity.id)+'&obj=y');
+      }
+      else
+      {
+        try{value = xml[i].firstChild.nodeValue.replace(/^\s+|\s+$/g, '');}catch(ex){value='';}
+        if(value===''){value='.';}
+      }
 
       dt = document.createElement('dt');
       dt.appendChild(document.createTextNode(name));
@@ -675,6 +707,35 @@ var provision = function()
 
       dl.appendChild(dt);
       dl.appendChild(dd);
+    }
+
+    if(url)
+    {
+      dt = document.createElement('dt');
+      dt.appendChild(document.createTextNode(''));
+
+      a = document.createElement('a');
+      a.href = url;
+      a.onclick = function(){window.open(url,'object','status=0,toolbar=0,location=0,menubar=0,directories=0,resizable=1,scrollbars=1,height=400,width=400');return false;}
+      a.title = 'view object';
+      a.appendChild(document.createTextNode('view object'));
+
+      dd = document.createElement('dd');
+      dd.appendChild(a);
+
+      dl.appendChild(dt);
+      dl.appendChild(dd);
+
+    }
+
+    elm = document.getElementById('entityItem-edit');
+    if(url)
+    {
+      elm.disabled=true;
+    }
+    else
+    {
+      elm.disabled=false;
     }
     toggleView('entityItem');
   }
@@ -733,10 +794,6 @@ var provision = function()
   {
     document.getElementById('home').onclick = showHome;
     document.getElementById('whats-new-legend').onclick = showWhatsNew;
-
-    document.getElementById('commands-createAuthority').onclick = showAuthorityView;
-    document.getElementById('commands-manageContainers').onclick = showContainerFilter;
-    document.getElementById('commands-authenticateUser').onclick = showAuthentication;
     document.getElementById('commands-logout').onclick = logoutUser;
 
     document.getElementById('authenticateUser-form').onsubmit = authenticateUserSubmit;
@@ -746,11 +803,10 @@ var provision = function()
     document.getElementById('authorityView-back').onclick = authorityViewBack;
 
     document.getElementById('containerFilter-form').onsubmit = containerFilterSubmit;
-    document.getElementById('containerFilter-back').onclick = containerFilterBack;
+    document.getElementById('containerFilter-add').onclick = showAuthorityView;
 
     document.getElementById('containerList-add').onclick = containerListAdd;
     document.getElementById('containerList-refresh').onclick = containerListRefresh;
-    document.getElementById('containerList-back').onclick = containerListBack;
     document.getElementById('containerList-home').onclick = showHome;
 
     document.getElementById('containerAdd-form').onsubmit = containerAddSubmit;
@@ -811,7 +867,6 @@ var provision = function()
     auth = cookies.read(authCookie);
     if(auth)
     {
-      document.getElementById('login').style.display='none';
       document.getElementById('logout').style.display='inline';
 
       userName = Base64.decode(auth).split(':')[0];
@@ -819,7 +874,6 @@ var provision = function()
     else
     {
       userName = '';
-      document.getElementById('login').style.display='inline';
       document.getElementById('logout').style.display='none';
     }
   }
@@ -829,52 +883,51 @@ var provision = function()
     var vw,vs;
 
     vw = view || 'commands';
-    vs = {commands:'block',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
+    vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
 
     switch(vw)
     {
       case 'commands':
-        vs = {commands:'block',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'authenticateUser':
-        vs = {commands:'none',authenticateUser:'block',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'block',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'authorityView':
-        vs = {commands:'none',authenticateUser:'none',authorityView:'block',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'block',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'containerFilter':
-        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'block',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'block',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'containerList':
-        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'block',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'block',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'containerAdd':
-        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'block',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'block',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'entityList':
-        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'block',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'block',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'entityItem':
-        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'block',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'block',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'entityAdd':
-        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'block',entityEdit:'none',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'block',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
       case 'entityEdit':
-        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'block',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'block',entityQuery:'none',loading:'none'};
         break;
       case 'entityQuery':
-        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'block',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'block',loading:'none'};
         break;
       case 'loading':
-        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'block'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'block'};
         break;
       default:
-        vs = {commands:'none',authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
+        vs = {authenticateUser:'none',authorityView:'none',containerFilter:'none',containerList:'none',containerAdd:'none',entityList:'none',entityItem:'none',entityAdd:'none',entityEdit:'none',entityQuery:'none',loading:'none'};
         break;
     }
 
-    document.getElementById('commands').style.display = vs.commands;
     document.getElementById('authenticateUser').style.display = vs.authenticateUser;
     document.getElementById('authorityView').style.display = vs.authorityView;
     document.getElementById('containerFilter').style.display = vs.containerFilter;

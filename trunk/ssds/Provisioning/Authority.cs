@@ -11,6 +11,7 @@ namespace Amundsen.SSDS.Provisioning
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.5 (2008-09-08)
   /// @version 1.4 (2008-08-05)
   /// @version 1.3 (2008-07-20)
   /// @version 1.2 (2008-07-13)
@@ -117,11 +118,12 @@ namespace Amundsen.SSDS.Provisioning
 
       // get authority from query string
       authority = (ctx.Request.QueryString["authority"] != null ? ctx.Request.QueryString["authority"] : string.Empty);
+      /*
       if (authority.Length==0)
       {
         throw new HttpException(400, "Missing Authority ID");
       }
-
+      */
       string ifNoneMatch = wu.GetHeader(ctx, "if-none-match");
 
       // check local cache first (if allowed)
@@ -143,10 +145,20 @@ namespace Amundsen.SSDS.Provisioning
       }
 
       // get a new copy, if needed
+      string url = string.Empty;
       if (item == null)
       {
+        if(authority.Length!=0)
+        {
+          url = string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}", authority, Constants.SsdsRoot);
+        }
+        else
+        {
+          url = string.Format(CultureInfo.CurrentCulture,"https://{0}?q=",Constants.SsdsRoot);
+        }
+
         // make call to remote server
-        rtn = client.Execute(string.Format(CultureInfo.CurrentCulture, "https://{0}.{1}", authority, Constants.SsdsRoot), "get", Constants.SsdsType);
+        rtn = client.Execute(url, "get", Constants.SsdsType);
         msft_request = (client.ResponseHeaders[Constants.MsftRequestId] != null ? client.ResponseHeaders[Constants.MsftRequestId] : string.Empty);
 
         // fill local cache
@@ -159,7 +171,6 @@ namespace Amundsen.SSDS.Provisioning
             showExpires
           )
         );
-
       }
 
       // if client has same copy, just send 304

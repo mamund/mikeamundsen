@@ -1,5 +1,6 @@
 /* Public Domain 2008 amundsen.com, inc.
  * @author mike amundsen (http://amundsen.com/blog/)
+ * 2008-09-08 (mca) : updated UI for better login, added support for viewing blobs, added support for listing authorities
  * 2008-07-21 (mca) : minor tweaks to the UI
  * 2008-07-16 (mca) : updated to use new ssds-proxy URIs
  * 2008-07-14 (mca) : refactored javascript, fixed container caching bug, added refresh button
@@ -182,11 +183,16 @@ fieldset code
 }
 .urgent
 {
-	font-weight:bold;
-	color:red;
+  font-weight:bold;
+  color:red;
 }
 .sig
 {
 	font-style:italic;
 	font-weight:bold;
+}
+p.warning
+{
+  color:#800;
+  font-weight:bold;
 }

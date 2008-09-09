@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
 /* Public Domain 2008 amundsen.com, inc.
+ * 2008-09-08 (mca) : updated UI for better login, added support for viewing blobs, added support for listing authorities
  * @author mike amundsen (http://amundsen.com/blog/)
  * 2008-07-21 (mca) : minor tweaks to the UI
  * 2008-07-16 (mca) : updated to use new ssds-proxy URIs
@@ -19,27 +20,23 @@
   <body>
     <div id="details">
       <h1 id="home" title="Home">SSDS Provisioning Client</h1>
-      <p class="version">version 1.6 (2008-07-21)</p>
+      <p class="version">version 1.7 (2008-09-08)</p>
       <p>by <a href="http://amundsen.com/blog/" title="Mike Amundsen">Mike Amundsen</a></p>
       <p><a href="http://amundsen.com/examples/ssds/">SSDS Examples Home</a></p>
       <p><a href="http://amundsen.com/examples/ssds/feedback/">Feedback for SSDS Examples</a></p>
     </div>
-		<div id="alert"></div>
+    <div id="alert"></div>
     <div id="login-block">
       <h5 class="user-name"></h5>
-      <div id="login" style="display:none;"><input type="button" id="commands-authenticateUser" title="Authenticate User" value="Login" class="inline-button"/></div>
       <div id="logout" style="display:none;"><input type="button" id="commands-logout" title="Logout User" value="Logout" class="inline-button"/></div>
     </div>
 
-    <div id="commands" style="display:none;" class="view">
-      <h2>Commands</h2>
-      <ul class="commands">
-        <li><a href="#" id="commands-createAuthority" title="Create SSDS Authority">Create SSDS Authority</a></li>
-        <li><a href="#" id="commands-manageContainers" title="Manage SSDS Containers">Manage SSDS Containers</a></li>
-      </ul>
+    <div id="about-view" style="" class="view">
       <fieldset>
         <legend id="whats-new-legend" title="Click to view">What's New</legend>
         <dl class="whats-new" style="display:none;">
+          <dt>1.7- 2008-09-08</dt>
+          <dd>Updated UI for better login experience. Added support for viewing/deleting blobs. Added support for listing authorities.</dd>
           <dt>1.6 - 2008-07-21</dt>
           <dd>Minor tweaks to the UI.</dd>
           <dt>1.5 - 2008-07-16</dt>
@@ -56,6 +53,27 @@
           <dd>Initial release.</dd>
         </dl>
       </fieldset>
+    </div>
+
+    <div id="containerFilter" style="display:none;"  class="view">
+      <h2>Manage Authorities</h2>
+      <form id="containerFilter-form" method="post" action="#">
+        <fieldset class="space">
+          <legend>Select Authority to View</legend>
+          <p class="inputs">
+            <label for="authority-select">Name</label>
+            <select id="containerFilter-authority"></select>
+            <input type="submit" id="containerFilter-submit" value="Submit" class="inline-button"/>
+            <input type="button" id="containerFilter-add" value="Add" class="inline-button"/>
+          </p>
+        </fieldset>
+        <fieldset>
+          <legend>Notes</legend>
+          <p>
+            Select an existing SSDS authority or press "Add" to create one.
+          </p>
+        </fieldset>
+      </form>
     </div>
 
     <div id="authorityView" style="display:none;"  class="view">
@@ -76,29 +94,10 @@
             Authorities are the unit of geo-location and billing within SSDS. In the beta you can
             create as many as you would like. When the service goes live, you will receive a bill per Authority.
           </p>
+          <p class="warning">
+            Currently, there is no support for deleting an Authority once it has been created.
+          </p>
           </fieldset>
-      </form>
-    </div>
-
-    <div id="containerFilter" style="display:none;"  class="view">
-      <h2>Manage Containers</h2>
-      <form id="containerFilter-form" method="post" action="#">
-        <fieldset class="space">
-          <legend>Enter Authority to View</legend>
-          <p class="inputs">
-            <label for="authority-select">Name</label>
-            <input type="text" id="containerFilter-authority" value="" />
-            <input type="submit" id="containerFilter-submit" value="Submit" class="inline-button"/>
-            <input type="button" id="containerFilter-back" value="Back" class="inline-button"/>
-          </p>
-        </fieldset>
-        <fieldset>
-          <legend>Notes</legend>
-          <p>
-            The current release of SSDS does not provide a list of Authorities for a given user account.
-            You must type in a valid SSDS Authority to which you have access.
-          </p>
-        </fieldset>
       </form>
     </div>
 
@@ -108,7 +107,7 @@
       <p class="buttons">
         <input type="button" id="containerList-add" value="Add Container" />
         <input type="button" id="containerList-refresh" value="Refresh" />
-        <input type="button" id="containerList-back" value="Back" />
+        <!--<input type="button" id="containerList-back" value="Back" />-->
         <input type="button" id="containerList-home" value="Home" />
       </p>
       <fieldset>
@@ -283,7 +282,7 @@
       <form id="authenticateUser-form" method="post" action="#">
         <p class="buttons">
           <input type="submit" id="authenticateUser-submit" value="Login" />
-          <input type="button" id="authenticateUser-back" value="Back" />
+          <input type="button" id="authenticateUser-back" value="Back"  style="display:none;"/>
         </p>
         <fieldset>
           <legend>Enter Your SSDS User and Password</legend>
@@ -305,13 +304,13 @@
             password are then decypted into memory on the Web server and are finally sent (via HTTPS)
             to the remote SSDS server.
           </p>
-          <p>
+          <p style="display:none;">
             Although it is not likely, it is <em>possible</em> for someone to 'sniff' the traffic between
             your client and the target server at this moment to intercept the encrypted username and password.
             Also, while I give you my promise that the server code is not storing your username and password,
             it could be done.
           </p>
-          <p>
+          <p class="warning">
             If you are not comfortable with these circumstances, <em>do not</em> enter your SSDS username
             and password into this screen.
           </p>
