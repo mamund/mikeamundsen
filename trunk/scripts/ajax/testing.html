@@ -6,11 +6,10 @@
 </head>
 <body>
     <h1>form-testing</h1>
-    
-    <form name="delete-form" action="/server/echo.aspx?id=123" method="post" onsubmit="return ajax.quickDelete('delete-form');">
+    <form name="delete-form" action="echo.ashx?id=123" method="post" onsubmit="return ajax.quickDelete('delete-form');">
       <input type="submit" value="Delete" />
     </form>
-    <form name="sample" action="/server/echo.aspx" method="post" onsubmit="return ajax.quickPut('sample');">
+    <form name="sample" action="echo.ashx" method="post" onsubmit="return ajax.quickPut('sample');">
       <fieldset>
         <legend>sample</legend>
         <p class="inputs">
@@ -52,8 +51,5 @@
       </fieldset>
     </form>
 </body>
-<script type="text/javascript" src="/$content$/scripts/ajax.js"></script>
-<script type="text/javascript">
-
-</script>
+<script type="text/javascript" src="ajax.js"></script>
 </html>
