@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>form-testing</title>
+</head>
+<body>
+    <h1>form-testing</h1>
+    
+    <form name="delete-form" action="/server/echo.aspx?id=123" method="post" onsubmit="return ajax.quickDelete('delete-form');">
+      <input type="submit" value="Delete" />
+    </form>
+    <form name="sample" action="/server/echo.aspx" method="post" onsubmit="return ajax.quickPut('sample');">
+      <fieldset>
+        <legend>sample</legend>
+        <p class="inputs">
+          <label>Name:</label>
+          <input type="text" name="name" value="" />
+        </p>
+        <p class="inputs">
+          <label>Phone:</label>
+          <input type="text" name="phone" value="" />
+        </p>
+        <p class="inputs">
+          <label>Size:</label>
+          <select name="size" multiple="true" size="4">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </p>
+        <p class="inputs">
+          <label>Approved?:</label>
+          <input type="checkbox" name = "approved" value="1" />
+          <input type="checkbox" name = "approved" value="2" />
+        </p>
+        <p class="inputs">
+          <label>Group:</label>
+          <input type="radio" name="group" value="First" /><span>First</span>
+          <input type="radio" name="group" value="Second" /><span>Second</span>
+          <input type="radio" name="group" value="Third" /><span>Third</span>
+        </p>
+        <p class="inputs">
+          <label>Details:</label>
+          <textarea name="story" rows="6" cols="50"></textarea>
+        </p>
+        <p class="inputs">
+          <label>&nbsp;</label>
+          <input type="submit" value="Send" />
+        </p>
+      </fieldset>
+    </form>
+</body>
+<script type="text/javascript" src="/$content$/scripts/ajax.js"></script>
+<script type="text/javascript">
+
+</script>
+</html>
