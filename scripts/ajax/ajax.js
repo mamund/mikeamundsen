@@ -19,177 +19,269 @@ var ajax = {
   shouldEscapeVars: false,
   shouldMakeHeaderMap: true,
 
-  // 2008-10-01 (mca) : toggle alerts for oncomplete
   showErrors: true,
   showStatus: true,
-  // 2008-10-01 (mca) : toggle alerts for oncomplete
 
-  // 2007-04-16 (mca) : added to support timeout hook
   maxTimeout: 5000,
   timeoutMessage: 'Unable to complete request - server timed out.',
   onTimeout: null,
   _reqTimer : null,
-  // 2007-04-16 (mca) : added to support timeout hook
 
-  calls : new Array(),
+  calls : [],
   pendingResponseCount : 0,
 
-
-   /**************************************************************************
-      PUBLIC METHODS
-   *************************************************************************/
+  /**************************************************************************
+    PUBLIC METHODS
+  *************************************************************************/
 
   // http get methods
-  httpGet: function(url, urlVars, callbackFunction, expectingXML, callingContext, reqHdrs) {
-    return this._callServer(url, urlVars, callbackFunction, expectingXML,
-                    callingContext, "GET", null, null, null, reqHdrs);
+  httpGet: function(url, urlVars, callbackFunction, expectingXML, callingContext, reqHdrs)
+  {
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    reqHdrs = reqHdrs || null;
+
+    return this._callServer(url, urlVars, callbackFunction, expectingXML,callingContext, "GET", null, null, null, reqHdrs);
   },
 
-  httpGetXML: function(url, callbackFunction, reqHdrs) {
+  httpGetXML: function(url, callbackFunction, reqHdrs)
+  {
+    url = url || null;
+    callbackFunction = callbackFunction || null;
+    reqHdrs = reqHdrs || null;
+
     this.httpGet(url, null, callbackFunction, true, null, reqHdrs);
   },
 
-  httpGetPlainText: function(url, callbackFunction, reqHdrs) {
+  httpGetPlainText: function(url, callbackFunction, reqHdrs)
+  {
+    url = url || null;
+    callbackFunction = callbackFunction || null;
+    reqHdrs = reqHdrs || null;
+
     this.httpGet(url, null, callbackFunction, false, null, reqHdrs);
   },
 
   // http post methods
-  httpPost:
-    function(url, optionalURLVars, callbackFunction, expectingXML,
-             callingContext, bodyType, body, reqHdrs) {
-      this._callServer(url, optionalURLVars, callbackFunction, expectingXML,
-                      callingContext, "POST", null, bodyType, body, reqHdrs);
+  httpPost: function(url, urlVars, callbackFunction, expectingXML,callingContext, bodyType, body, reqHdrs)
+  {
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    bodyType = bodyType || null;
+    body = body || null;
+    reqHdrs = reqHdrs || null;
+
+    this._callServer(url, urlVars, callbackFunction, expectingXML,callingContext, "POST", null, bodyType, body, reqHdrs);
   },
 
-  httpPostForPlainText: function(url, vars, callbackFunction, reqHdrs) {
-    this.httpPostVars(url, vars, null, callbackFunction, false,
-                    null, "POST", null, null, reqHdrs);
+  httpPostForPlainText: function(url, urlVars, callbackFunction, reqHdrs)
+  {
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    reqHdrs = reqHdrs || null;
+
+    this.httpPostVars(url, urlVars, null, callbackFunction, false, null, "POST", null, null, reqHdrs);
   },
 
-  httpPostForXML: function(url, vars, callbackFunction, reqHdrs) {
-    this.httpPostVars(url, vars, null, callbackFunction, true,
-                    null, "POST", null, null, reqHdrs);
+  httpPostForXML: function(url, urlVars, callbackFunction, reqHdrs)
+  {
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    reqHdrs = reqHdrs || null;
+    this.httpPostVars(url, urlVars, null, callbackFunction, true, null, "POST", null, null, reqHdrs);
   },
 
-  httpPostVars:
-    function(url, bodyVars, optionalURLVars, callbackFunction, expectingXML,
-             callingContext, reqHdrs) {
-      this._callServer(url, optionalURLVars, callbackFunction, expectingXML,
-                      callingContext, "POST", bodyVars, null, null, reqHdrs);
+  httpPostVars:function(url, bodyVars, urlVars, callbackFunction, expectingXML,callingContext, reqHdrs)
+  {
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    reqHdrs = reqHdrs || null;
+
+    this._callServer(url, urlVars, callbackFunction, expectingXML,callingContext, "POST", bodyVars, null, null, reqHdrs);
   },
 
-  httpPostMultiPart:
-    function(url, bodyVars, optionalURLVars, callbackFunction, expectingXML,
-             callingContext, reqHdrs) {
-      this._callServer(url, optionalURLVars, callbackFunction, expectingXML,
-                      callingContext, "POST", bodyVars, 'multipart/form-data', null, reqHdrs);
+  httpPostMultiPart:function(url, bodyVars, urlVars, callbackFunction, expectingXML, callingContext, reqHdrs)
+  {
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    reqHdrs = reqHdrs || null;
+
+    this._callServer(url, urlVars, callbackFunction, expectingXML, callingContext, "POST", bodyVars, 'multipart/form-data', null, reqHdrs);
   },
 
   // other http methods
   httpHead: function(url, urlVars, callbackFunction, expectingXML, callingContext, reqHdrs)
   {
-    this._callServer(url, urlVars, callbackFunction, expectingXML,
-                    callingContext, "HEAD", null, null, null, reqHdrs);
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    reqHdrs = reqHdrs || null;
+
+    this._callServer(url, urlVars, callbackFunction, expectingXML, callingContext, "HEAD", null, null, null, reqHdrs);
   },
 
-  httpPut:
-    function(url, optionalURLVars, callbackFunction, expectingXML,
-             callingContext, bodyType, body, reqHdrs) {
-      this._callServer(url, optionalURLVars, callbackFunction, expectingXML,
-                      callingContext, "PUT", null, bodyType, body, reqHdrs);
+  httpPut: function(url, urlVars, callbackFunction, expectingXML, callingContext, bodyType, body, reqHdrs)
+  {
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    bodyType = bodyType || null;
+    body = body || null;
+    reqHdrs = reqHdrs || null;
+
+    this._callServer(url, urlVars, callbackFunction, expectingXML, callingContext, "PUT", null, bodyType, body, reqHdrs);
   },
 
-  httpDelete: function(url, urlVars, callbackFunction, expectingXML, callingContext, reqHdrs) {
-    this._callServer(url, urlVars, callbackFunction, expectingXML,
-                    callingContext, "DELETE", null, null, null, reqHdrs);
+  httpDelete: function(url, urlVars, callbackFunction, expectingXML, callingContext, reqHdrs)
+  {
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    reqHdrs = reqHdrs || null;
+
+    this._callServer(url, urlVars, callbackFunction, expectingXML, callingContext, "DELETE", null, null, null, reqHdrs);
   },
 
-  httpOptions:
-    function(url, optionalURLVars, callbackFunction, expectingXML,
-             callingContext, bodyType, body, reqHdrs) {
-      this._callServer(url, optionalURLVars, callbackFunction, expectingXML,
-                      callingContext, "OPTIONS", null, bodyType, body, reqHdrs);
+  httpOptions: function(url, urlVars, callbackFunction, expectingXML, callingContext, bodyType, body, reqHdrs)
+  {
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    bodyType = bodyType || null;
+    body = body || null;
+    reqHdrs = reqHdrs || null;
+
+    this._callServer(url, urlVars, callbackFunction, expectingXML, callingContext, "OPTIONS", null, bodyType, body, reqHdrs);
   },
 
-  httpTrace:
-    function(url, optionalURLVars, callbackFunction, expectingXML,
-             callingContext, bodyType, body, reqHdrs) {
-      this._debug("trace");
-      this._callServer(url, optionalURLVars, callbackFunction, expectingXML,
-                      callingContext, "TRACE", null, bodyType, body, reqHdrs);
+  httpTrace: function(url, urlVars, callbackFunction, expectingXML, callingContext, bodyType, body, reqHdrs)
+  {
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    bodyType = bodyType || null;
+    body = body || null;
+    reqHdrs = reqHdrs || null;
+
+    this._debug("trace");
+    this._callServer(url, urlVars, callbackFunction, expectingXML,  callingContext, "TRACE", null, bodyType, body, reqHdrs);
   },
 
-  // short-cut methods (2008-10-01)
+  // short-cut methods
   quickPut:function(formRef,url)
   {
+    formRef = formRef || null;
+    url = url || null;
+
     this.httpPutForm(url, null, null, false, null, null, formRef);
+
     return false;
   },
 
-  httpPutForm:
-    function(url, optionalURLVars, callbackFunction, expectingXML,
-             callingContext, bodyType, formRef, reqHdrs) {
+  httpPutForm:function(url, urlVars, callbackFunction, expectingXML, callingContext, bodyType, formRef, reqHdrs)
+  {
+    var bodyVars,f;
 
-      var bodyVars = this.getFields(formRef);
-      if(url==null)
-      {
-        var f = document.getElementById(formRef);
-        if(f==null)
-        {
-          f = document.getElementsByName(formRef)[0];
-        }
-        url = f.action;
-      }
-      this._callServer(url, optionalURLVars, callbackFunction, expectingXML,
-                      callingContext, "PUT", bodyVars, bodyType, null, reqHdrs);
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    bodyType = bodyType || null;
+    formRef = formRef || null;
+    reqHdrs = reqHdrs || null;
+
+    bodyVars = this.getFields(formRef);
+    if(url===null)
+    {
+      url = this._checkUrl(formRef);
+    }
+
+    this._callServer(url, urlVars, callbackFunction, expectingXML, callingContext, "PUT", bodyVars, bodyType, null, reqHdrs);
   },
 
   quickDelete:function(formRef,url)
   {
-    this.httpDeleteForm(url, null, null, false, null, null, formRef);
+    formRef = formRef || null;
+    url = url || null;
+
+    this.httpDeleteForm(url, null, null, false, null, formRef);
+
     return false;
   },
 
-  httpDeleteForm:
-    function(url, optionalURLVars, callbackFunction, expectingXML,
-             callingContext, bodyType, formRef, reqHdrs) {
+  httpDeleteForm:function(url, urlVars, callbackFunction, expectingXML, callingContext, formRef, reqHdrs)
+  {
+    var bodyVars,f;
 
-      var bodyVars = this.getFields(formRef);
-      if(url==null)
-      {
-        var f = document.getElementById(formRef);
-        if(f==null)
-        {
-          f = document.getElementsByName(formRef)[0];
-        }
-        url = f.action;
-      }
-      this._callServer(url, optionalURLVars, callbackFunction, expectingXML,
-                    callingContext, "DELETE", null, null, null, reqHdrs);
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    bodyType = bodyType || null;
+    formRef = formRef || null;
+    reqHdrs = reqHdrs || null;
+
+    if(url===null)
+    {
+      url = this._checkUrl(formRef);
+    }
+
+    this._callServer(url, urlVars, callbackFunction, expectingXML, callingContext, "DELETE", null, null, null, reqHdrs);
   },
 
   quickPost:function(formRef,url)
   {
+    url = url || null;
     this.httpPostForm(url, null, null, false, null, null, formRef);
     return false;
   },
 
-  httpPostForm:
-    function(url, optionalURLVars, callbackFunction, expectingXML,
-             callingContext, bodyType, formRef, reqHdrs) {
+  httpPostForm:function(url, urlVars, callbackFunction, expectingXML, callingContext, bodyType, formRef, reqHdrs)
+  {
+    var f,bodyVars;
 
-      var bodyVars = this.getFields(formRef);
-      if(url==null)
-      {
-        var f = document.getElementById(formRef);
-        if(f==null)
-        {
-          f = document.getElementsByName(formRef)[0];
-        }
-        url = f.action;
-      }
-      this._callServer(url, optionalURLVars, callbackFunction, expectingXML,
-                      callingContext, "POST", bodyVars, bodyType, null, reqHdrs);
+    url = url || null;
+    urlVars = urlVars || null;
+    callbackFunction = callbackFunction || null;
+    expectingXML = expectingXML || null;
+    callingContext = callingContext || null;
+    bodyType = bodyType || null;
+    formRef = formRef || null;
+    reqHdrs = reqHdrs || null;
+
+    bodyVars = this.getFields(formRef);
+    if(url===null)
+    {
+      url = this._checkUrl(formRef);
+    }
+
+    this._callServer(url, urlVars, callbackFunction, expectingXML, callingContext, "POST", bodyVars, bodyType, null, reqHdrs);
   },
 
   onComplete:function(response,headers,context,status,msg)
@@ -212,15 +304,15 @@ var ajax = {
       case 301:
       case 302:
       case 303:
-        if(headers["location"])
+        if(headers.location)
         {
-          location.href=headers["location"];
+          location.href=headers.location;
         }
         break;
       default:    // 400 & 500 errors
-        if(headers["location"])
+        if(headers.location)
         {
-          location.href=headers["location"];
+          location.href=headers.location;
         }
         else
         {
@@ -237,152 +329,145 @@ var ajax = {
       context.apply(context,[response,headers,context,status,msg]);
     }
   },
-  // short-cut methods (2008-10-01)
 
-  /**************************************************************************
-     PRIVATE METHODS
+  /*************************************************************************
+    PRIVATE METHODS
   *************************************************************************/
 
-   // 2007-04-16 (mca) : added to support timeout hook
   _requestTimeOut: function()
     {
-        if(ajax.onTimeout)
-           ajax.onTimeout();
-        else
-            alert('ERROR:\n'+ajax.timeoutMessage);
-        //xReq.abort(); // commented out to prevent IE wierdness
+      if(ajax.onTimeout)
+      {
+        ajax.onTimeout();
+      }
+      else
+      {
+        alert('ERROR:\n'+ajax.timeoutMessage);
+      }
+      //xReq.abort(); // commented out to prevent IE wierdness
     },
-   // 2007-04-16 (mca) : added to support timeout hook
 
-  _callServer: function(url, urlVars, callbackFunction, expectingXML,
-                       callingContext, requestMethod, bodyVars,
-                       explicitBodyType, explicitBody, reqHdrs) {
+  _callServer: function(url, urlVars, callbackFunction, expectingXML, callingContext, requestMethod, bodyVars, explicitBodyType, explicitBody, reqHdrs)
+  {
+    var dbg,call,xReq,urlVarsString;
 
-    if (urlVars==null) {
-      urlVars = new Array();
+    if (urlVars===null)
+    {
+      urlVars = [];
     }
 
-    if(callbackFunction==null)
+    if(callbackFunction===null)
     {
       callbackFunction = this.onComplete;
     }
 
-    this._debug("_callServer() called. About to request URL\n"
-                + "call key: [" + this.calls.length + "]\n"
-                + "url: [" + url + "]\n"
-                + "callback function: [" + callbackFunction + "]\n"
-                + "treat response as xml?: [" + expectingXML + "]\n"
-                + "Request method?: [" + requestMethod + "]\n"
-                + "calling context: [" + callingContext + "]\n"
-                + "explicit body type: [" + explicitBodyType + "]\n"
-                + "explicit body: [" + explicitBody + "]\n"
-                + "urlVars: [" + this._describe(urlVars) + "]\n"
-                + "bodyVars: [" + this._describe(bodyVars) + "]\n"
-                + "reqHdrs: [" + this._describe(reqHdrs) + "]"
-              );
+    dbg = '';
+    dbg += "_callServer() called. About to request URL\n";
+    dbg += "call key: [" + this.calls.length + "]\n";
+    dbg += "url: [" + url + "]\n";
+    dbg += "callback function: [" + callbackFunction + "]\n";
+    dbg += "treat response as xml?: [" + expectingXML + "]\n";
+    dbg += "Request method?: [" + requestMethod + "]\n";
+    dbg += "calling context: [" + callingContext + "]\n";
+    dbg += "explicit body type: [" + explicitBodyType + "]\n";
+    dbg += "explicit body: [" + explicitBody + "]\n";
+    dbg += "urlVars: [" + this._describe(urlVars) + "]\n";
+    dbg += "bodyVars: [" + this._describe(bodyVars) + "]\n";
+    dbg += "reqHdrs: [" + this._describe(reqHdrs) + "]";
+    this._debug(dbg);
 
+    xReq = this._createXMLHttpRequest();
+    xReq.onreadystatechange = function() {ajax._onResponseStateChange(call);};
 
-    var xReq = this._createXMLHttpRequest();
-    xReq.onreadystatechange = function() {
-      ajax._onResponseStateChange(call);
-    }
+    call = {xReq: xReq, callbackFunction: callbackFunction, expectingXML: expectingXML, callingContext: callingContext, url: url};
 
-    var call = {xReq: xReq,
-                callbackFunction: callbackFunction,
-                expectingXML: expectingXML,
-                callingContext: callingContext,
-                url: url};
-
-    if (urlVars!=null) {
-      var urlVarsString = this._createHTTPVarSpec(urlVars);
-      if (urlVarsString.length > 0) { // TODO check if appending with & instead
+    if (urlVars!==null)
+    {
+      urlVarsString = this._createHTTPVarSpec(urlVars);
+      if (urlVarsString.length > 0)
+      { // TODO check if appending with & instead
         url += "?" + urlVarsString;
       }
     }
 
-    // 2007-04-06 (mca) : added trap for fatal open errors
     try
     {
-        xReq.open(requestMethod, url, true);
+      xReq.open(requestMethod, url, true);
     }
     catch(ex)
     {
-        alert(
-            'ERROR:\nXMLHttpRequest.open failed for\n'+
-            url+' ['+requestMethod+']'+'\n'+
-            ex.message
-            );
-        return;
+      alert('ERROR:\nXMLHttpRequest.open failed for\n'+ url+' ['+requestMethod+']'+'\n'+ ex.message);
+      return;
     }
-    // 2007-04-06 (mca) : added trap for fatal open errors
 
     // 2007-04-16 (mca) : added to support timeout hook
     //ajax._reqTimer = setTimeout(ajax._requestTimeOut,ajax.maxTimeout);
     // 2007-04-16 (mca) : added to support timeout hook
 
-    if(reqHdrs!=null)
-        this._appendHeaders(xReq,reqHdrs);
+    if(reqHdrs!==null)
+    {
+      this._appendHeaders(xReq,reqHdrs);
+    }
 
-    if (   requestMethod=="GET"
-        || requestMethod=="HEAD"
-        || requestMethod=="DELETE") {
+    if (requestMethod=="GET" || requestMethod=="HEAD" || requestMethod=="DELETE")
+    {
       this._debug("Body-less request to URL " + url);
       xReq.send(null);
       return call;  // return call object
     }
 
-    if (   requestMethod=="POST"
-        || requestMethod=="PUT"
-        || requestMethod=="OPTIONS"
-        || requestMethod=="TRACE") {
+    if (requestMethod=="POST" || requestMethod=="PUT" || requestMethod=="OPTIONS" || requestMethod=="TRACE")
+    {
       bodyType = null;
       body = null;
-      if (explicitBodyType==null) { // It's a form
+
+      if (explicitBodyType===null)
+      { // It's a form
         bodyType = 'application/x-www-form-urlencoded; charset=UTF-8';
         body = this._createHTTPVarSpec(bodyVars);
-      } else {
+      }
+      else
+      {
         bodyType = explicitBodyType;
         body = explicitBody;
       }
+
       this._debug("Content-Type: [" + bodyType + "]\nBody: [" + body + "].");
-      xReq.setRequestHeader('Content-Type',  bodyType);
+      xReq.setRequestHeader('Content-Type', bodyType);
       xReq.send(body);
       return call;  // return call object
     }
-
     this._debug("ERROR: Unknown Request Method: " + requestMethod);
-
   },
 
-  // The callback of xmlHttpRequest is a dynamically-generated function which
-  // immediately calls this function.
-  _onResponseStateChange: function(call) {
+  // The callback of xmlHttpRequest is a dynamically-generated function which immediately calls this function.
+  _onResponseStateChange: function(call)
+  {
+    var xReq,content;
 
     xReq = call.xReq;
 
-    if (xReq.readyState < 4) { //Still waiting
+    if (xReq.readyState < 4)
+    { //Still waiting
       return;
     }
 
-    // 2007-04-16 (mca) : added to support timeout hook
     clearTimeout(this._reqTimer);
-    // 2007-04-16 (mca) : added to support timeout hook
 
-    if (xReq.readyState == 4) { //Transmit to actual callback
-      this._debug("Call " + this._describe(call)
-                + " with context [" + call.callingContext+"]"
-                + " to " + call.url + " has returned.");
+    if (xReq.readyState == 4)
+    { //Transmit to actual callback
+      this._debug("Call " + this._describe(call) + " with context [" + call.callingContext+"]" + " to " + call.url + " has returned.");
       callbackFunction = call.callbackFunction;
-      if (!callbackFunction) { // Maybe still loading, e.g. in another JS file
-        setTimeout(function() {
-          _onResponseStateChange(call);
-        }, 100);
+
+      if (!callbackFunction)
+      { // Maybe still loading, e.g. in another JS file
+        setTimeout(function() {_onResponseStateChange(call);}, 100);
       }
-      var content = call.expectingXML ? xReq.responseXML : xReq.responseText;
+
+      content = call.expectingXML ? xReq.responseXML : xReq.responseText;
       responseHeaders = xReq.getAllResponseHeaders();
-      headersForCaller = this.shouldMakeHeaderMap ?
-        this._createHeaderMap(responseHeaders) : responseHeaders;
-      // 2007-04-06 (mca) : added status and statusText as optional returns
+      headersForCaller = this.shouldMakeHeaderMap ? this._createHeaderMap(responseHeaders) : responseHeaders;
+
       callbackFunction(content, headersForCaller, call.callingContext, xReq.status, xReq.statusText);
     }
 
@@ -413,7 +498,7 @@ var ajax = {
           val = this.getValue(item);
           if(vars[item.getAttribute('name')])
           {
-            if(val!='')
+            if(val!=='')
             {
               vars[item.getAttribute('name')] = vars[item.getAttribute('name')]+';'+val;
             }
@@ -439,7 +524,7 @@ var ajax = {
 
     try
     {
-      if((inputElement.type=='checkbox' || inputElement.type=='radio') && inputElement.checked==false)
+      if((inputElement.type=='checkbox' || inputElement.type=='radio') && inputElement.checked===false)
       {
         val='';
       }
@@ -450,9 +535,9 @@ var ajax = {
           val = '';
           for(i=0;i<inputElement.options.length;i++)
           {
-            if(inputElement.options[i].selected==true)
+            if(inputElement.options[i].selected===true)
             {
-              if(val!='')
+              if(val!=='')
               {
                 val += ';' + escape(inputElement.options[i].value);
               }
@@ -465,7 +550,7 @@ var ajax = {
         }
         else
         {
-          val = escape(inputElement.value)
+          val = escape(inputElement.value);
         }
       }
     }
@@ -477,58 +562,87 @@ var ajax = {
     return val;
   },
 
-  _checkType:function(value) {
-      var s = typeof value;
-      if (s === 'object') {
-          if (value) {
-              if (typeof value.length === 'number' &&
-                      !(value.propertyIsEnumerable('length')) &&
-                      typeof value.splice === 'function') {
-                  s = 'array';
-              }
-          } else {
-              s = 'null';
-          }
-      }
-      return s;
+  _checkUrl:function(formRef)
+  {
+    var f;
+    f = document.getElementById(formRef);
+    if(f===null)
+    {
+      f = document.getElementsByName(formRef)[0];
+    }
+    return f.action;
   },
-  // short-cut methods (2008-10-01)
+
+  _checkType:function(value)
+  {
+    var s = typeof value;
+    if (s === 'object')
+    {
+      if (value)
+      {
+        if (typeof value.length === 'number' && !(value.propertyIsEnumerable('length')) && typeof value.splice === 'function')
+        {
+          s = 'array';
+        }
+      }
+      else
+      {
+        s = 'null';
+      }
+    }
+    return s;
+  },
 
   // Browser-agnostic factory function
-  _createXMLHttpRequest: function() {
-    if (window.XMLHttpRequest) {
+  _createXMLHttpRequest: function()
+  {
+    if (window.XMLHttpRequest)
+    {
       return new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-      return new ActiveXObject('Microsoft.XMLHTTP')
-    } else {
+    }
+    else if (window.ActiveXObject)
+    {
+      return new ActiveXObject('Microsoft.XMLHTTP');
+    }
+    else
+    {
       _error("Could not create XMLHttpRequest on this browser");
       return null;
     }
   },
 
-  _createHTTPVarSpec: function(vars) {
-      var varsString = "";
-      for( key in vars ) {
-        var value = vars[key];
-        if (this.shouldEscapeVars) {
-          escapePlusRE =  new RegExp("\\\+");
-          value = value.replace(escapePlusRE, "%2B");
-        }
-        varsString += '&' + key + '=' + value;
+  _createHTTPVarSpec: function(vars)
+  {
+    var varsString,value;
+
+    varsString = "";
+    for( key in vars )
+    {
+      value = vars[key];
+      if (this.shouldEscapeVars)
+      {
+        escapePlusRE = new RegExp("\\\+");
+        value = value.replace(escapePlusRE, "%2B");
       }
-      if (varsString.length > 0) {
-        varsString = varsString.substring(1); // chomp initial '&'
-      }
-      this._debug("Built var String: " + varsString)
-      return varsString;
+      varsString += '&' + key + '=' + value;
+    }
+
+    if (varsString.length > 0)
+    {
+      varsString = varsString.substring(1); // chomp initial '&'
+    }
+    this._debug("Built var String: " + varsString);
+    return varsString;
    },
 
   /* Creates associative array from header type to header */
-  _createHeaderMap: function(headersText) {
+  _createHeaderMap: function(headersText)
+  {
     extractedHeaders = headersText.split("\n");
     delete extractedHeaders[extractedHeaders.length]; // Del blank line at end
-    headerMap = new Array();
-    for (i=0; i<extractedHeaders.length-2; i++) {
+    headerMap = [];
+    for (i=0; i<extractedHeaders.length-2; i++)
+    {
       head = extractedHeaders[i];
       fieldNameEnding = head.indexOf(":");
       field = head.substring(0, fieldNameEnding);
@@ -543,36 +657,54 @@ var ajax = {
   _appendHeaders:function(xReq,rh)
   {
     for(key in rh)
-        xReq.setRequestHeader(key,rh[key]);
+    {
+      xReq.setRequestHeader(key,rh[key]);
+    }
     //return xReq;
   },
 
-  _debug: function(message) {
-      if (this.shouldDebug) {
-        alert("AjaxJS Message:\n\n" + message);
-      }
-  },
-
-  _error: function(message) {
-      if (this.shouldDebug) {
-        alert("AjaxJS ERROR:\n\n" + message);
-      }
-  },
-
-  _describe: function(obj) {
-    if (obj==null) { return null; }
-    switch(typeof(obj)) {
-      case 'object': {
-        var message = "";
-        for (key in obj) {
-          message += ", [" + key + "]: [" + obj[key] + "]";
-        }
-        if (message.length > 0) {
-          message = message.substring(2); // chomp initial ', '
-        }
-        return message;
-      }
-      default: return "" + obj;
+  _debug: function(message)
+  {
+    if (this.shouldDebug)
+    {
+      alert("AjaxJS Message:\n\n" + message);
     }
+  },
+
+  _error: function(message)
+  {
+    if (this.shouldDebug)
+    {
+      alert("AjaxJS ERROR:\n\n" + message);
+    }
+  },
+
+  _describe: function(obj)
+  {
+    var message;
+
+    if (obj===null)
+    {
+      return null;
+    }
+
+    message = "";
+    if(typeof(obj)=='object')
+    {
+      for (key in obj)
+      {
+        message += ", [" + key + "]: [" + obj[key] + "]";
+      }
+      if (message.length > 0)
+      {
+        message = message.substring(2); // chomp initial ', '
+      }
+    }
+    else
+    {
+      message = "" + obj;
+    }
+
+    return message;
   }
 };
