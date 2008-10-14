@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- 2008-10-13 (mca) : schema doc for task SSDS entity -->
+<x:schema 
+	xmlns:s="http://schemas.microsoft.com/sitka/2008/03/" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:x="http://www.w3.org/2001/XMLSchema">
+	<xs:import namespace="http://schemas.microsoft.com/sitka/2008/03/" schemaLocation="sitka.xsd"/>
+	<xs:element name="task" nillable="false">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="s:Id" maxOccurs="1" minOccurs="1"/>
+				<xs:element ref="s:Version" maxOccurs="1" minOccurs="0" />
+				<xs:element name="name" type="xs:string"  maxOccurs="1" minOccurs="1"/>
+				<xs:element name="is-completed" type="xs:boolean"  maxOccurs="1" minOccurs="1" default="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</x:schema>

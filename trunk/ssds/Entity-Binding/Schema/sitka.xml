@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- 2008-10-13 (mca) : fake sample sitka doc for generating schema -->
+<sitka>
+<Id>xxx</Id>
+<Version>10</Version>
+</sitka>

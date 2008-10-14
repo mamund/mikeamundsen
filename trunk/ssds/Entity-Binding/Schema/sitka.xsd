@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- 2008-10-13 (mca) : schema doc for 'fake' sitka namespace -->
+<xs:schema targetNamespace="http://schemas.microsoft.com/sitka/2008/03/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="Id" type="xs:string" nillable="false"/>
+	<xs:element name="Version" type="xs:integer" nillable="true" />
+</xs:schema>
