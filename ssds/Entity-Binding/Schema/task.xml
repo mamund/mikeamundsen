@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 2008-10-13 (mca) : sample task entity for SSDS -->
+<task 
+	xmlns:s="http://schemas.microsoft.com/sitka/2008/03/" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:x="http://www.w3.org/2001/XMLSchema">
+	<s:Id>abc</s:Id>
+	<s:Version>4564622</s:Version>
+	<name xsi:type="x:string">sdfsdfasdfadsfasf</name>
+	<is-completed xsi:type="x:string">true</is-completed>
+</task>
