@@ -1,6 +1,10 @@
 // ajax services
 // from ajax-patterns book/site
 
+// $Date$
+// $Rev$
+// $Author$
+
 // 2007-04-05 (mca) : changed root to 'ajax'
 // 2007-04-06 (mca) : added try-catch for http.open
 //                  : added status and statusText for return
