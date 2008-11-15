@@ -296,7 +296,7 @@ namespace Amundsen.SSDS.Deploy
       RegistryKey key = root.OpenSubKey(subKey);
 
       FileInfo fi = new FileInfo(file);
-      string ext = fi.Extension;
+      string ext = fi.Extension.ToLower();
 
       foreach(string name in key.GetSubKeyNames())
       {
@@ -313,7 +313,8 @@ namespace Amundsen.SSDS.Deploy
       {
         rtn = "application/octet-stream";
       }
-      
+
+      Console.Write(" "+rtn+" ");
       return rtn;
     }
   }

@@ -5,3 +5,10 @@ C:\Projects\SSDS\TaskList\Handler\bin\Debug\Amundsen.Utilities.pdb
 C:\Projects\SSDS\TaskList\Handler\obj\Debug\ResolveAssemblyReference.cache
 C:\Projects\SSDS\TaskList\Handler\obj\Debug\Amundsen.SSDS.TaskDemo.dll
 C:\Projects\SSDS\TaskList\Handler\obj\Debug\Amundsen.SSDS.TaskDemo.pdb
+C:\projects\google-svn\trunk\ssds\TaskList\Handler\bin\Debug\Amundsen.SSDS.TaskDemo.dll
+C:\projects\google-svn\trunk\ssds\TaskList\Handler\bin\Debug\Amundsen.SSDS.TaskDemo.pdb
+C:\projects\google-svn\trunk\ssds\TaskList\Handler\bin\Debug\Amundsen.Utilities.dll
+C:\projects\google-svn\trunk\ssds\TaskList\Handler\bin\Debug\Amundsen.Utilities.pdb
+C:\projects\google-svn\trunk\ssds\TaskList\Handler\obj\Debug\ResolveAssemblyReference.cache
+C:\projects\google-svn\trunk\ssds\TaskList\Handler\obj\Debug\Amundsen.SSDS.TaskDemo.dll
+C:\projects\google-svn\trunk\ssds\TaskList\Handler\obj\Debug\Amundsen.SSDS.TaskDemo.pdb

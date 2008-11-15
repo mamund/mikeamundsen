@@ -37,6 +37,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amundsen.SSDS.Deploy", "..\
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amundsen.photo-demo", "..\photo-demo\Amundsen.photo-demo.csproj", "{64300360-33C8-45E8-87EC-9AD47B49601F}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +73,10 @@ Global
 		{DC96AEC0-EC7D-4CAE-9D79-8A97DB85A6BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC96AEC0-EC7D-4CAE-9D79-8A97DB85A6BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC96AEC0-EC7D-4CAE-9D79-8A97DB85A6BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64300360-33C8-45E8-87EC-9AD47B49601F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64300360-33C8-45E8-87EC-9AD47B49601F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64300360-33C8-45E8-87EC-9AD47B49601F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64300360-33C8-45E8-87EC-9AD47B49601F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

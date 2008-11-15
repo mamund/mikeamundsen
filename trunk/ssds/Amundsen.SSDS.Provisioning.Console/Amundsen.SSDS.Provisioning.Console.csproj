@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Amundsen.SSDS.Provisioning.Console</RootNamespace>
-    <AssemblyName>ssds</AssemblyName>
+    <AssemblyName>sds</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>amundsen.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>

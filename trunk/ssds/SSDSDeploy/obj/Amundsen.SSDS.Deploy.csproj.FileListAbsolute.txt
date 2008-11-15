@@ -1,0 +1,8 @@
+C:\projects\google-svn\trunk\ssds\SSDSDeploy\bin\Debug\Amundsen.Utilities.dll
+C:\projects\google-svn\trunk\ssds\SSDSDeploy\bin\Debug\Amundsen.Utilities.pdb
+C:\projects\google-svn\trunk\ssds\SSDSDeploy\obj\Debug\ResolveAssemblyReference.cache
+C:\projects\google-svn\trunk\ssds\SSDSDeploy\bin\Debug\SDSDeploy.exe.config
+C:\projects\google-svn\trunk\ssds\SSDSDeploy\bin\Debug\SDSDeploy.exe
+C:\projects\google-svn\trunk\ssds\SSDSDeploy\bin\Debug\SDSDeploy.pdb
+C:\projects\google-svn\trunk\ssds\SSDSDeploy\obj\Debug\SDSDeploy.exe
+C:\projects\google-svn\trunk\ssds\SSDSDeploy\obj\Debug\SDSDeploy.pdb

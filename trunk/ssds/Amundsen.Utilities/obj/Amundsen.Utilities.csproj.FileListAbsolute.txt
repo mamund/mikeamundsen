@@ -3,3 +3,8 @@ C:\Projects\SSDS\Amundsen.Utilities\bin\Debug\Amundsen.Utilities.dll
 C:\Projects\SSDS\Amundsen.Utilities\bin\Debug\Amundsen.Utilities.pdb
 C:\Projects\SSDS\Amundsen.Utilities\obj\Debug\Amundsen.Utilities.dll
 C:\Projects\SSDS\Amundsen.Utilities\obj\Debug\Amundsen.Utilities.pdb
+C:\projects\google-svn\trunk\ssds\Amundsen.Utilities\bin\Debug\Amundsen.Utilities.dll
+C:\projects\google-svn\trunk\ssds\Amundsen.Utilities\bin\Debug\Amundsen.Utilities.pdb
+C:\projects\google-svn\trunk\ssds\Amundsen.Utilities\obj\Debug\ResolveAssemblyReference.cache
+C:\projects\google-svn\trunk\ssds\Amundsen.Utilities\obj\Debug\Amundsen.Utilities.dll
+C:\projects\google-svn\trunk\ssds\Amundsen.Utilities\obj\Debug\Amundsen.Utilities.pdb

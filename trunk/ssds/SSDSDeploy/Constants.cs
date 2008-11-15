@@ -4,6 +4,7 @@ namespace Amundsen.SSDS.Provisioning
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.6 (2008-10-29) - changed to sds endpoint
   /// @version 1.3 (2008-07-20)
   /// @version 1.2 (2008-07-13)
   /// @version 1.1 (2008-07-09)
@@ -11,7 +12,7 @@ namespace Amundsen.SSDS.Provisioning
   /// </summary>
   static class Constants
   {
-    static public string SsdsRoot = "data.beta.mssds.com/v1/";
+    static public string SsdsRoot = "data.database.windows.net/v1/"; //"data.beta.mssds.com/v1/";
     static public string SsdsType = "application/x-ssds+xml";
     static public string QueryAll = "?q=";
     static public string SitkaNS = "http://schemas.microsoft.com/sitka/2008/03/";
