@@ -8,6 +8,7 @@ namespace Amundsen.SSDS.Provisioning
   /// <summary>
   /// Public Domain 2008 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.3 (2008-07-20)
   /// @version 1.2 (2008-07-24)
   /// @version 1.1 (2008-07-20)
   /// @version 1.0 (2008-07-18)
@@ -91,7 +92,7 @@ namespace Amundsen.SSDS.Provisioning
 
     private static void ShowHelp()
     {
-      Console.Out.WriteLine("\nSSDS Provisioning Console (1.2 - 2008-07-24)\n");
+      Console.Out.WriteLine("\nSDS Provisioning Console (1.2 - 2008-07-24)\n");
 
       Console.Out.WriteLine("Authorities:");
       Console.Out.WriteLine("\t/{aid} [[g]get]\n\tex: /my-authority\n");

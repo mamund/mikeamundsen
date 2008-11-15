@@ -1,0 +1,7 @@
+C:\projects\google-svn\trunk\ssds\photo-demo\obj\Debug\ResolveAssemblyReference.cache
+C:\projects\google-svn\trunk\ssds\photo-demo\bin\Debug\Amundsen.Utilities.dll
+C:\projects\google-svn\trunk\ssds\photo-demo\bin\Debug\Amundsen.Utilities.pdb
+C:\projects\google-svn\trunk\ssds\photo-demo\bin\Debug\Amundsen.SSDS.PhotoDemo.dll
+C:\projects\google-svn\trunk\ssds\photo-demo\bin\Debug\Amundsen.SSDS.PhotoDemo.pdb
+C:\projects\google-svn\trunk\ssds\photo-demo\obj\Debug\Amundsen.SSDS.PhotoDemo.dll
+C:\projects\google-svn\trunk\ssds\photo-demo\obj\Debug\Amundsen.SSDS.PhotoDemo.pdb

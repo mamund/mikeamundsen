@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Amundsen.SSDS.Deploy</RootNamespace>
-    <AssemblyName>SSDSDeploy</AssemblyName>
+    <AssemblyName>SDSDeploy</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>amundsen.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>

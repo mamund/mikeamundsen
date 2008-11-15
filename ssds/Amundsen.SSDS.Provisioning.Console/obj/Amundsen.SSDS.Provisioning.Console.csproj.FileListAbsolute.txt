@@ -11,3 +11,11 @@ C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\bin\Debug\ssds.exe
 C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\bin\Debug\ssds.pdb
 C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\obj\Debug\ssds.exe
 C:\Projects\SSDS\Amundsen.SSDS.Provisioning.Console\obj\Debug\ssds.pdb
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.Provisioning.Console\bin\Debug\Amundsen.Utilities.dll
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.Provisioning.Console\bin\Debug\Amundsen.Utilities.pdb
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.Provisioning.Console\obj\Debug\ResolveAssemblyReference.cache
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.Provisioning.Console\bin\Debug\sds.exe.config
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.Provisioning.Console\bin\Debug\sds.exe
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.Provisioning.Console\bin\Debug\sds.pdb
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.Provisioning.Console\obj\Debug\sds.exe
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.Provisioning.Console\obj\Debug\sds.pdb

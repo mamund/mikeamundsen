@@ -12,3 +12,10 @@ C:\Projects\SSDS\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.Utilities.pdb
 C:\Projects\SSDS\Amundsen.SSDS.GuestBook\obj\Debug\ResolveAssemblyReference.cache
 C:\Projects\SSDS\Amundsen.SSDS.GuestBook\obj\Debug\Amundsen.SSDS.GuestBook.dll
 C:\Projects\SSDS\Amundsen.SSDS.GuestBook\obj\Debug\Amundsen.SSDS.GuestBook.pdb
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.SSDS.GuestBook.dll
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.SSDS.GuestBook.pdb
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.Utilities.dll
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.GuestBook\bin\Debug\Amundsen.Utilities.pdb
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.GuestBook\obj\Debug\ResolveAssemblyReference.cache
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.GuestBook\obj\Debug\Amundsen.SSDS.GuestBook.dll
+C:\projects\google-svn\trunk\ssds\Amundsen.SSDS.GuestBook\obj\Debug\Amundsen.SSDS.GuestBook.pdb
