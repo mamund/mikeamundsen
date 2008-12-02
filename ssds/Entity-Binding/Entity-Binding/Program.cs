@@ -29,7 +29,7 @@ namespace Amundsen.SSDS.Binding
       try
       {
         // get data from SSDS (this URL doesn't require SSDS auth)
-        xml = c.Execute("http://amundsen.com/ssds/tasks/");
+        xml = c.Execute("http://amundsen.com/sds/tasks/");
 
         // load the data into the strongly-typed dataset
         using (MemoryStream ms = new MemoryStream(Encoding.ASCII.GetBytes(xml)))

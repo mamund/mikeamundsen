@@ -15,6 +15,7 @@ namespace Amundsen.SSDS.PhotoDemo
     /// <summary>
     /// Public Domain 2008 amundsen.com, inc.
     /// @author mike amundsen (mamund@yahoo.com)
+    /// @version 1.1 (2008-11-15)
     /// @version 1.0 (2008-11-11)
     /// </summary>
     class Photos : IHttpHandler
@@ -42,7 +43,6 @@ namespace Amundsen.SSDS.PhotoDemo
         void IHttpHandler.ProcessRequest(HttpContext context)
         {
             ctx = context;
-
             HandleConfigSettings();
             client.RequestHeaders.Add("authorization", "Basic " + h.Base64Encode(string.Format("{0}:{1}", ssdsUser, ssdsPassword)));
             wu.SetCompression(ctx);
@@ -91,7 +91,6 @@ namespace Amundsen.SSDS.PhotoDemo
         {
             CacheItem item = null;
             string sds_url = string.Empty;
-            //string accept_type = string.Empty;
             string request_url = ctx.Request.Url.ToString();
             string ifNoneMatch = wu.GetHeader(ctx, "if-none-match");
             string authority = "mca-photos";

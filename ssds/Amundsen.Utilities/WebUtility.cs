@@ -24,25 +24,17 @@ namespace Amundsen.Utilities
       string rtn = string.Empty;
       string mt = string.Empty;
 
-      if (media[0] == returnType)
-      {
-        rtn = returnType;
-      }
-      else
-      {
-        rtn = "*/*";
-      }
-      /*
       for (int i = 0; i < media.Length; i++)
       {
-        mt = media[i];
-        if (mt.IndexOf("xml", StringComparison.CurrentCultureIgnoreCase) != -1)
-        {
-          rtn = returnType;
-          break;
-        }
+          if (returnType.IndexOf(media[i],StringComparison.CurrentCultureIgnoreCase) != -1)
+          {
+              rtn = media[i];
+          }
       }
-       * */
+      if (rtn == string.Empty)
+      {
+          rtn = "*/*";
+      }
       return rtn;
     }
 
