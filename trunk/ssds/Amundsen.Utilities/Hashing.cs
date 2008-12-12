@@ -86,5 +86,16 @@ namespace Amundsen.Utilities
 
     }
 
+    // hashing helper
+    public string MacSha(string canonicalizedString, byte[] key)
+    {
+      byte[] dataToMAC = System.Text.Encoding.UTF8.GetBytes(canonicalizedString);
+
+      using (HMACSHA256 hmacsha1 = new HMACSHA256(key))
+      {
+        return System.Convert.ToBase64String(hmacsha1.ComputeHash(dataToMAC));
+      }
+    }
+
   }
 }

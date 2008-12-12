@@ -93,25 +93,31 @@ namespace Amundsen.Utilities
     }
 
     private bool _PreAuthenticate = true;
-
     public bool PreAuthenticate
     {
       get { return _PreAuthenticate; }
       set { _PreAuthenticate = value; }
     }
-    private string _HttpVersion = "1.1";
 
+    private string _HttpVersion = "1.1";
     public string HttpVersion
     {
       get { return _HttpVersion; }
       set { _HttpVersion = value; }
     }
+    
     private bool _FollowRedirects = true;
-
     public bool FollowRedirects
     {
       get { return _FollowRedirects; }
       set { _FollowRedirects = value; }
+    }
+
+    private bool _KeepAlive = true;
+    public bool KeepAlive
+    {
+      get { return _KeepAlive; }
+      set { _KeepAlive = value; }
     }
 
     public HttpClient() { }
@@ -160,7 +166,9 @@ namespace Amundsen.Utilities
         {
           req.Credentials = this.Credentials;
         }
-        
+
+        req.KeepAlive = this.KeepAlive;
+
         // set headers
         if (this.RequestHeaders != null)
         {
