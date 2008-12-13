@@ -1,0 +1,252 @@
+/* Public Domain 2008 amundsen.com, inc.
+ * @author mike amundsen (http://amundsen.com/blog/)
+ * 2008-11-20 (mca) : updated to allow viewing full xml for lists and items
+ * 2008-09-08 (mca) : updated UI for better login, added support for viewing blobs, added support for listing authorities
+ * 2008-07-21 (mca) : minor tweaks to the UI
+ * 2008-07-16 (mca) : updated to use new ssds-proxy URIs
+ * 2008-07-14 (mca) : refactored javascript, fixed container caching bug, added refresh button
+ * 2008-07-10 (mca) : added support for caching, improved login pattern
+ * 2008-07-08 (mca) : added support for entity queries
+ * 2008-07-04 (mca) : fixed IE entity display bug
+ * 2008-06-27 (mca) : SSDS provisioning client
+ * 2008-11-04 (mca) : updated to point to new SDS proxy
+ * 2008-11-20 (mca) : updated to allow viewing complete XML on queries and items
+ * 2008-11-26 (mca) : added display of authority and container metrics
+ */
+
+body
+{
+  padding:0;
+}
+
+#loading
+{
+  width:200px;
+  margin: 5em auto;
+  padding: 2em;
+  border: 3px outset #111;
+  color:black;
+  background-color:#e6e6e6;
+  text-align:center;
+}
+h1,h2,h3,h4,h5
+{
+  margin-bottom:0;
+}
+h3,h4,h5
+{
+  margin-top:0;
+}
+h5
+{
+  font-style:italic;
+}
+#details,
+#details p
+{
+  margin:0 auto;
+}
+#details p.version
+{
+  font-style:italic;
+  font-size:smaller;
+}
+
+#home
+{
+  cursor:pointer;
+}
+.view
+{
+  width:760px;
+}
+.space
+{
+  margin-top:.5em;
+}
+fieldset legend
+{
+  color:black;
+  font-weight:bold;
+}
+fieldset p
+{
+  margin:.2em 0;
+  float:none;
+  clear:both;
+}
+fieldset p label
+{
+  display:block;
+  width:5em;
+  float:left;
+}
+fieldset.buttons
+{
+  padding:.3em;
+}
+p.buttons
+{
+  border:solid 1px #000;
+  background-color:#e6e6e6;
+  padding:.2em;
+}
+p.buttons input,
+p.buttons select,
+.inline-button
+{
+  font-size:x-small;
+}
+input[type='submit']
+{
+  font-weight:bold;
+}
+
+.hidden
+{
+  display:none;
+}
+#entityItem dt
+{
+  font-weight:bold;
+  float:left;
+  width:150px;
+}
+#entityItem dd
+{
+  clear:right;
+  margin-left:150px;
+  border:1px solid #fff; /*hack to force IE to display properly */
+}
+
+fieldset code
+{
+  font-weight:bold;
+  padding:.2em;
+}
+#query-block
+{
+  margin: .6em;
+  padding: .3em;
+  border: 1px solid silver;
+  background-color: #e9e9e9;
+}
+#query-prompt
+{
+  font-weight:bold;
+  margin-right:.3em;
+}
+
+.operators
+{
+  margin:0;
+}
+.operators dt
+{
+  font-style:italic;
+}
+
+#whats-new-legend
+{
+  cursor:pointer;
+}
+.whats-new
+{
+  margin:0;
+}
+.whats-new dt
+{
+  font-weight:bold;
+}
+.whats-new dd
+{
+  margin:0 0 .3em 0;
+}
+
+.commands
+{
+  margin-top:0;
+}
+
+#login-block
+{
+  margin-bottom:1em;
+}
+
+#alert
+{
+	margin:.5em 0;
+  border:1px solid red;
+  padding: .2em;
+  background-color:#ffc;
+  width:760px;
+}
+#alert h3,h4,p
+{
+  margin:0;
+}
+.urgent
+{
+  font-weight:bold;
+  color:red;
+}
+.sig
+{
+	font-style:italic;
+	font-weight:bold;
+}
+p.warning
+{
+  color:#800;
+  font-weight:bold;
+}
+
+#authority-xml,
+#container-xml,
+#list-xml,
+#item-xml,
+#grammar-link
+{
+	float:right;
+}
+
+#authority-metrics dl,
+#container-metrics dl
+{
+}
+#authority-metrics dt,
+#container-metrics dt
+{
+  float:left;
+  clear:left;
+  width:140px;
+  text-align:right;
+  font-weight:bold;
+}
+#authority-metrics dt:after,
+#container-metrics dt:after
+{
+  content: ":";
+}
+#authority-metrics dd,
+#container-metrics dd
+{
+  margin: 0 0 0 150px;
+  padding: 0 0 0.5em 0;
+}
+
+#whats-new-link:link,
+#whats-new-link:visited,
+#authority-metrics-link:link,
+#authority-metrics-link:visited,
+#container-metrics-link:link,
+#container-metrics-link:visited,
+.xml-window:link,
+.xml-window:visited
+{
+  color:blue; 
+}
+.spaces h4
+{
+  margin-top: 1em;
+}
