@@ -10,7 +10,7 @@
     <RootNamespace>Amundsen.Utilities</RootNamespace>
     <AssemblyName>Amundsen.Utilities</AssemblyName>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>amundsen.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>public-amundsen.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,7 +58,7 @@
     <Compile Include="WebUtility.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="amundsen.pfx" />
+    <None Include="public-amundsen.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

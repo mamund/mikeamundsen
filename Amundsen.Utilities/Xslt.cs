@@ -7,7 +7,13 @@ using System.Web;
 
 namespace Amundsen.Utilities
 {
-  // Xslt helper class (mamund@yahoo.com)
+  /// <summary>
+  /// Public Domain 2008-2010 amundsen.com, inc.
+  /// @author mike amundsen (mamund@yahoo.com)
+  /// @version 1.0 (2008-07-03)
+  /// </summary>
+
+  // Xslt helper class
   // - handles local XML/XSLT documents
   // - caches compiled XSLT and XML documents
   // - supports MemoryStream as a return

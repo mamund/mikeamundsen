@@ -3,3 +3,8 @@ C:\Projects\Amundsen.Utilities\bin\Debug\Amundsen.Utilities.dll
 C:\Projects\Amundsen.Utilities\bin\Debug\Amundsen.Utilities.pdb
 C:\Projects\Amundsen.Utilities\obj\Debug\Amundsen.Utilities.dll
 C:\Projects\Amundsen.Utilities\obj\Debug\Amundsen.Utilities.pdb
+C:\Other-Files\google-code\mikeamundsen\Amundsen.Utilities\obj\Debug\ResolveAssemblyReference.cache
+C:\Other-Files\google-code\mikeamundsen\Amundsen.Utilities\obj\Debug\Amundsen.Utilities.dll
+C:\Other-Files\google-code\mikeamundsen\Amundsen.Utilities\obj\Debug\Amundsen.Utilities.pdb
+C:\Other-Files\google-code\mikeamundsen\Amundsen.Utilities\bin\Debug\Amundsen.Utilities.dll
+C:\Other-Files\google-code\mikeamundsen\Amundsen.Utilities\bin\Debug\Amundsen.Utilities.pdb

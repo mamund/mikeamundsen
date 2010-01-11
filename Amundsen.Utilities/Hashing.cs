@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 namespace Amundsen.Utilities
 {
   /// <summary>
-  /// Public Domain 2008 amundsen.com, inc.
+  /// Public Domain 2008-2010 amundsen.com, inc.
   /// @author mike amundsen (mamund@yahoo.com)
   /// @version 1.0 (2008-07-03)
   /// </summary>
