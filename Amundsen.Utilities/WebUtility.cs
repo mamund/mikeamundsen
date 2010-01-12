@@ -15,6 +15,7 @@ namespace Amundsen.Utilities
   /// </summary>
   public class WebUtility
   {
+	// deprecated 2009-11-01 (mca)
     public string ConfirmXmlMediaType(string[] media)
     {
       return ConfirmXmlMediaType(media, "application/xml");

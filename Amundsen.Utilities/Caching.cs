@@ -113,7 +113,8 @@ namespace Amundsen.Utilities
       }
       catch (Exception ex)
       {
-        string msg = ex.Message;
+		// for debugging only
+        //string msg = ex.Message;
       }
     }
 
